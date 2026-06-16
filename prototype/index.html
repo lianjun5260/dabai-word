@@ -2,7 +2,10 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#FFFFFF">
 <title>大白陪你背单词 - 交互原型</title>
 <style>
 /* ========== CSS变量体系 ========== */
@@ -38,7 +41,24 @@
 
 /* ========== 全局重置 ========== */
 * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif; background:#2C2C2C; display:flex; min-height:100vh; }
+html, body { height:100%; overflow:hidden; overscroll-behavior:none; }
+body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif; background:#2C2C2C; display:flex; }
+/* 桌面端: 水平居中 + 左侧导航面板 */
+@media (min-width:701px) {
+  body { align-items:flex-start; min-height:100vh; justify-content:flex-start; }
+  .nav-panel { display:block; }
+  .phone-frame { width:375px; height:812px; margin:20px auto 20px 0; border-radius:40px; box-shadow:0 0 0 8px #1a1a1a,0 0 0 10px #333,0 20px 60px rgba(0,0,0,.5); flex-shrink:0; }
+  .phone-frame::before { content:''; position:absolute; top:0; left:50%; transform:translateX(-50%); width:150px; height:28px; background:#1a1a1a; border-radius:0 0 18px 18px; z-index:999; }
+  /* 桌面滑动手势提示 */
+  .swipe-hint { display:none; }
+}
+/* 移动端: 全屏沉浸式小程序体验 */
+@media (max-width:700px) {
+  body { align-items:stretch; background:#FFFFFF; }
+  .nav-panel { display:none; }
+  .phone-frame { width:100vw; height:100vh; height:100dvh; margin:0; border-radius:0; box-shadow:none; border:none; }
+  .phone-frame::before { display:none; }
+}
 
 /* ========== 桌面端左侧导航面板 ========== */
 .nav-panel { width:200px; background:#1E1E1E; padding:16px 0; overflow-y:auto; flex-shrink:0; height:100vh; position:sticky; top:0; }
@@ -48,13 +68,25 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
 .nav-panel a.active { color:#52C41A; background:#2a3a20; border-left-color:#52C41A; }
 
 /* ========== 手机外框 ========== */
-.phone-frame { width:375px; height:812px; background:var(--bg-card); margin:20px auto; border-radius:40px; box-shadow:0 0 0 8px #1a1a1a,0 0 0 10px #333,0 20px 60px rgba(0,0,0,.5); overflow:hidden; position:relative; flex-shrink:0; }
-.phone-frame::before { content:''; position:absolute; top:0; left:50%; transform:translateX(-50%); width:150px; height:28px; background:#1a1a1a; border-radius:0 0 18px 18px; z-index:999; }
+.phone-frame { background:var(--bg-card); overflow:hidden; position:relative; flex-shrink:0; }
 
-/* ========== 页面容器 ========== */
-.page { display:none; width:375px; height:812px; background:var(--bg-card); overflow-y:auto; position:relative; padding-top:28px; -webkit-overflow-scrolling:touch; }
-.page.active { display:block; animation:fadeIn .25s ease; }
-@keyframes fadeIn { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:translateY(0)} }
+/* ========== 页面容器与切换动画 ========== */
+.page { display:none; width:100%; height:100%; background:var(--bg-card); overflow-y:auto; overflow-x:hidden; position:absolute; top:0; left:0; padding-top:28px; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; }
+.page.active { display:block; }
+/* 页面入场: 从右侧滑入（前进） */
+@keyframes slideInRight { from{transform:translateX(100%);opacity:1} to{transform:translateX(0);opacity:1} }
+@keyframes slideOutLeft { from{transform:translateX(0);opacity:1} to{transform:translateX(-30%);opacity:.6} }
+/* 页面入场: 从左侧滑入（返回） */
+@keyframes slideInLeft { from{transform:translateX(-30%);opacity:.6} to{transform:translateX(0);opacity:1} }
+@keyframes slideOutRight { from{transform:translateX(0);opacity:1} to{transform:translateX(100%);opacity:1} }
+/* Tab切换: 简单淡入 */
+@keyframes tabFadeIn { from{opacity:0} to{opacity:1} }
+
+.page.slide-forward { animation:slideInRight .3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; z-index:1; }
+.page.slide-forward-out { animation:slideOutLeft .3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; z-index:0; pointer-events:none; }
+.page.slide-back { animation:slideInLeft .3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; z-index:1; }
+.page.slide-back-out { animation:slideOutRight .3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; z-index:0; pointer-events:none; }
+.page.tab-switch { animation:tabFadeIn .2s ease forwards; }
 
 /* ========== 通用组件 ========== */
 /* 导航栏 */
@@ -200,6 +232,10 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
 
 /* 安全区域 */
 .safe-bottom { padding-bottom:80px; }
+
+/* 遮罩层（模态框用） */
+.overlay { position:fixed; top:0;left:0;right:0;bottom:0; background:rgba(0,0,0,.45); z-index:100; display:none; }
+.overlay.show { display:block; }
 </style>
 </head>
 <body>
@@ -458,7 +494,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
 <div class="page" id="P05a">
   <div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
   <div class="navbar">
-    <div class="back" onclick="showPage('P04')">←</div>
+    <div class="back" onclick="goBack()">←</div>
     <div class="title">学习统计</div>
     <div class="right"></div>
   </div>
@@ -548,7 +584,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
 <div class="page" id="P05">
   <div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
   <div class="navbar">
-    <div class="back" onclick="showPage('P04')">←</div>
+    <div class="back" onclick="goBack()">←</div>
     <div class="title">词库练习</div>
     <div class="right"></div>
   </div>
@@ -619,7 +655,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
 <div class="page" id="P06">
   <div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
   <div class="navbar">
-    <div class="back" onclick="showPage('P04')">←</div>
+    <div class="back" onclick="goBack()">←</div>
     <div class="title">设置学习目标</div>
     <div class="right"></div>
   </div>
@@ -678,7 +714,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
 <div class="page" id="P07">
   <div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
   <div class="navbar">
-    <div class="back" onclick="showPage('P04')">←</div>
+    <div class="back" onclick="goBack()">←</div>
     <div class="title">今日进度 1/20</div>
     <div class="right" style="cursor:pointer;">⋯</div>
   </div>
@@ -737,7 +773,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
     <button onclick="setRecordState('low')" style="padding:2px 6px;border:1px solid #ccc;border-radius:4px;font-size:10px;cursor:pointer;">低分</button>
   </div>
   <div class="navbar">
-    <div class="back" onclick="showPage('P04')">←</div>
+    <div class="back" onclick="goBack()">←</div>
     <div class="title">今日进度 1/10</div>
     <div class="right" style="cursor:pointer;">⋯</div>
   </div>
@@ -790,7 +826,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
 <div class="page" id="P09">
   <div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
   <div class="navbar">
-    <div class="back" onclick="showPage('P04')">←</div>
+    <div class="back" onclick="goBack()">←</div>
     <div class="title">今日进度 2/10</div>
     <div class="right"></div>
   </div>
@@ -832,7 +868,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
 <div class="page" id="P10">
   <div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
   <div class="navbar">
-    <div class="back" onclick="showPage('P04')">←</div>
+    <div class="back" onclick="goBack()">←</div>
     <div class="title">今日进度 3/10</div>
     <div class="right"></div>
   </div>
@@ -876,7 +912,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
 <div class="page" id="P11">
   <div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
   <div class="navbar">
-    <div class="back" onclick="showPage('P04')">←</div>
+    <div class="back" onclick="goBack()">←</div>
     <div class="title">今日进度 4/10</div>
     <div class="right"></div>
   </div>
@@ -919,7 +955,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
 <div class="page" id="P12">
   <div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
   <div class="navbar">
-    <div class="back" onclick="showPage('P04')">←</div>
+    <div class="back" onclick="goBack()">←</div>
     <div class="title">今日进度 5/10</div>
     <div class="right"></div>
   </div>
@@ -960,7 +996,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
 <div class="page" id="P13">
   <div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
   <div class="navbar">
-    <div class="back" onclick="showPage('P04')">←</div>
+    <div class="back" onclick="goBack()">←</div>
     <div class="title">今日进度 6/10</div>
     <div class="right"></div>
   </div>
@@ -997,7 +1033,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
 <div class="page" id="P14">
   <div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
   <div class="navbar">
-    <div class="back" onclick="showPage('P04')">←</div>
+    <div class="back" onclick="goBack()">←</div>
     <div class="title">今日进度 7/10</div>
     <div class="right"></div>
   </div>
@@ -1047,7 +1083,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
 <div class="page" id="P15">
   <div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
   <div class="navbar">
-    <div class="back" onclick="showPage('P04')">←</div>
+    <div class="back" onclick="goBack()">←</div>
     <div class="title">今日进度 8/10</div>
     <div class="right"></div>
   </div>
@@ -1089,7 +1125,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
 <div class="page" id="P16">
   <div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
   <div class="navbar">
-    <div class="back" onclick="showPage('P04')">←</div>
+    <div class="back" onclick="goBack()">←</div>
     <div class="title">今日进度 9/10</div>
     <div class="right"></div>
   </div>
@@ -1151,7 +1187,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
     </div>
     <!-- 操作按钮 -->
     <button class="btn-primary" style="margin-bottom:12px;" onclick="showPage('P18')">开始复习</button>
-    <button class="btn-outline" onclick="showPage('P04')">返回首页</button>
+    <button class="btn-outline" onclick="goHome()">返回首页</button>
   </div>
 </div>
 
@@ -1180,7 +1216,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
       </div>
     </div>
     <button class="btn-primary" style="margin-bottom:12px;" onclick="showPage('P19')">查看今日总结</button>
-    <button class="btn-outline" onclick="showPage('P04')">返回首页</button>
+    <button class="btn-outline" onclick="goHome()">返回首页</button>
   </div>
 </div>
 
@@ -1233,7 +1269,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
 <div class="page" id="P20">
   <div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
   <div class="navbar">
-    <div class="back" onclick="showPage('P04')">←</div>
+    <div class="back" onclick="goBack()">←</div>
     <div class="title">单词详情</div>
     <div class="right" style="cursor:pointer;font-size:18px;">☆</div>
   </div>
@@ -1467,19 +1503,103 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
 
 <!-- ========== JavaScript ========== -->
 <script>
-// ========== 页面切换 ==========
-function showPage(id) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  const target = document.getElementById(id);
-  if (target) target.classList.add('active');
+// ========== 页面导航栈 ==========
+const pageStack = [];
+const TAB_PAGES = ['P04','P05a','P21']; // Tab页不需要滑动动画
+
+// ========== 页面切换（带滑动动画） ==========
+function showPage(id, isBack) {
+  const oldPage = document.querySelector('.page.active');
+  const newPage = document.getElementById(id);
+  if (!newPage || oldPage === newPage) return;
+
+  const isTabSwitch = TAB_PAGES.includes(id) && TAB_PAGES.includes(oldPage ? oldPage.id : '');
+
+  // 清理所有动画类
+  document.querySelectorAll('.page').forEach(p => {
+    p.classList.remove('slide-forward','slide-forward-out','slide-back','slide-back-out','tab-switch');
+  });
+
+  if (isTabSwitch) {
+    // Tab切换: 淡入
+    oldPage.classList.remove('active');
+    newPage.classList.add('active','tab-switch');
+  } else if (isBack) {
+    // 返回: 从左侧滑入
+    oldPage.classList.add('slide-back-out');
+    newPage.classList.add('active','slide-back');
+  } else {
+    // 前进: 从右侧滑入
+    if (oldPage) oldPage.classList.add('slide-forward-out');
+    newPage.classList.add('active','slide-forward');
+  }
+
+  // 管理导航栈（非Tab切换时）
+  if (!isTabSwitch) {
+    if (isBack) {
+      pageStack.pop();
+    } else if (oldPage && !TAB_PAGES.includes(oldPage.id)) {
+      pageStack.push(oldPage.id);
+    }
+  }
+
   // 更新导航高亮
   document.querySelectorAll('.nav-panel a').forEach(a => a.classList.remove('active'));
   const navItem = document.getElementById('nav-' + id);
   if (navItem) navItem.classList.add('active');
+
   // 初始化拼单词页面
   if (id === 'P09') initSpellPage();
+
   // 滚动到顶部
-  if (target) target.scrollTop = 0;
+  setTimeout(() => { if (newPage) newPage.scrollTop = 0; }, 50);
+
+  // 动画结束后清理
+  setTimeout(() => {
+    document.querySelectorAll('.page').forEach(p => {
+      p.classList.remove('slide-forward','slide-forward-out','slide-back','slide-back-out','tab-switch');
+    });
+  }, 350);
+}
+
+// 返回首页（清空栈）
+function goHome() {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active','slide-forward','slide-forward-out','slide-back','slide-back-out'));
+  const home = document.getElementById('P04');
+  if (home) home.classList.add('active','tab-switch');
+  pageStack.length = 0;
+  document.querySelectorAll('.nav-panel a').forEach(a => a.classList.remove('active'));
+  const navHome = document.getElementById('nav-P04');
+  if (navHome) navHome.classList.add('active');
+}
+
+// ========== 全局左滑返回手势 ==========
+{ // block scope for gesture vars
+let touchStartX = 0;
+let touchStartY = 0;
+let gestureActive = false;
+
+document.addEventListener('touchstart', e => {
+  if (e.touches.length === 1) {
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+    gestureActive = true;
+  } else {
+    gestureActive = false;
+  }
+}, { passive: true });
+
+document.addEventListener('touchmove', e => {
+  if (!gestureActive || pageStack.length === 0) return;
+  const dx = e.touches[0].clientX - touchStartX;
+  const dy = Math.abs(e.touches[0].clientY - touchStartY);
+  // 仅当从屏幕最左侧开始、右滑、水平方向为主时触发
+  if (touchStartX < 30 && dx > 60 && dy < dx * 0.6) {
+    e.preventDefault();
+    goBack();
+    gestureActive = false;
+  }
+}, { passive: false });
 }
 
 // ========== 登录协议勾选 ==========

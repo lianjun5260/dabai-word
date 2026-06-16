@@ -1496,14 +1496,27 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
     <div class="right"></div>
   </div>
   <div style="padding:16px;padding-bottom:100px;">
-    <!-- 拍照入口卡片 -->
-    <div style="background:linear-gradient(135deg,#E8F5E0,#F6FFED);border:2px dashed var(--brand);border-radius:var(--r-lg);padding:32px 24px;text-align:center;margin-bottom:20px;cursor:pointer;" onclick="simulatePhoto()">
-      <div style="width:56px;height:56px;border-radius:50%;background:var(--brand);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
-        <svg width="28" height="28" viewBox="0 0 28 28"><line x1="14" y1="6" x2="14" y2="22" stroke="#fff" stroke-width="3" stroke-linecap="round"/><line x1="6" y1="14" x2="22" y2="14" stroke="#fff" stroke-width="3" stroke-linecap="round"/></svg>
+    <!-- 拍照 + 上传文件 双入口 -->
+    <div style="display:flex;gap:12px;margin-bottom:20px;">
+      <!-- 拍照 -->
+      <div style="flex:1;background:linear-gradient(135deg,#E8F5E0,#F6FFED);border:2px dashed var(--brand);border-radius:var(--r-lg);padding:20px 12px;text-align:center;cursor:pointer;" onclick="simulatePhoto('photo')">
+        <div style="width:48px;height:48px;border-radius:50%;background:var(--brand);display:flex;align-items:center;justify-content:center;margin:0 auto 8px;">
+          <span style="font-size:24px;color:#fff;">📷</span>
+        </div>
+        <div style="font-size:14px;font-weight:600;color:var(--text-1);margin-bottom:2px;">拍照识词</div>
+        <div style="font-size:11px;color:var(--text-3);">拍摄课本/试卷</div>
       </div>
-      <div style="font-size:16px;font-weight:600;color:var(--text-1);margin-bottom:4px;">📷 拍照识词</div>
-      <div style="font-size:13px;color:var(--text-3);">拍摄课本、试卷或单词书，AI自动识别单词</div>
+      <!-- 上传文件 -->
+      <div style="flex:1;background:linear-gradient(135deg,#E6F7FF,#F0F8FF);border:2px dashed var(--info);border-radius:var(--r-lg);padding:20px 12px;text-align:center;cursor:pointer;" onclick="simulatePhoto('file')">
+        <div style="width:48px;height:48px;border-radius:50%;background:var(--info);display:flex;align-items:center;justify-content:center;margin:0 auto 8px;">
+          <span style="font-size:24px;color:#fff;">📁</span>
+        </div>
+        <div style="font-size:14px;font-weight:600;color:var(--text-1);margin-bottom:2px;">上传文件</div>
+        <div style="font-size:11px;color:var(--text-3);">图片/PDF/Word等</div>
+      </div>
     </div>
+    <!-- 支持格式说明 -->
+    <div style="text-align:center;margin-bottom:16px;font-size:11px;color:var(--text-4);">支持 JPG / PNG / PDF / Word / TXT / Excel，对齐后台资源库接口</div>
 
     <!-- 识别中浮层 -->
     <div id="photoLoading" style="display:none;position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(255,255,255,.9);z-index:20;flex-direction:column;align-items:center;justify-content:center;">
@@ -1511,7 +1524,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
         <svg width="28" height="28" viewBox="0 0 28 28"><circle cx="14" cy="14" r="10" stroke="#fff" stroke-width="3" fill="none" stroke-dasharray="50" stroke-dashoffset="15"/></svg>
       </div>
       <div style="font-size:16px;font-weight:600;color:var(--text-1);">正在识别单词...</div>
-      <div style="font-size:13px;color:var(--text-3);margin-top:4px;">AI正在分析图片中的文字</div>
+      <div style="font-size:13px;color:var(--text-3);margin-top:4px;" id="photoLoadingTip">AI正在分析图片中的文字</div>
     </div>
 
     <!-- 我的临时词库列表 -->
@@ -2053,19 +2066,24 @@ function submitSpell() {
   }
 }
 
-// ========== 拍照识词模拟 ==========
-function simulatePhoto() {
+// ========== 拍照/上传识词模拟 ==========
+function simulatePhoto(type) {
   const loading = document.getElementById('photoLoading');
   if (!loading) return;
+  const tip = document.getElementById('photoLoadingTip');
+  if (type === 'file') {
+    if (tip) tip.textContent = 'AI正在分析文件中的文字';
+  }
   loading.style.display = 'flex';
   setTimeout(() => {
     loading.style.display = 'none';
     const toast = document.getElementById('toastMsg');
     if (toast) {
-      toast.textContent = '✅ 识别完成，新增15个单词';
+      toast.textContent = type === 'file' ? '✅ 识别完成，导入15个单词' : '✅ 识别完成，新增15个单词';
       toast.classList.add('show');
       setTimeout(() => toast.classList.remove('show'), 2000);
     }
+    if (tip) tip.textContent = 'AI正在分析图片中的文字';
   }, 2000);
 }
 

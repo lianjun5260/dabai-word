@@ -1580,6 +1580,11 @@ function showPage(id, isBack) {
   const navItem = document.getElementById('nav-' + id);
   if (navItem) navItem.classList.add('active');
 
+  // 同步URL hash（不触发hashchange事件）
+  if (window.location.hash !== '#' + id) {
+    history.replaceState(null, '', '#' + id);
+  }
+
   // 初始化拼单词页面
   if (id === 'P09') initSpellPage();
 
@@ -1965,7 +1970,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // ========== 初始化 ==========
 document.addEventListener('DOMContentLoaded', () => {
-  showPage('P01');
+  // 支持URL hash路由: #P03 直接跳到选年级
+  const hash = window.location.hash.slice(1);
+  const startPage = document.getElementById(hash) ? hash : 'P01';
+  showPage(startPage);
+  // hash变化时跳转
+  window.addEventListener('hashchange', () => {
+    const id = window.location.hash.slice(1);
+    if (document.getElementById(id)) showPage(id);
+  });
 });
 </script>
 

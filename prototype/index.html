@@ -1500,32 +1500,32 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
 
   <!-- 有词库时的列表 -->
   <div id="bankList" style="padding:16px;padding-bottom:80px;">
-    <div class="card" style="margin:0 0 10px 0;cursor:pointer;">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+    <div class="card" style="margin:0 0 10px 0;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
         <span style="font-size:20px;">📕</span>
-        <div style="flex:1;" onclick="showPage('P23a')">
+        <div style="flex:1;cursor:pointer;" onclick="showPage('P05')">
           <div style="font-size:15px;font-weight:600;color:var(--text-1);">英语课本拍照</div>
-          <div style="font-size:12px;color:var(--text-3);">3个素材 · 23词 · 创建于 06-16</div>
         </div>
         <span style="font-size:20px;color:var(--text-4);cursor:pointer;padding:4px;" onclick="showPage('P23a')">⋯</span>
       </div>
-      <div class="progress-bar" style="height:4px;margin-bottom:6px;"><div class="fill" style="width:35%;"></div></div>
-      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-3);">
-        <span>掌握8词</span><span style="color:var(--brand);">开始学习 ›</span>
+      <div class="progress-bar" style="height:4px;margin-bottom:8px;"><div class="fill" style="width:35%;"></div></div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-3);">
+        <span>共23词<span style="padding:0 6px;color:var(--divider);">|</span>掌握8词</span>
+        <span>创建于06-16</span>
       </div>
     </div>
-    <div class="card" style="margin:0 0 10px 0;cursor:pointer;">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+    <div class="card" style="margin:0 0 10px 0;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
         <span style="font-size:20px;">📗</span>
-        <div style="flex:1;" onclick="showPage('P23a')">
+        <div style="flex:1;cursor:pointer;" onclick="showPage('P05')">
           <div style="font-size:15px;font-weight:600;color:var(--text-1);">英语试卷生词</div>
-          <div style="font-size:12px;color:var(--text-3);">2个素材 · 15词 · 创建于 06-15</div>
         </div>
         <span style="font-size:20px;color:var(--text-4);cursor:pointer;padding:4px;" onclick="showPage('P23a')">⋯</span>
       </div>
-      <div class="progress-bar" style="height:4px;margin-bottom:6px;"><div class="fill" style="width:60%;"></div></div>
-      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-3);">
-        <span>掌握9词</span><span style="color:var(--brand);">开始学习 ›</span>
+      <div class="progress-bar" style="height:4px;margin-bottom:8px;"><div class="fill" style="width:60%;"></div></div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-3);">
+        <span>共15词<span style="padding:0 6px;color:var(--divider);">|</span>掌握9词</span>
+        <span>创建于06-15</span>
       </div>
     </div>
   </div>
@@ -1539,7 +1539,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
 
   <!-- 底部固定按钮 -->
   <div style="position:absolute;bottom:0;left:0;right:0;padding:12px 16px;background:var(--bg-card);z-index:10;border-top:.5px solid var(--divider);">
-    <button class="btn-primary" onclick="createBank()">➕ 创建词库</button>
+    <button class="btn-primary" onclick="createBank()">创建词库</button>
   </div>
 </div>
 

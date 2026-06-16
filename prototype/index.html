@@ -110,6 +110,8 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
 /* 导航栏 */
 .navbar { height:44px; display:flex; align-items:center; padding:0 16px; background:var(--bg-card); position:sticky; top:0; z-index:10; }
 .navbar .back { width:24px; height:24px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:20px; color:var(--text-1); }
+.navbar .back-btn { width:32px; height:32px; display:flex; align-items:center; justify-content:center; cursor:pointer; border-radius:50%; transition:background .15s; }
+.navbar .back-btn:active { background:var(--bg-page); }
 .navbar .title { flex:1; text-align:center; font-size:17px; font-weight:600; color:var(--text-1); }
 .navbar .right { width:24px; }
 
@@ -637,7 +639,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
 <div class="page" id="P05">
   <div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
   <div class="navbar">
-    <div class="back" onclick="goBack()">←</div>
+    <div class="back-btn" onclick="goBack()"><svg width="20" height="20" viewBox="0 0 20 20"><path d="M12 4 L6 10 L12 16" stroke="#262626" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
     <div class="title">切换词库</div>
     <div class="right"></div>
   </div>

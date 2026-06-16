@@ -1554,11 +1554,13 @@ function showPage(id, isBack) {
   // 滚动到顶部
   setTimeout(() => { if (newPage) newPage.scrollTop = 0; }, 50);
 
-  // 动画结束后清理
+  // 动画结束后清理：隐藏旧页面
   setTimeout(() => {
     document.querySelectorAll('.page').forEach(p => {
       p.classList.remove('slide-forward','slide-forward-out','slide-back','slide-back-out','tab-switch');
     });
+    // 移除旧页的 active，确保 display:none
+    if (oldPage && !isTabSwitch) oldPage.classList.remove('active');
   }, 350);
 }
 

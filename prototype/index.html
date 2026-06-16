@@ -299,6 +299,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
   <a onclick="showPage('P20')" id="nav-P20">P20 单词详情</a>
   <a onclick="showPage('P21')" id="nav-P21">P21 我的</a>
   <a onclick="showPage('P22')" id="nav-P22">P22 会员中心</a>
+  <a onclick="showPage('P23')" id="nav-P23">P23 我的词库</a>
 </div>
 
 <!-- ========================================== -->
@@ -1357,7 +1358,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
     </div>
     <!-- 菜单列表 -->
     <div style="background:var(--bg-card);border-radius:var(--r-lg);box-shadow:0 1px 4px rgba(0,0,0,.06);overflow:hidden;">
-      <div class="menu-item" onclick="showPage('P05')">
+      <div class="menu-item" onclick="showPage('P23')">
         <div class="mi-icon" style="background:#E6F7FF;">📚</div>
         <div class="mi-title">我的词库</div>
         <div class="mi-value">3个</div>
@@ -1481,6 +1482,97 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
     </div>
     <!-- 开通按钮 -->
     <button class="btn-primary" style="margin-top:24px;">立即开通 ¥28/月</button>
+  </div>
+</div>
+
+<!-- ========================================== -->
+<!-- P23 我的词库（拍照识词） -->
+<!-- ========================================== -->
+<div class="page" id="P23">
+  <div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
+  <div class="navbar">
+    <div style="font-size:15px;color:var(--brand);cursor:pointer;" onclick="goHome()">返回首页</div>
+    <div class="title">我的词库</div>
+    <div class="right"></div>
+  </div>
+  <div style="padding:16px;padding-bottom:100px;">
+    <!-- 拍照入口卡片 -->
+    <div style="background:linear-gradient(135deg,#E8F5E0,#F6FFED);border:2px dashed var(--brand);border-radius:var(--r-lg);padding:32px 24px;text-align:center;margin-bottom:20px;cursor:pointer;" onclick="simulatePhoto()">
+      <div style="width:56px;height:56px;border-radius:50%;background:var(--brand);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
+        <svg width="28" height="28" viewBox="0 0 28 28"><line x1="14" y1="6" x2="14" y2="22" stroke="#fff" stroke-width="3" stroke-linecap="round"/><line x1="6" y1="14" x2="22" y2="14" stroke="#fff" stroke-width="3" stroke-linecap="round"/></svg>
+      </div>
+      <div style="font-size:16px;font-weight:600;color:var(--text-1);margin-bottom:4px;">📷 拍照识词</div>
+      <div style="font-size:13px;color:var(--text-3);">拍摄课本、试卷或单词书，AI自动识别单词</div>
+    </div>
+
+    <!-- 识别中浮层 -->
+    <div id="photoLoading" style="display:none;position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(255,255,255,.9);z-index:20;flex-direction:column;align-items:center;justify-content:center;">
+      <div style="width:56px;height:56px;border-radius:50%;background:var(--brand);display:flex;align-items:center;justify-content:center;margin-bottom:16px;animation:spin .8s linear infinite;">
+        <svg width="28" height="28" viewBox="0 0 28 28"><circle cx="14" cy="14" r="10" stroke="#fff" stroke-width="3" fill="none" stroke-dasharray="50" stroke-dashoffset="15"/></svg>
+      </div>
+      <div style="font-size:16px;font-weight:600;color:var(--text-1);">正在识别单词...</div>
+      <div style="font-size:13px;color:var(--text-3);margin-top:4px;">AI正在分析图片中的文字</div>
+    </div>
+
+    <!-- 我的临时词库列表 -->
+    <div style="margin-bottom:16px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <span style="font-size:15px;font-weight:600;color:var(--text-1);">我的临时词库</span>
+        <span style="font-size:12px;color:var(--text-3);" id="myLibCount">3个词库</span>
+      </div>
+
+      <!-- 词库卡片列表 -->
+      <div id="myLibList">
+        <div class="card" style="margin:0 0 12px 0;cursor:pointer;" onclick="showPage('P07')">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="font-size:20px;">📕</span>
+              <div>
+                <div style="font-size:15px;font-weight:600;color:var(--text-1);">英语课本拍照</div>
+                <div style="font-size:12px;color:var(--text-3);">2026-06-16 14:30</div>
+              </div>
+            </div>
+            <span class="tag tag-green">23词</span>
+          </div>
+          <div class="progress-bar" style="margin-bottom:4px;"><div class="fill" style="width:35%;"></div></div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-3);">
+            <span>掌握8词</span><span>学习 ›</span>
+          </div>
+        </div>
+        <div class="card" style="margin:0 0 12px 0;cursor:pointer;" onclick="showPage('P07')">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="font-size:20px;">📗</span>
+              <div>
+                <div style="font-size:15px;font-weight:600;color:var(--text-1);">英语试卷生词</div>
+                <div style="font-size:12px;color:var(--text-3);">2026-06-15 09:15</div>
+              </div>
+            </div>
+            <span class="tag tag-yellow">15词</span>
+          </div>
+          <div class="progress-bar" style="margin-bottom:4px;"><div class="fill" style="width:60%;"></div></div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-3);">
+            <span>掌握9词</span><span>继续学习 ›</span>
+          </div>
+        </div>
+        <div class="card" style="margin:0 0 12px 0;cursor:pointer;" onclick="showPage('P07')">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="font-size:20px;">📘</span>
+              <div>
+                <div style="font-size:15px;font-weight:600;color:var(--text-1);">课外阅读生词</div>
+                <div style="font-size:12px;color:var(--text-3);">2026-06-14 18:45</div>
+              </div>
+            </div>
+            <span class="tag tag-green">42词</span>
+          </div>
+          <div class="progress-bar" style="margin-bottom:4px;"><div class="fill" style="width:10%;"></div></div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-3);">
+            <span>掌握4词</span><span>继续学习 ›</span>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1959,6 +2051,22 @@ function submitSpell() {
     hint.textContent = '✕ 拼写错误，正确答案是 industrious';
     hint.style.color = 'var(--error)';
   }
+}
+
+// ========== 拍照识词模拟 ==========
+function simulatePhoto() {
+  const loading = document.getElementById('photoLoading');
+  if (!loading) return;
+  loading.style.display = 'flex';
+  setTimeout(() => {
+    loading.style.display = 'none';
+    const toast = document.getElementById('toastMsg');
+    if (toast) {
+      toast.textContent = '✅ 识别完成，新增15个单词';
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2000);
+    }
+  }, 2000);
 }
 
 // ========== 初始化 ==========

@@ -11,7 +11,7 @@
 <meta name="x5-fullscreen" content="true">
 <meta name="360-fullscreen" content="true">
 <meta name="full-screen" content="yes">
-<title>大白陪你背单词 - 交互原型</title>
+<title>大白陪你背单词</title>
 <style>
 /* ========== CSS变量体系 ========== */
 :root {
@@ -70,12 +70,8 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
   .tab-bar { padding-bottom:env(safe-area-inset-bottom, 0); height:calc(56px + env(safe-area-inset-bottom, 0)); }
   /* 安全底部 */
   .safe-bottom { padding-bottom:calc(80px + env(safe-area-inset-bottom, 0)); }
-  /* 页面顶部使用真实安全区 */
-  .page { padding-top:env(safe-area-inset-top, 24px); }
-  /* 微信内置浏览器：微信自带导航栏，去掉页面顶部留白 */
-  body.in-wechat .page { padding-top:0; }
-  body.in-wechat .page .navbar { padding-top:8px; }
-  body.in-wechat .phone-frame { height:100dvh; }
+  /* 底部Tab避开导航栏 */
+  .tab-bar { padding-bottom:env(safe-area-inset-bottom, 0); height:calc(56px + env(safe-area-inset-bottom, 0)); }
 }
 
 /* ========== 桌面端左侧导航面板 ========== */
@@ -89,7 +85,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
 .phone-frame { background:var(--bg-card); overflow:hidden; position:relative; flex-shrink:0; }
 
 /* ========== 页面容器与切换动画 ========== */
-.page { display:none; width:100%; height:100%; background:var(--bg-card); overflow-y:auto; overflow-x:hidden; position:absolute; top:0; left:0; padding-top:28px; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; }
+.page { display:none; width:100%; height:100%; background:var(--bg-card); overflow-y:auto; overflow-x:hidden; position:absolute; top:0; left:0; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; }
 .page.active { display:block; }
 /* 页面入场: 从右侧滑入（前进） */
 @keyframes slideInRight { from{transform:translateX(100%);opacity:1} to{transform:translateX(0);opacity:1} }
@@ -236,6 +232,8 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
 
 /* 状态栏模拟 */
 .status-bar { height:20px; padding:0 20px; display:flex; justify-content:space-between; align-items:center; font-size:11px; color:var(--text-1); font-weight:600; position:absolute; top:28px; left:0; right:0; z-index:100; }
+/* 全局隐藏模拟状态栏——真实设备系统自带状态栏 */
+.status-bar { display:none !important; }
 
 /* 圆形选择按钮 */
 .circle-select { width:44px; height:44px; border-radius:50%; border:2px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:600; color:var(--text-2); cursor:pointer; transition:all .15s; }
@@ -295,7 +293,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
 <div class="page active" id="P01">
   <div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
   <!-- 上部淡绿色渐变装饰 -->
-  <div style="position:absolute;top:0;left:0;right:0;height:340px;background:linear-gradient(180deg,#E8F5E0 0%,#F6FFED 60%,#FFFFFF 100%);z-index:0;margin-top:env(safe-area-inset-top, 24px);"></div>
+  <div style="position:absolute;top:0;left:0;right:0;height:340px;background:linear-gradient(180deg,#E8F5E0 0%,#F6FFED 60%,#FFFFFF 100%);z-index:0;"></div>
   <div style="position:relative;z-index:1;padding-top:100px;display:flex;flex-direction:column;align-items:center;">
     <!-- 大白IP - 更圆润的Baymax风格 -->
     <div style="width:120px;height:120px;border-radius:50%;background:linear-gradient(135deg,#52C41A,#73D13D);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(82,196,26,.3);">
@@ -1848,11 +1846,6 @@ function submitSpell() {
 
 // ========== 初始化 ==========
 document.addEventListener('DOMContentLoaded', () => {
-  // 微信内置浏览器适配：隐藏顶部模拟状态栏
-  if (/MicroMessenger/i.test(navigator.userAgent)) {
-    document.body.classList.add('in-wechat');
-    document.querySelectorAll('.status-bar').forEach(el => el.style.display = 'none');
-  }
   showPage('P01');
 });
 </script>

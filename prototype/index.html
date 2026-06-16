@@ -488,46 +488,10 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
         <button class="btn-sm green" style="flex:1;" onclick="showPage('P07')">复习</button>
       </div>
     </div>
-    <!-- 大白分享横幅 -->
-    <div style="background:#FFFBE6;border-radius:var(--r-lg);padding:12px 16px;margin:12px 16px;display:flex;align-items:center;gap:12px;">
-      <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#52C41A,#73D13D);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-        <svg width="32" height="32" viewBox="0 0 90 90">
-          <ellipse cx="45" cy="48" rx="38" ry="40" fill="#FFFFFF"/>
-          <ellipse cx="45" cy="28" rx="22" ry="20" fill="#FFFFFF"/>
-          <line x1="33" y1="27" x2="57" y2="27" stroke="#262626" stroke-width="3" stroke-linecap="round"/>
-          <circle cx="36" cy="27" r="5" fill="#262626"/>
-          <circle cx="54" cy="27" r="5" fill="#262626"/>
-        </svg>
-      </div>
-      <div style="flex:1;">
-        <div style="font-size:14px;font-weight:600;color:var(--text-1);">邀请好友一起学</div>
-        <div style="font-size:12px;color:var(--text-3);">双方各得7天VIP</div>
-      </div>
-      <button class="btn-sm" style="background:#FA8C16;color:#fff;border:none;border-radius:var(--r-md);height:30px;font-size:12px;padding:0 12px;">去邀请</button>
-    </div>
-    <!-- 快捷入口 -->
-    <div style="display:flex;justify-content:space-around;padding:16px;margin:0 16px;background:var(--bg-card);border-radius:var(--r-lg);box-shadow:0 1px 4px rgba(0,0,0,.06);">
-      <div style="text-align:center;cursor:pointer;" onclick="showPage('P07')">
-        <div style="width:44px;height:44px;border-radius:12px;background:var(--brand-light);display:flex;align-items:center;justify-content:center;margin:0 auto 6px;font-size:22px;">📖</div>
-        <div style="font-size:12px;color:var(--text-2);">新学</div>
-      </div>
-      <div style="text-align:center;cursor:pointer;" onclick="showPage('P05')">
-        <div style="width:44px;height:44px;border-radius:12px;background:#E6F7FF;display:flex;align-items:center;justify-content:center;margin:0 auto 6px;font-size:22px;">📚</div>
-        <div style="font-size:12px;color:var(--text-2);">词库</div>
-      </div>
-      <div style="text-align:center;cursor:pointer;" onclick="showPage('P06')">
-        <div style="width:44px;height:44px;border-radius:12px;background:var(--warn-light);display:flex;align-items:center;justify-content:center;margin:0 auto 6px;font-size:22px;">🎯</div>
-        <div style="font-size:12px;color:var(--text-2);">目标</div>
-      </div>
-      <div style="text-align:center;cursor:pointer;" onclick="showPage('P22')">
-        <div style="width:44px;height:44px;border-radius:12px;background:#FFF7E6;display:flex;align-items:center;justify-content:center;margin:0 auto 6px;font-size:22px;">👑</div>
-        <div style="font-size:12px;color:var(--text-2);">VIP</div>
-      </div>
-    </div>
   </div>
   <!-- 底部Tab -->
   <div class="tab-bar">
-    <div class="tab-item active" onclick="refreshHome()"><div class="icon">🏠</div><div class="label">首页</div></div>
+    <div class="tab-item active" onclick="showPage('P04')"><div class="icon">🏠</div><div class="label">首页</div></div>
     <div class="tab-item" onclick="showPage('P05a')"><div class="icon">📊</div><div class="label">统计</div></div>
     <div class="tab-item" onclick="showPage('P21')"><div class="icon">👤</div><div class="label">我的</div></div>
   </div>

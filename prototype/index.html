@@ -85,6 +85,8 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
 
 /* ========== 手机外框 ========== */
 .phone-frame { background:var(--bg-card); overflow:hidden; position:relative; flex-shrink:0; }
+/* 给手机框顶部加白条，防止页面背景色渗到状态栏区域 */
+.phone-frame::after { content:''; position:absolute; top:0; left:0; right:0; height:env(safe-area-inset-top, 24px); background:#FFFFFF; z-index:998; pointer-events:none; }
 
 /* ========== 页面容器与切换动画 ========== */
 .page { display:none; width:100%; height:100%; background:var(--bg-card); overflow-y:auto; overflow-x:hidden; position:absolute; top:0; left:0; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; }
@@ -292,8 +294,8 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
 <!-- ========================================== -->
 <div class="page active" id="P01">
   <div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
-  <!-- 上部淡绿色渐变装饰 -->
-  <div style="position:absolute;top:0;left:0;right:0;height:340px;background:linear-gradient(180deg,#E8F5E0 0%,#F6FFED 60%,#FFFFFF 100%);z-index:0;"></div>
+  <!-- 上部淡绿色渐变装饰（从安全区下方开始，桌面端保持原样） -->
+  <div style="position:absolute;top:0;left:0;right:0;height:340px;background:linear-gradient(180deg,#FFFFFF 0%,#E8F5E0 10%,#F6FFED 50%,#FFFFFF 100%);z-index:0;"></div>
   <div style="position:relative;z-index:1;padding-top:100px;display:flex;flex-direction:column;align-items:center;">
     <!-- 大白IP - 更圆润的Baymax风格 -->
     <div style="width:120px;height:120px;border-radius:50%;background:linear-gradient(135deg,#52C41A,#73D13D);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(82,196,26,.3);">

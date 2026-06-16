@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+
+# Node
+node_modules/
+package-lock.json
+
+# IDE
+.vscode/
+.idea/
+
+# System
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# WorkBuddy (only track memory, not runtime state)
+.workbuddy/agents/
+.workbuddy/skills/
+.workbuddy/commands/
+.workbuddy/rules/
+.workbuddy/cache/
+.workbuddy/state/
+
+# Generated/Temp
+*.tmp
+*.temp
+~/

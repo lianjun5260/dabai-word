@@ -72,6 +72,10 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
   .safe-bottom { padding-bottom:calc(80px + env(safe-area-inset-bottom, 0)); }
   /* 页面顶部使用真实安全区 */
   .page { padding-top:env(safe-area-inset-top, 24px); }
+  /* 微信内置浏览器：微信自带导航栏，去掉页面顶部留白 */
+  body.in-wechat .page { padding-top:0; }
+  body.in-wechat .page .navbar { padding-top:8px; }
+  body.in-wechat .phone-frame { height:100dvh; }
 }
 
 /* ========== 桌面端左侧导航面板 ========== */
@@ -1844,7 +1848,11 @@ function submitSpell() {
 
 // ========== 初始化 ==========
 document.addEventListener('DOMContentLoaded', () => {
-  // 默认显示P01
+  // 微信内置浏览器适配：隐藏顶部模拟状态栏
+  if (/MicroMessenger/i.test(navigator.userAgent)) {
+    document.body.classList.add('in-wechat');
+    document.querySelectorAll('.status-bar').forEach(el => el.style.display = 'none');
+  }
   showPage('P01');
 });
 </script>

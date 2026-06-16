@@ -651,7 +651,11 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
         <div class="circle-select" onclick="selectCount(this)">15</div>
         <div class="circle-select" onclick="selectCount(this)">20</div>
         <div class="circle-select" onclick="selectCount(this)">30</div>
-        <div class="circle-select" style="width:auto;padding:0 16px;border-radius:24px;" onclick="selectCount(this)">自定义</div>
+        <div class="circle-select" style="width:auto;padding:0 16px;border-radius:24px;" onclick="selectCustomCount(this)">自定义</div>
+      </div>
+      <div id="customCountArea" style="display:none;margin-top:12px;align-items:center;justify-content:center;gap:8px;">
+        <input id="customCountInput" type="number" min="1" max="200" value="8" style="width:80px;height:40px;border:1px solid var(--brand);border-radius:var(--r-md);text-align:center;font-size:18px;font-weight:600;color:var(--brand);outline:none;" onchange="updateCustomCount()" oninput="updateCustomCount()">
+        <span style="font-size:14px;color:var(--text-3);">词/天</span>
       </div>
     </div>
     <!-- 学习模式 -->
@@ -1746,6 +1750,24 @@ function confirmGrade() {
 function selectCount(el) {
   el.parentElement.querySelectorAll('.circle-select').forEach(c => c.classList.remove('active'));
   el.classList.add('active');
+  // 隐藏自定义输入框
+  const area = document.getElementById('customCountArea');
+  if (area) area.style.display = 'none';
+}
+
+function selectCustomCount(el) {
+  el.parentElement.querySelectorAll('.circle-select').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  // 显示自定义输入框
+  const area = document.getElementById('customCountArea');
+  if (area) area.style.display = 'flex';
+  document.getElementById('customCountInput').focus();
+}
+
+function updateCustomCount() {
+  const val = document.getElementById('customCountInput').value;
+  const customBtn = document.querySelector('.circle-select[onclick*="selectCustomCount"]');
+  if (customBtn) customBtn.textContent = val > 0 ? val + '词/天' : '自定义';
 }
 
 // ========== 选择学习模式 ==========

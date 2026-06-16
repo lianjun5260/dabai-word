@@ -267,16 +267,8 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
 .overlay { position:fixed; top:0;left:0;right:0;bottom:0; background:rgba(0,0,0,.45); z-index:100; display:none; }
 .overlay.show { display:block; }
 
-/* ========== 下拉刷新 ========== */
-.pull-indicator { position:fixed; top:-60px; left:50%; transform:translateX(-50%); z-index:9999; display:flex; flex-direction:column; align-items:center; gap:4px; transition:top .2s ease; }
-.pull-indicator.pulling { top:40px; }
-.pull-indicator .pull-icon { width:36px; height:36px; border-radius:50%; background:rgba(0,0,0,.7); color:#fff; display:flex; align-items:center; justify-content:center; font-size:18px; transition:transform .3s; }
-.pull-indicator.ready .pull-icon { transform:rotate(180deg); background:var(--brand); }
-.pull-indicator .pull-text { font-size:12px; color:rgba(0,0,0,.5); background:rgba(255,255,255,.9); padding:2px 10px; border-radius:10px; }
-.pull-indicator.refreshing .pull-icon { animation:spin .6s linear infinite; background:var(--brand); color:#fff; content:'⟳'; }
+/* 旋转动画（页内刷新用） */
 @keyframes spin { to{transform:rotate(360deg)} }
-.pull-indicator.done .pull-icon { background:var(--brand); transform:none; animation:none; }
-.pull-indicator.done .pull-icon::after { content:'✓'; }
 </style>
 </head>
 <body>
@@ -307,12 +299,6 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
   <a onclick="showPage('P20')" id="nav-P20">P20 单词详情</a>
   <a onclick="showPage('P21')" id="nav-P21">P21 我的</a>
   <a onclick="showPage('P22')" id="nav-P22">P22 会员中心</a>
-</div>
-
-<!-- ========== 下拉刷新指示器 ========== -->
-<div class="pull-indicator" id="pullIndicator">
-  <div class="pull-icon" id="pullIcon">↓</div>
-  <div class="pull-text" id="pullText">下拉刷新</div>
 </div>
 
 <!-- ========================================== -->
@@ -541,7 +527,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
   </div>
   <!-- 底部Tab -->
   <div class="tab-bar">
-    <div class="tab-item active" onclick="showPage('P04')"><div class="icon">🏠</div><div class="label">首页</div></div>
+    <div class="tab-item active" onclick="refreshHome()"><div class="icon">🏠</div><div class="label">首页</div></div>
     <div class="tab-item" onclick="showPage('P05a')"><div class="icon">📊</div><div class="label">统计</div></div>
     <div class="tab-item" onclick="showPage('P21')"><div class="icon">👤</div><div class="label">我的</div></div>
   </div>
@@ -631,7 +617,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
     </div>
   </div>
   <div class="tab-bar">
-    <div class="tab-item" onclick="showPage('P04')"><div class="icon">🏠</div><div class="label">首页</div></div>
+    <div class="tab-item" onclick="refreshHome()"><div class="icon">🏠</div><div class="label">首页</div></div>
     <div class="tab-item active" onclick="showPage('P05a')"><div class="icon">📊</div><div class="label">统计</div></div>
     <div class="tab-item" onclick="showPage('P21')"><div class="icon">👤</div><div class="label">我的</div></div>
   </div>
@@ -1449,7 +1435,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
     </div>
   </div>
   <div class="tab-bar">
-    <div class="tab-item" onclick="showPage('P04')"><div class="icon">🏠</div><div class="label">首页</div></div>
+    <div class="tab-item" onclick="refreshHome()"><div class="icon">🏠</div><div class="label">首页</div></div>
     <div class="tab-item" onclick="showPage('P05a')"><div class="icon">📊</div><div class="label">统计</div></div>
     <div class="tab-item active" onclick="showPage('P21')"><div class="icon">👤</div><div class="label">我的</div></div>
   </div>
@@ -2005,72 +1991,16 @@ function submitSpell() {
   }
 }
 
-// ========== 下拉刷新 ==========
-{ // block scope
-let pullY = 0, pullStart = 0, pulling = false, refreshing = false;
-const THRESHOLD = 80;
-const indicator = document.getElementById('pullIndicator');
-const icon = document.getElementById('pullIcon');
-const text = document.getElementById('pullText');
-
-function getActivePage() {
-  return document.querySelector('.page.active');
-}
-
-function doRefresh() {
-  refreshing = true;
-  indicator.classList.remove('ready');
-  indicator.classList.add('refreshing');
-  icon.textContent = '⟳';
-  text.textContent = '正在刷新...';
-  indicator.style.position = 'fixed';
-  indicator.style.top = '40px';
-
-  // 强制从服务器重新加载，获取最新代码
-  setTimeout(() => { location.reload(); }, 400);
-}
-
-document.addEventListener('touchstart', function(e) {
-  if (refreshing) return;
-  const page = getActivePage();
-  if (!page || page.scrollTop > 5) return;
-  pullStart = e.touches[0].clientY;
-  pulling = true;
-}, { passive: true });
-
-document.addEventListener('touchmove', function(e) {
-  if (!pulling || refreshing) return;
-  const page = getActivePage();
-  if (!page || page.scrollTop > 5) { pulling = false; return; }
-
-  pullY = e.touches[0].clientY - pullStart;
-  if (pullY < 10) return;
-
-  indicator.classList.add('pulling');
-  text.textContent = pullY > THRESHOLD ? '释放刷新' : '下拉刷新';
-  indicator.classList.toggle('ready', pullY > THRESHOLD);
-
-  if (pullY > 20) e.preventDefault();
-}, { passive: false });
-
-document.addEventListener('touchend', function() {
-  if (!pulling || refreshing) return;
-  pulling = false;
-
-  if (pullY > THRESHOLD) {
-    doRefresh();
-  } else {
-    indicator.classList.remove('pulling','ready');
-    text.textContent = '下拉刷新';
+// ========== 首页刷新（点首页Tab触发） ==========
+function refreshHome() {
+  const toast = document.getElementById('toastMsg');
+  if (toast) {
+    toast.textContent = '⟳ 正在刷新...';
+    toast.classList.add('show');
   }
-  pullY = 0;
-});
+  // 0.3秒后刷新整页，拉取最新代码
+  setTimeout(() => { location.reload(); }, 300);
 }
-
-// ========== 初始化 ==========
-document.addEventListener('DOMContentLoaded', () => {
-  showPage('P01');
-});
 
 // ========== 初始化 ==========
 document.addEventListener('DOMContentLoaded', () => {

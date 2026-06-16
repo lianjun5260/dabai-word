@@ -637,26 +637,21 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
 <div class="page" id="P06">
   <div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
   <div class="navbar">
-    <div class="back" onclick="goBack()">←</div>
+    <div style="font-size:15px;color:var(--brand);cursor:pointer;" onclick="goHome()">返回首页</div>
     <div class="title">设置学习目标</div>
     <div class="right"></div>
   </div>
   <div style="padding:16px;">
-    <!-- 词库信息 -->
-    <div class="card" style="text-align:center;">
-      <div style="font-size:14px;color:var(--text-3);margin-bottom:8px;">人教版3年级</div>
-      <div style="font-size:48px;font-weight:700;color:var(--text-1);line-height:1;">2930</div>
-      <div style="font-size:14px;color:var(--text-3);margin-top:4px;">总词数</div>
-    </div>
     <!-- 每日新学数量 -->
     <div class="card">
       <div style="font-size:15px;font-weight:600;color:var(--text-1);margin-bottom:16px;">每日新学数量</div>
-      <div style="display:flex;gap:12px;justify-content:center;">
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
         <div class="circle-select" onclick="selectCount(this)">5</div>
         <div class="circle-select active" onclick="selectCount(this)">10</div>
         <div class="circle-select" onclick="selectCount(this)">15</div>
         <div class="circle-select" onclick="selectCount(this)">20</div>
         <div class="circle-select" onclick="selectCount(this)">30</div>
+        <div class="circle-select" style="width:auto;padding:0 16px;border-radius:24px;" onclick="selectCount(this)">自定义</div>
       </div>
     </div>
     <!-- 学习模式 -->
@@ -686,7 +681,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
         </div>
       </div>
     </div>
-    <button class="btn-primary" style="margin:16px 0;" onclick="showPage('P04')">保存设置</button>
+    <button class="btn-primary" style="margin:16px 0;" onclick="goHome()">保存设置</button>
   </div>
 </div>
 

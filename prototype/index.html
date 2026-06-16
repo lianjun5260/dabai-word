@@ -1487,7 +1487,8 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
 </div>
 
 <!-- ========================================== -->
-<!-- P23 我的词库（拍照识词） -->
+<!-- ========================================== -->
+<!-- P23 我的词库 -->
 <!-- ========================================== -->
 <div class="page" id="P23">
   <div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
@@ -1496,88 +1497,49 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
     <div class="title">我的词库</div>
     <div class="right"></div>
   </div>
-  <div style="padding:16px;padding-bottom:100px;">
-    <!-- 拍照 + 上传文件 双入口 -->
-    <div style="display:flex;gap:12px;margin-bottom:16px;">
-      <div style="flex:1;background:linear-gradient(135deg,#E8F5E0,#F6FFED);border:2px dashed var(--brand);border-radius:var(--r-lg);padding:20px 12px;text-align:center;cursor:pointer;" onclick="startRecognize('photo')">
-        <div style="width:48px;height:48px;border-radius:50%;background:var(--brand);display:flex;align-items:center;justify-content:center;margin:0 auto 8px;"><span style="font-size:24px;color:#fff;">📷</span></div>
-        <div style="font-size:14px;font-weight:600;color:var(--text-1);margin-bottom:2px;">拍照识词</div>
-        <div style="font-size:11px;color:var(--text-3);">拍摄课本/试卷</div>
-      </div>
-      <div style="flex:1;background:linear-gradient(135deg,#E6F7FF,#F0F8FF);border:2px dashed var(--info);border-radius:var(--r-lg);padding:20px 12px;text-align:center;cursor:pointer;" onclick="startRecognize('file')">
-        <div style="width:48px;height:48px;border-radius:50%;background:var(--info);display:flex;align-items:center;justify-content:center;margin:0 auto 8px;"><span style="font-size:24px;color:#fff;">📁</span></div>
-        <div style="font-size:14px;font-weight:600;color:var(--text-1);margin-bottom:2px;">上传文件</div>
-        <div style="font-size:11px;color:var(--text-3);">图片/PDF/Word</div>
-      </div>
-    </div>
-    <div style="text-align:center;margin-bottom:20px;font-size:11px;color:var(--text-4);">支持 JPG · PNG · PDF · Word · TXT · Excel，对齐后台资源库接口</div>
 
-    <!-- 识别进度卡片（渐变遮罩） -->
-    <div id="recognizeCard" style="display:none;position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:20;align-items:center;justify-content:center;">
-      <div style="width:280px;background:#fff;border-radius:var(--r-xl);padding:32px 24px;text-align:center;box-shadow:0 16px 48px rgba(0,0,0,.2);">
-        <div style="font-size:48px;margin-bottom:12px;" id="recogIcon">🖼️</div>
-        <div style="font-size:13px;color:var(--text-3);margin-bottom:8px;" id="recogFile">课本第3单元.jpg</div>
-        <div style="font-size:16px;font-weight:600;color:var(--text-1);margin-bottom:16px;">正在识别中...</div>
-        <div class="progress-bar" style="height:6px;margin-bottom:8px;">
-          <div class="fill" id="recogBar" style="width:0%;transition:width .4s;"></div>
+  <!-- 有词库时的列表 -->
+  <div id="bankList" style="padding:16px;padding-bottom:80px;">
+    <div class="card" style="margin:0 0 10px 0;cursor:pointer;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+        <span style="font-size:20px;">📕</span>
+        <div style="flex:1;" onclick="showPage('P23a')">
+          <div style="font-size:15px;font-weight:600;color:var(--text-1);">英语课本拍照</div>
+          <div style="font-size:12px;color:var(--text-3);">3个素材 · 23词 · 创建于 06-16</div>
         </div>
-        <div style="font-size:13px;color:var(--text-3);" id="recogStatus">已识别 0 个单词</div>
-        <button style="margin-top:20px;background:none;border:none;color:var(--text-4);font-size:14px;cursor:pointer;" onclick="cancelRecognize()">取消</button>
+        <span style="font-size:20px;color:var(--text-4);cursor:pointer;padding:4px;" onclick="showPage('P23a')">⋯</span>
+      </div>
+      <div class="progress-bar" style="height:4px;margin-bottom:6px;"><div class="fill" style="width:35%;"></div></div>
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-3);">
+        <span>掌握8词</span><span style="color:var(--brand);">开始学习 ›</span>
       </div>
     </div>
+    <div class="card" style="margin:0 0 10px 0;cursor:pointer;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+        <span style="font-size:20px;">📗</span>
+        <div style="flex:1;" onclick="showPage('P23a')">
+          <div style="font-size:15px;font-weight:600;color:var(--text-1);">英语试卷生词</div>
+          <div style="font-size:12px;color:var(--text-3);">2个素材 · 15词 · 创建于 06-15</div>
+        </div>
+        <span style="font-size:20px;color:var(--text-4);cursor:pointer;padding:4px;" onclick="showPage('P23a')">⋯</span>
+      </div>
+      <div class="progress-bar" style="height:4px;margin-bottom:6px;"><div class="fill" style="width:60%;"></div></div>
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-3);">
+        <span>掌握9词</span><span style="color:var(--brand);">开始学习 ›</span>
+      </div>
+    </div>
+  </div>
 
-    <!-- 词库列表 -->
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-      <span style="font-size:15px;font-weight:600;color:var(--text-1);">我的词库</span>
-      <span style="font-size:12px;color:var(--text-3);">3个</span>
-    </div>
-    <div style="background:var(--bg-card);border-radius:var(--r-lg);box-shadow:0 1px 4px rgba(0,0,0,.06);overflow:hidden;">
-      <div style="padding:16px;border-bottom:.5px solid var(--divider);">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
-          <span style="font-size:20px;">📕</span>
-          <div style="flex:1;">
-            <div style="font-size:15px;font-weight:600;color:var(--text-1);">英语课本拍照</div>
-            <div style="font-size:12px;color:var(--text-3);">2026-06-16 · 3个素材</div>
-          </div>
-          <span class="tag tag-green" style="font-size:11px;">23词</span>
-          <span style="font-size:20px;color:var(--text-4);cursor:pointer;padding:4px;" onclick="showPage('P23a')">⋯</span>
-        </div>
-        <div class="progress-bar" style="margin-bottom:4px;"><div class="fill" style="width:35%;"></div></div>
-        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-3);">
-          <span>掌握8词</span><span style="color:var(--brand);cursor:pointer;" onclick="showPage('P07')">开始学习 ›</span>
-        </div>
-      </div>
-      <div style="padding:16px;border-bottom:.5px solid var(--divider);">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
-          <span style="font-size:20px;">📗</span>
-          <div style="flex:1;">
-            <div style="font-size:15px;font-weight:600;color:var(--text-1);">英语试卷生词</div>
-            <div style="font-size:12px;color:var(--text-3);">2026-06-15 · 2个素材</div>
-          </div>
-          <span class="tag tag-yellow" style="font-size:11px;">15词</span>
-          <span style="font-size:20px;color:var(--text-4);cursor:pointer;padding:4px;" onclick="showPage('P23a')">⋯</span>
-        </div>
-        <div class="progress-bar" style="margin-bottom:4px;"><div class="fill" style="width:60%;"></div></div>
-        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-3);">
-          <span>掌握9词</span><span style="color:var(--brand);cursor:pointer;" onclick="showPage('P07')">开始学习 ›</span>
-        </div>
-      </div>
-      <div style="padding:16px;">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
-          <span style="font-size:20px;">📘</span>
-          <div style="flex:1;">
-            <div style="font-size:15px;font-weight:600;color:var(--text-1);">课外阅读生词</div>
-            <div style="font-size:12px;color:var(--text-3);">2026-06-14 · 5个素材</div>
-          </div>
-          <span class="tag tag-green" style="font-size:11px;">42词</span>
-          <span style="font-size:20px;color:var(--text-4);cursor:pointer;padding:4px;" onclick="showPage('P23a')">⋯</span>
-        </div>
-        <div class="progress-bar" style="margin-bottom:4px;"><div class="fill" style="width:10%;"></div></div>
-        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-3);">
-          <span>掌握4词</span><span style="color:var(--brand);cursor:pointer;" onclick="showPage('P07')">开始学习 ›</span>
-        </div>
-      </div>
-    </div>
+  <!-- 空状态 -->
+  <div id="bankEmpty" style="display:none;padding:40px 24px;text-align:center;">
+    <div style="font-size:64px;margin-bottom:16px;opacity:.6;">📚</div>
+    <div style="font-size:17px;font-weight:600;color:var(--text-1);margin-bottom:6px;">还没有词库</div>
+    <div style="font-size:14px;color:var(--text-3);line-height:1.6;">拍照或上传文件<br/>创建你的第一个个人词库</div>
+  </div>
+
+  <!-- 底部固定按钮 -->
+  <div style="position:absolute;bottom:0;left:0;right:0;padding:12px 16px;background:var(--bg-card);z-index:10;border-top:.5px solid var(--divider);">
+    <button class="btn-primary" onclick="createBank()">➕ 创建词库</button>
   </div>
 </div>
 
@@ -1588,68 +1550,103 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
   <div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
   <div class="navbar">
     <div class="back" onclick="showPage('P23')">←</div>
-    <div class="title" id="bankDetailTitle" style="cursor:pointer;" onclick="toggleRename()">英语课本拍照</div>
+    <div class="title" id="bankTitle" style="cursor:pointer;" onclick="toggleRename()">英语课本拍照</div>
     <div class="right"></div>
   </div>
-  <!-- 改名面板 -->
-  <div id="renamePanel" style="display:none;padding:8px 16px 12px;background:var(--bg-page);border-bottom:.5px solid var(--divider);">
+  <!-- 改名条 -->
+  <div id="renameBar" style="display:none;padding:4px 16px 8px;border-bottom:.5px solid var(--divider);">
     <div style="display:flex;gap:8px;">
-      <input id="renameInput" value="英语课本拍照" style="flex:1;height:36px;border:1px solid var(--brand);border-radius:var(--r-md);padding:0 12px;font-size:15px;outline:none;">
-      <button class="btn-sm green" onclick="saveRename()" style="min-width:56px;">保存</button>
+      <input id="renameInput" value="英语课本拍照" style="flex:1;height:34px;border:1px solid var(--brand);border-radius:6px;padding:0 10px;font-size:14px;outline:none;background:var(--brand-light);">
+      <button class="btn-sm green" onclick="saveRename()" style="min-width:52px;font-size:13px;">保存</button>
     </div>
   </div>
-  <div style="padding:16px;padding-bottom:120px;">
-    <!-- 学习概览 -->
-    <div class="card" style="margin:0 0 16px 0;">
-      <div style="font-size:15px;font-weight:600;color:var(--text-1);margin-bottom:12px;">📊 学习概览</div>
-      <div style="display:flex;margin-bottom:12px;">
-        <div style="flex:1;text-align:center;"><div style="font-size:24px;font-weight:700;color:var(--brand);">23</div><div style="font-size:12px;color:var(--text-3);">总词数</div></div>
-        <div style="width:1px;background:var(--divider);"></div>
-        <div style="flex:1;text-align:center;"><div style="font-size:24px;font-weight:700;color:var(--warn);">8</div><div style="font-size:12px;color:var(--text-3);">已掌握</div></div>
-        <div style="width:1px;background:var(--divider);"></div>
-        <div style="flex:1;text-align:center;"><div style="font-size:24px;font-weight:700;color:var(--info);">15</div><div style="font-size:12px;color:var(--text-3);">学习中</div></div>
-      </div>
-      <div class="progress-bar" style="height:8px;"><div class="fill" style="width:35%;"></div></div>
-    </div>
 
-    <!-- 素材列表 -->
-    <div style="font-size:15px;font-weight:600;color:var(--text-1);margin-bottom:12px;">📎 素材库 (3)</div>
-    <div style="background:var(--bg-card);border-radius:var(--r-lg);box-shadow:0 1px 4px rgba(0,0,0,.06);overflow:hidden;margin-bottom:16px;">
-      <div style="padding:14px 16px;border-bottom:.5px solid var(--divider);display:flex;align-items:center;gap:10px;">
-        <span style="font-size:28px;">🖼️</span>
-        <div style="flex:1;">
-          <div style="font-size:14px;font-weight:500;color:var(--text-1);">课本第3单元</div>
-          <div style="font-size:12px;color:var(--text-3);">IMG_0616_001.jpg · 识别12词</div>
+  <!-- 内容区 -->
+  <div id="bankDetailContent" style="padding:16px;padding-bottom:100px;">
+
+    <!-- ====== 空词库状态 ====== -->
+    <div id="bankEmptyState">
+      <div style="text-align:center;padding:48px 24px;">
+        <div style="font-size:56px;margin-bottom:12px;opacity:.7;">📂</div>
+        <div style="font-size:16px;font-weight:600;color:var(--text-1);margin-bottom:6px;">词库是空的</div>
+        <div style="font-size:14px;color:var(--text-3);margin-bottom:24px;">添加照片或文件素材<br/>然后生成词库开始学习</div>
+        <div style="display:flex;gap:12px;">
+          <button style="flex:1;height:48px;background:var(--brand);color:#fff;border:none;border-radius:var(--r-md);font-size:15px;font-weight:500;cursor:pointer;" onclick="addMaterial('photo')">📷 拍照</button>
+          <button style="flex:1;height:48px;background:var(--info);color:#fff;border:none;border-radius:var(--r-md);font-size:15px;font-weight:500;cursor:pointer;" onclick="addMaterial('file')">📁 上传文件</button>
         </div>
-        <span style="font-size:18px;color:var(--text-4);cursor:pointer;padding:4px;" onclick="deleteMaterial(this)">🗑</span>
-      </div>
-      <div style="padding:14px 16px;border-bottom:.5px solid var(--divider);display:flex;align-items:center;gap:10px;">
-        <span style="font-size:28px;">📄</span>
-        <div style="flex:1;">
-          <div style="font-size:14px;font-weight:500;color:var(--text-1);">单词表附录</div>
-          <div style="font-size:12px;color:var(--text-3);">单词表.pdf · 识别15词</div>
-        </div>
-        <span style="font-size:18px;color:var(--text-4);cursor:pointer;padding:4px;" onclick="deleteMaterial(this)">🗑</span>
-      </div>
-      <div style="padding:14px 16px;border-bottom:.5px solid var(--divider);display:flex;align-items:center;gap:10px;">
-        <span style="font-size:28px;">🖼️</span>
-        <div style="flex:1;">
-          <div style="font-size:14px;font-weight:500;color:var(--text-1);">老师板书</div>
-          <div style="font-size:12px;color:var(--text-3);">IMG_0616_003.jpg · 识别5词</div>
-        </div>
-        <span style="font-size:18px;color:var(--text-4);cursor:pointer;padding:4px;" onclick="deleteMaterial(this)">🗑</span>
-      </div>
-      <!-- 添加素材 -->
-      <div style="padding:14px 16px;text-align:center;cursor:pointer;color:var(--brand);font-size:15px;font-weight:500;" onclick="startRecognize('photo')">
-        ➕ 添加素材
       </div>
     </div>
 
-    <!-- 底部操作 -->
-    <button class="btn-primary" onclick="showPage('P07')" style="margin-bottom:12px;">开始学习</button>
-    <button style="width:100%;height:48px;background:none;border:1px solid var(--error);color:var(--error);border-radius:var(--r-md);font-size:16px;cursor:pointer;" onclick="deleteBank()">删除这个词库</button>
+    <!-- ====== 有素材后的状态 ====== -->
+    <div id="bankFilledState" style="display:none;">
+      <!-- 学习概览 -->
+      <div class="card" style="margin:0 0 14px 0;padding:18px;">
+        <div style="font-size:15px;font-weight:600;color:var(--text-1);margin-bottom:14px;">📊 学习概览</div>
+        <div style="display:flex;margin-bottom:12px;">
+          <div style="flex:1;text-align:center;"><div style="font-size:22px;font-weight:700;color:var(--brand);">0</div><div style="font-size:11px;color:var(--text-3);">总词数</div></div>
+          <div style="flex:1;text-align:center;"><div style="font-size:22px;font-weight:700;color:var(--warn);">0</div><div style="font-size:11px;color:var(--text-3);">已掌握</div></div>
+          <div style="flex:1;text-align:center;"><div style="font-size:22px;font-weight:700;color:var(--info);">0</div><div style="font-size:11px;color:var(--text-3);">学习中</div></div>
+        </div>
+        <div class="progress-bar" style="height:6px;"><div class="fill" style="width:0%;"></div></div>
+      </div>
+
+      <!-- 素材列表 -->
+      <div style="font-size:15px;font-weight:600;color:var(--text-1);margin-bottom:10px;">
+        📎 素材库 (<span id="matCount">0</span>)
+      </div>
+      <div id="materialList" style="background:var(--bg-card);border-radius:var(--r-lg);box-shadow:0 1px 4px rgba(0,0,0,.06);overflow:hidden;margin-bottom:16px;">
+        <!-- JS动态填充 -->
+      </div>
+
+      <!-- 添加素材按钮 -->
+      <div style="display:flex;gap:10px;margin-bottom:16px;">
+        <button style="flex:1;height:44px;background:var(--brand);color:#fff;border:none;border-radius:var(--r-md);font-size:14px;cursor:pointer;" onclick="addMaterial('photo')">📷 拍照添加</button>
+        <button style="flex:1;height:44px;background:var(--info);color:#fff;border:none;border-radius:var(--r-md);font-size:14px;cursor:pointer;" onclick="addMaterial('file')">📁 上传文件</button>
+      </div>
+
+      <!-- 生成词库按钮 -->
+      <button class="btn-primary" id="genBankBtn" onclick="generateBank()" style="opacity:0.4;">尚未添加素材</button>
+      <button style="width:100%;height:44px;background:none;border:1px solid var(--error);color:var(--error);border-radius:var(--r-md);font-size:15px;cursor:pointer;margin-top:10px;" onclick="deleteBank()">🗑 删除这个词库</button>
+    </div>
+  </div>
+
+  <!-- 添加素材动作选择浮层 -->
+  <div id="addMaterialSheet" style="display:none;position:absolute;bottom:0;left:0;right:0;background:var(--bg-card);border-radius:var(--r-lg) var(--r-lg) 0 0;z-index:20;padding:0 0 16px 0;box-shadow:0 -4px 20px rgba(0,0,0,.1);">
+    <div style="text-align:center;padding:14px;font-size:14px;color:var(--text-3);border-bottom:.5px solid var(--divider);">选择添加方式</div>
+    <div style="padding:16px 20px;display:flex;gap:12px;">
+      <button style="flex:1;height:52px;background:var(--brand);color:#fff;border:none;border-radius:var(--r-md);font-size:15px;font-weight:500;cursor:pointer;" onclick="startRecognize('photo');closeSheet()">📷 拍照</button>
+      <button style="flex:1;height:52px;background:var(--info);color:#fff;border:none;border-radius:var(--r-md);font-size:15px;font-weight:500;cursor:pointer;" onclick="startRecognize('file');closeSheet()">📁 上传文件</button>
+    </div>
+    <div style="text-align:center;padding:8px;color:var(--text-4);font-size:14px;cursor:pointer;" onclick="closeSheet()">取消</div>
+  </div>
+
+  <!-- 识别进度卡片 -->
+  <div id="matLoading" style="display:none;position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:25;align-items:center;justify-content:center;">
+    <div style="width:280px;background:#fff;border-radius:16px;padding:32px 24px;text-align:center;box-shadow:0 16px 48px rgba(0,0,0,.2);">
+      <div style="font-size:48px;margin-bottom:12px;" id="matIcon">🖼️</div>
+      <div style="font-size:13px;color:var(--text-3);margin-bottom:8px;" id="matFile">IMG_001.jpg</div>
+      <div style="font-size:16px;font-weight:600;color:var(--text-1);margin-bottom:16px;">正在识别中...</div>
+      <div class="progress-bar" style="height:6px;margin-bottom:8px;"><div class="fill" id="matBar" style="width:0%;transition:width .4s;"></div></div>
+      <div style="font-size:13px;color:var(--text-3);margin-bottom:20px;" id="matStatus">已识别 0 个单词</div>
+      <button style="background:none;border:none;color:var(--text-4);font-size:14px;cursor:pointer;" onclick="cancelMatLoading()">取消</button>
+    </div>
+  </div>
+
+  <!-- 生成词库进度 -->
+  <div id="genLoading" style="display:none;position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:25;align-items:center;justify-content:center;">
+    <div style="width:290px;background:#fff;border-radius:16px;padding:32px 24px;text-align:center;box-shadow:0 16px 48px rgba(0,0,0,.2);">
+      <div style="width:56px;height:56px;border-radius:50%;background:var(--brand);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;animation:spin .8s linear infinite;">
+        <svg width="28" height="28" viewBox="0 0 28 28"><circle cx="14" cy="14" r="10" stroke="#fff" stroke-width="3" fill="none" stroke-dasharray="50" stroke-dashoffset="15"/></svg>
+      </div>
+      <div style="font-size:16px;font-weight:600;color:var(--text-1);margin-bottom:6px;">正在生成词库</div>
+      <div style="font-size:13px;color:var(--text-3);margin-bottom:16px;">AI正在分析全部素材...</div>
+      <div class="progress-bar" style="height:6px;margin-bottom:8px;"><div class="fill" id="genBar" style="width:0%;transition:width .5s;"></div></div>
+      <div style="font-size:13px;color:var(--text-3);" id="genStatus">正在汇总素材...</div>
+    </div>
   </div>
 </div>
+
+</div><!-- phone-frame end -->
 
 </div><!-- phone-frame end -->
 
@@ -2128,59 +2125,141 @@ function submitSpell() {
   }
 }
 
-// ========== 拍照/上传识词 ==========
-let recogTimer = null;
+// ========== 词库管理 ==========
+let matCount = 0;
+const demoMats = [
+  { icon:'🖼️', name:'课本第3单元', file:'IMG_001.jpg', words:12 },
+  { icon:'📄', name:'单词表附录', file:'单词表.pdf', words:15 },
+  { icon:'🖼️', name:'老师板书', file:'IMG_003.jpg', words:5 },
+];
+
+function createBank() { showPage('P23a'); }
+
+function toggleRename() {
+  const bar = document.getElementById('renameBar');
+  bar.style.display = bar.style.display === 'none' ? 'block' : 'none';
+  if (bar.style.display === 'block') setTimeout(() => document.getElementById('renameInput').focus(), 100);
+}
+function saveRename() {
+  const val = document.getElementById('renameInput').value.trim();
+  if (val) { document.getElementById('bankTitle').textContent = val; document.getElementById('renameBar').style.display = 'none'; }
+}
+
+// 添加素材
+function addMaterial(type) {
+  document.getElementById('addMaterialSheet').style.display = 'block';
+}
+function closeSheet() {
+  document.getElementById('addMaterialSheet').style.display = 'none';
+}
+
+// 拍照/上传识别
+let matTimer = null;
 function startRecognize(type) {
-  const card = document.getElementById('recognizeCard');
-  if (!card) return;
-  const icon = document.getElementById('recogIcon');
-  const file = document.getElementById('recogFile');
-  icon.textContent = type === 'file' ? '📄' : '🖼️';
-  file.textContent = type === 'file' ? '单词表.pdf' : '课本第3单元.jpg';
-  card.style.display = 'flex';
-  // 动画进度条
-  const bar = document.getElementById('recogBar');
+  closeSheet();
+  const loading = document.getElementById('matLoading');
+  if (!loading) return;
+  document.getElementById('matIcon').textContent = type === 'file' ? '📄' : '🖼️';
+  document.getElementById('matFile').textContent = type === 'file' ? '单词表.pdf' : 'IMG_' + Date.now().toString(36) + '.jpg';
+  loading.style.display = 'flex';
+  const bar = document.getElementById('matBar');
+  const stat = document.getElementById('matStatus');
   bar.style.width = '0%';
-  const stat = document.getElementById('recogStatus');
   let pct = 0;
-  recogTimer = setInterval(() => {
-    pct += 15 + Math.random() * 10;
-    if (pct >= 100) { pct = 100; clearInterval(recogTimer);
-      stat.textContent = '识别完成！共 15 个单词';
-      setTimeout(() => { card.style.display = 'none'; }, 800);
+  matTimer = setInterval(() => {
+    pct += 20 + Math.random() * 10;
+    if (pct >= 100) { pct = 100; clearInterval(matTimer);
+      stat.textContent = '识别完成！共 ' + Math.floor(5 + Math.random() * 15) + ' 个单词';
+      setTimeout(() => {
+        loading.style.display = 'none';
+        addMaterialToList(type);
+      }, 600);
     } else {
       bar.style.width = pct + '%';
       stat.textContent = '已识别 ' + Math.floor(pct * 0.15) + ' 个单词';
     }
   }, 500);
 }
-function cancelRecognize() {
-  clearInterval(recogTimer);
-  document.getElementById('recognizeCard').style.display = 'none';
+function cancelMatLoading() {
+  clearInterval(matTimer);
+  document.getElementById('matLoading').style.display = 'none';
 }
 
-// ========== 词库详情操作 ==========
-function toggleRename() {
-  const panel = document.getElementById('renamePanel');
-  panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
-  if (panel.style.display === 'block') document.getElementById('renameInput').focus();
+function addMaterialToList(type) {
+  matCount++;
+  // 显示有素材状态
+  document.getElementById('bankEmptyState').style.display = 'none';
+  document.getElementById('bankFilledState').style.display = 'block';
+
+  const list = document.getElementById('materialList');
+  const item = document.createElement('div');
+  const icon = type === 'file' ? '📄' : '🖼️';
+  const name = type === 'file' ? '单词表' : ('课本第' + matCount + '单元');
+  const fname = type === 'file' ? '单词表.pdf' : ('IMG_00' + matCount + '.jpg');
+  item.style.cssText = 'padding:14px 16px;border-bottom:.5px solid var(--divider);display:flex;align-items:center;gap:10px;';
+  item.innerHTML =
+    '<span style="font-size:24px;">' + icon + '</span>' +
+    '<div style="flex:1;"><div style="font-size:14px;font-weight:500;color:var(--text-1);">' + name + '</div>' +
+    '<div style="font-size:12px;color:var(--text-3);">' + fname + ' · 未分析</div></div>' +
+    '<span style="font-size:18px;color:var(--text-4);cursor:pointer;padding:4px;" onclick="deleteMaterial(this)">🗑</span>';
+  list.appendChild(item);
+
+  document.getElementById('matCount').textContent = matCount;
+  updateGenBtn();
 }
-function saveRename() {
-  const val = document.getElementById('renameInput').value.trim();
-  if (val) {
-    document.getElementById('bankDetailTitle').textContent = val;
-    document.getElementById('renamePanel').style.display = 'none';
+
+function deleteMaterial(el) {
+  el.closest('div').remove();
+  matCount = Math.max(0, matCount - 1);
+  document.getElementById('matCount').textContent = matCount;
+  updateGenBtn();
+  if (matCount === 0) {
+    document.getElementById('bankEmptyState').style.display = 'block';
+    document.getElementById('bankFilledState').style.display = 'none';
   }
 }
-function deleteMaterial(el) {
-  const toast = document.getElementById('toastMsg');
-  if (toast) { toast.textContent = '素材已删除'; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 1500); }
-  el.closest('div').parentElement.removeChild(el.closest('div'));
+
+function updateGenBtn() {
+  const btn = document.getElementById('genBankBtn');
+  if (!btn) return;
+  if (matCount === 0) { btn.style.opacity = '0.4'; btn.textContent = '尚未添加素材'; }
+  else { btn.style.opacity = '1'; btn.textContent = '⚡ 生成词库（' + matCount + '个素材）'; }
 }
+
+function generateBank() {
+  if (matCount === 0) return;
+  const loading = document.getElementById('genLoading');
+  loading.style.display = 'flex';
+  const bar = document.getElementById('genBar');
+  const stat = document.getElementById('genStatus');
+  bar.style.width = '0%';
+  const steps = ['正在汇总素材...', 'AI识别单词中...', '智能去重...', '生成词库...'];
+  let step = 0;
+  let pct = 0;
+  const timer = setInterval(() => {
+    pct += 12 + Math.random() * 8;
+    if (pct >= 100) { pct = 100; clearInterval(timer);
+      stat.textContent = '词库生成完成！共 23 个单词';
+      bar.style.width = '100%';
+      setTimeout(() => {
+        loading.style.display = 'none';
+        const toast = document.getElementById('toastMsg');
+        if (toast) { toast.textContent = '✅ 词库已生成，可以开始学习了'; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2000); }
+        document.getElementById('genBankBtn').textContent = '🔄 重新生成词库';
+      }, 800);
+    } else {
+      bar.style.width = pct + '%';
+      if (pct > 30 && step < 1) { step = 1; stat.textContent = steps[1]; }
+      else if (pct > 60 && step < 2) { step = 2; stat.textContent = steps[2]; }
+      else if (pct > 85 && step < 3) { step = 3; stat.textContent = steps[3]; }
+    }
+  }, 600);
+}
+
 function deleteBank() {
   const toast = document.getElementById('toastMsg');
   if (toast) { toast.textContent = '词库已删除'; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 1500); }
-  setTimeout(() => goHome(), 800);
+  setTimeout(() => showPage('P23'), 500);
 }
 
 // ========== 初始化 ==========

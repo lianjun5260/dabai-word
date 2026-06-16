@@ -1712,12 +1712,9 @@ function selectWordBank(row, tag) {
 function updateTbankConfirm() {
   const btn = document.getElementById('tbankConfirm');
   if (!btn) return;
-  if (window.selectedTbank && window.selectedTbank !== window.currentTag) {
+  if (window.selectedTbank) {
     btn.style.opacity = '1';
-    btn.textContent = '确定切换词库';
-  } else if (window.selectedTbank === window.currentTag) {
-    btn.style.opacity = '0.4';
-    btn.textContent = '选择当前词库';
+    btn.textContent = window.selectedTbank !== window.currentTag ? '确定切换词库' : '选择当前词库';
   } else {
     btn.style.opacity = '0.4';
     btn.textContent = '请先选择词库';
@@ -1725,38 +1722,34 @@ function updateTbankConfirm() {
 }
 
 function confirmWordBank() {
-  if (!window.selectedTbank || window.selectedTbank === window.currentTag) return;
+  if (!window.selectedTbank) return;
 
   // 显示loading
   const loading = document.getElementById('tbankLoading');
   if (loading) loading.style.display = 'flex';
 
-  // 模拟创建词库
+  const tag = window.selectedTbank;
+
+  // 模拟加载
   setTimeout(() => {
-    window.currentTag = window.selectedTbank;
-    const tagEl = document.getElementById('currentTag');
-    if (tagEl) tagEl.textContent = window.currentTag;
+    if (tag !== window.currentTag) {
+      window.currentTag = tag;
+      const tagEl = document.getElementById('currentTag');
+      if (tagEl) tagEl.textContent = tag;
+    }
 
-    // 隐藏loading
     if (loading) loading.style.display = 'none';
-
-    // 重建列表
-    ['tbank-primary','tbank-junior','tbank-senior','tbank-college','tbank-abroad'].forEach(id => {
-      const c = document.getElementById(id);
-      if (c) c.innerHTML = '';
-    });
-    buildWordBanks();
 
     // 提示
     const toast = document.getElementById('toastMsg');
     if (toast) {
-      toast.textContent = '已切换到『' + window.currentTag + '』词库';
+      toast.textContent = '词库已就绪';
       toast.classList.add('show');
-      setTimeout(() => toast.classList.remove('show'), 1500);
+      setTimeout(() => toast.classList.remove('show'), 1000);
     }
 
     // 返回首页
-    setTimeout(() => goBack(), 800);
+    goHome();
   }, 1200);
 }
 function selectGrade(el) {

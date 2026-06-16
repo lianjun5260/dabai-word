@@ -617,7 +617,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
     </div>
   </div>
   <div class="tab-bar">
-    <div class="tab-item" onclick="refreshHome()"><div class="icon">🏠</div><div class="label">首页</div></div>
+    <div class="tab-item" onclick="showPage('P04')"><div class="icon">🏠</div><div class="label">首页</div></div>
     <div class="tab-item active" onclick="showPage('P05a')"><div class="icon">📊</div><div class="label">统计</div></div>
     <div class="tab-item" onclick="showPage('P21')"><div class="icon">👤</div><div class="label">我的</div></div>
   </div>
@@ -1435,7 +1435,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
     </div>
   </div>
   <div class="tab-bar">
-    <div class="tab-item" onclick="refreshHome()"><div class="icon">🏠</div><div class="label">首页</div></div>
+    <div class="tab-item" onclick="showPage('P04')"><div class="icon">🏠</div><div class="label">首页</div></div>
     <div class="tab-item" onclick="showPage('P05a')"><div class="icon">📊</div><div class="label">统计</div></div>
     <div class="tab-item active" onclick="showPage('P21')"><div class="icon">👤</div><div class="label">我的</div></div>
   </div>
@@ -1989,17 +1989,6 @@ function submitSpell() {
     hint.textContent = '✕ 拼写错误，正确答案是 industrious';
     hint.style.color = 'var(--error)';
   }
-}
-
-// ========== 首页刷新（点首页Tab触发） ==========
-function refreshHome() {
-  const toast = document.getElementById('toastMsg');
-  if (toast) {
-    toast.textContent = '⟳ 正在刷新...';
-    toast.classList.add('show');
-  }
-  // 0.3秒后刷新整页，拉取最新代码
-  setTimeout(() => { location.reload(); }, 300);
 }
 
 // ========== 初始化 ==========

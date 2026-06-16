@@ -254,6 +254,17 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
 /* 遮罩层（模态框用） */
 .overlay { position:fixed; top:0;left:0;right:0;bottom:0; background:rgba(0,0,0,.45); z-index:100; display:none; }
 .overlay.show { display:block; }
+
+/* ========== 下拉刷新 ========== */
+.pull-indicator { position:fixed; top:-60px; left:50%; transform:translateX(-50%); z-index:9999; display:flex; flex-direction:column; align-items:center; gap:4px; transition:top .2s ease; }
+.pull-indicator.pulling { top:40px; }
+.pull-indicator .pull-icon { width:36px; height:36px; border-radius:50%; background:rgba(0,0,0,.7); color:#fff; display:flex; align-items:center; justify-content:center; font-size:18px; transition:transform .3s; }
+.pull-indicator.ready .pull-icon { transform:rotate(180deg); background:var(--brand); }
+.pull-indicator .pull-text { font-size:12px; color:rgba(0,0,0,.5); background:rgba(255,255,255,.9); padding:2px 10px; border-radius:10px; }
+.pull-indicator.refreshing .pull-icon { animation:spin .6s linear infinite; background:var(--brand); color:#fff; content:'⟳'; }
+@keyframes spin { to{transform:rotate(360deg)} }
+.pull-indicator.done .pull-icon { background:var(--brand); transform:none; animation:none; }
+.pull-indicator.done .pull-icon::after { content:'✓'; }
 </style>
 </head>
 <body>
@@ -286,8 +297,11 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
   <a onclick="showPage('P22')" id="nav-P22">P22 会员中心</a>
 </div>
 
-<!-- ========== 手机外框 ========== -->
-<div class="phone-frame">
+<!-- ========== 下拉刷新指示器 ========== -->
+<div class="pull-indicator" id="pullIndicator">
+  <div class="pull-icon" id="pullIcon">↓</div>
+  <div class="pull-text" id="pullText">下拉刷新</div>
+</div>
 
 <!-- ========================================== -->
 <!-- P01 登录页 -->
@@ -1846,11 +1860,101 @@ function submitSpell() {
   }
 }
 
+// ========== 下拉刷新 ==========
+{ // block scope
+let pullY = 0, pullStart = 0, pulling = false;
+const THRESHOLD = 80;
+const indicator = document.getElementById('pullIndicator');
+const icon = document.getElementById('pullIcon');
+const text = document.getElementById('pullText');
+
+const phoneFrame = document.querySelector('.phone-frame');
+
+phoneFrame.addEventListener('touchstart', e => {
+  // 只在页面滚动到顶部时才启用下拉
+  const activePage = document.querySelector('.page.active');
+  if (!activePage || activePage.scrollTop > 5) return;
+  pullStart = e.touches[0].clientY;
+  pulling = true;
+}, { passive: true });
+
+phoneFrame.addEventListener('touchmove', e => {
+  if (!pulling) return;
+  pullY = e.touches[0].clientY - pullStart;
+  if (pullY < 10) return;
+
+  indicator.classList.add('pulling');
+  text.textContent = pullY > THRESHOLD ? '释放刷新' : '下拉刷新';
+  indicator.classList.toggle('ready', pullY > THRESHOLD);
+
+  // 阻止页面滚动
+  if (pullY > 20) e.preventDefault();
+}, { passive: false });
+
+phoneFrame.addEventListener('touchend', () => {
+  if (!pulling) return;
+  pulling = false;
+
+  if (pullY > THRESHOLD) {
+    // 触发刷新
+    indicator.classList.remove('ready');
+    indicator.classList.add('refreshing');
+    icon.textContent = '⟳';
+    text.textContent = '正在刷新...';
+
+    // 模拟刷新（清除缓存、重新加载）
+    setTimeout(() => {
+      // 重置所有状态
+      pageStack.length = 0;
+      document.querySelectorAll('.page').forEach(p => {
+        p.classList.remove('active','slide-forward','slide-forward-out','slide-back','slide-back-out','tab-switch');
+        // 清空选择题状态
+        p.querySelectorAll('.option-item').forEach(o => {
+          o.classList.remove('correct','wrong');
+          if (o.parentElement) o.parentElement.dataset.answered = '';
+        });
+        // 清空拼写
+        p.querySelectorAll('.letter-btn').forEach(b => {
+          b.classList.remove('placed','wrong-placed');
+          b.disabled = false;
+        });
+        p.querySelectorAll('.letter-slot').forEach(s => {
+          s.textContent = '';
+          s.classList.remove('filled','wrong');
+        });
+      });
+      spellPos = 0;
+      spellSelected = [];
+      recordState = 'init';
+      // 返回首页
+      showPage('P01');
+
+      // 显示完成
+      indicator.classList.remove('refreshing');
+      indicator.classList.add('done');
+      icon.textContent = '';
+      text.textContent = '刷新完成 ✓';
+
+      // 收起
+      setTimeout(() => {
+        indicator.classList.remove('pulling','done');
+        icon.textContent = '↓';
+        text.textContent = '下拉刷新';
+      }, 800);
+    }, 600);
+  } else {
+    // 未到达阈值，收起
+    indicator.classList.remove('pulling','ready');
+    text.textContent = '下拉刷新';
+  }
+  pullY = 0;
+});
+}
+
 // ========== 初始化 ==========
 document.addEventListener('DOMContentLoaded', () => {
   showPage('P01');
 });
-</script>
 </script>
 
 </body>

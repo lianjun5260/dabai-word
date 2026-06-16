@@ -466,7 +466,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
     <div class="card" onclick="showPage('P05')">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
         <span style="font-size:16px;font-weight:600;color:var(--text-1);">当前在学</span>
-        <span class="tag tag-yellow">人教版3年级</span>
+        <span class="tag tag-yellow" id="currentTag">六年级</span>
       </div>
       <div class="progress-bar" style="margin-bottom:8px;">
         <div class="fill" style="width:42%;"></div>
@@ -638,67 +638,22 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
   <div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
   <div class="navbar">
     <div class="back" onclick="goBack()">←</div>
-    <div class="title">词库练习</div>
+    <div class="title">切换词库</div>
     <div class="right"></div>
   </div>
   <div style="padding:12px 16px;">
-    <!-- 搜索 -->
-    <div style="background:#F5F5F5;border-radius:var(--r-md);height:36px;display:flex;align-items:center;padding:0 12px;margin-bottom:16px;">
-      <span style="color:var(--text-4);margin-right:8px;">🔍</span>
-      <span style="color:var(--text-4);font-size:14px;">搜索词库</span>
-    </div>
-    <!-- 词库列表 -->
-    <div style="background:var(--bg-card);border-radius:var(--r-lg);box-shadow:0 1px 4px rgba(0,0,0,.06);overflow:hidden;">
-      <!-- 项目1 - 当前在学 -->
-      <div style="padding:16px;border-bottom:.5px solid var(--divider);cursor:pointer;" onclick="showPage('P06')">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-          <span style="font-size:15px;font-weight:600;color:var(--text-1);">人教版3年级</span>
-          <span class="tag tag-yellow">当前在学</span>
-        </div>
-        <div class="progress-bar" style="margin-bottom:4px;">
-          <div class="fill" style="width:42%;"></div>
-        </div>
-        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-3);">
-          <span>已学420词</span><span>2930词</span>
-        </div>
-      </div>
-      <!-- 项目2 -->
-      <div style="padding:16px;border-bottom:.5px solid var(--divider);cursor:pointer;" onclick="showPage('P06')">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-          <span style="font-size:15px;font-weight:600;color:var(--text-1);">人教版4年级</span>
-        </div>
-        <div class="progress-bar" style="margin-bottom:4px;">
-          <div class="fill" style="width:12%;"></div>
-        </div>
-        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-3);">
-          <span>已学180词</span><span>1560词</span>
-        </div>
-      </div>
-      <!-- 项目3 -->
-      <div style="padding:16px;border-bottom:.5px solid var(--divider);cursor:pointer;" onclick="showPage('P06')">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-          <span style="font-size:15px;font-weight:600;color:var(--text-1);">小学核心词汇</span>
-        </div>
-        <div class="progress-bar" style="margin-bottom:4px;">
-          <div class="fill" style="width:68%;"></div>
-        </div>
-        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-3);">
-          <span>已学680词</span><span>1000词</span>
-        </div>
-      </div>
-      <!-- 项目4 -->
-      <div style="padding:16px;cursor:pointer;" onclick="showPage('P06')">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-          <span style="font-size:15px;font-weight:600;color:var(--text-1);">剑桥少儿英语</span>
-        </div>
-        <div class="progress-bar" style="margin-bottom:4px;">
-          <div class="fill" style="width:0%;"></div>
-        </div>
-        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-3);">
-          <span>未开始</span><span>800词</span>
-        </div>
-      </div>
-    </div>
+    <div style="font-size:14px;color:var(--text-3);margin-bottom:2px;">每个学段对应一个词库，选择后将切换当前在学内容</div>
+  </div>
+  <div style="padding:4px 16px 16px;overflow-y:auto;max-height:calc(100% - 160px);">
+    <!-- 📘 基础阶段词库 -->
+    <div style="font-size:13px;color:var(--text-3);margin:12px 0 8px;font-weight:500;">📘 基础阶段</div>
+    <div style="background:var(--bg-card);border-radius:var(--r-lg);box-shadow:0 1px 4px rgba(0,0,0,.06);overflow:hidden;margin-bottom:12px;" id="tbank-basic"></div>
+    <!-- 🎓 大学考试词库 -->
+    <div style="font-size:13px;color:var(--text-3);margin:12px 0 8px;font-weight:500;">🎓 大学考试</div>
+    <div style="background:var(--bg-card);border-radius:var(--r-lg);box-shadow:0 1px 4px rgba(0,0,0,.06);overflow:hidden;margin-bottom:12px;" id="tbank-college"></div>
+    <!-- 🌍 留学考试词库 -->
+    <div style="font-size:13px;color:var(--text-3);margin:12px 0 8px;font-weight:500;">🌍 留学考试</div>
+    <div style="background:var(--bg-card);border-radius:var(--r-lg);box-shadow:0 1px 4px rgba(0,0,0,.06);overflow:hidden;" id="tbank-abroad"></div>
   </div>
 </div>
 
@@ -1608,6 +1563,8 @@ function showPage(id, isBack) {
 
   // 初始化拼单词页面
   if (id === 'P09') initSpellPage();
+  // 初始化词库列表
+  if (id === 'P05') buildWordBanks();
 
   // 滚动到顶部
   setTimeout(() => { if (newPage) newPage.scrollTop = 0; }, 50);
@@ -1679,7 +1636,65 @@ function toggleAgree() {
   }
 }
 
-// ========== 选择年级（单选） ==========
+// ========== 词库列表构建 ==========
+const WORD_BANKS = {
+  basic: ['一年级','二年级','三年级','四年级','五年级','六年级','小升初','初一','初二','初三','中考','高一','高二','高三','高考'],
+  college: ['四级','六级','考研','专升本','专四专八'],
+  abroad: ['雅思','托福','GRE','GMAT']
+};
+
+function buildWordBanks() {
+  const currentTag = window.currentTag || '六年级';
+  const groups = [
+    { id: 'tbank-basic', tags: WORD_BANKS.basic, label: '基础阶段' },
+    { id: 'tbank-college', tags: WORD_BANKS.college, label: '大学考试' },
+    { id: 'tbank-abroad', tags: WORD_BANKS.abroad, label: '留学考试' }
+  ];
+
+  groups.forEach(g => {
+    const container = document.getElementById(g.id);
+    if (!container || container.children.length > 0) return;
+    g.tags.forEach((tag, i) => {
+      const isCurrent = tag === currentTag;
+      const pct = isCurrent ? 42 : Math.floor(Math.random() * 30);
+      const total = [300,800,1200,1500,2000,2500,3000,2000,2200,2500,3500,3000,3200,3500,500,600,400,300,800,700,400,300][Math.floor(Math.random()*22)];
+      const learned = Math.floor(total * pct / 100);
+
+      const row = document.createElement('div');
+      row.style.cssText = 'padding:14px 16px;border-bottom:.5px solid var(--divider);cursor:pointer;';
+      if (i === g.tags.length - 1) row.style.borderBottom = 'none';
+      row.onclick = () => switchWordBank(tag);
+      row.innerHTML =
+        '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">' +
+        '<span style="font-size:15px;font-weight:600;color:var(--text-1);">' + tag + '</span>' +
+        (isCurrent ? '<span class="tag tag-yellow">当前在学</span>' : '<span style="font-size:12px;color:var(--text-4);">切换 ›</span>') +
+        '</div>' +
+        '<div class="progress-bar" style="margin-bottom:4px;"><div class="fill" style="width:' + pct + '%;"></div></div>' +
+        '<div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-3);">' +
+        '<span>已学' + learned + '词</span><span>' + total + '词</span></div>';
+      container.appendChild(row);
+    });
+  });
+}
+
+function switchWordBank(tag) {
+  window.currentTag = tag;
+  const tagEl = document.getElementById('currentTag');
+  if (tagEl) tagEl.textContent = tag;
+  // 重建词库列表以更新"当前在学"标记
+  ['tbank-basic','tbank-college','tbank-abroad'].forEach(id => {
+    const c = document.getElementById(id);
+    if (c) c.innerHTML = '';
+  });
+  buildWordBanks();
+  // 提示
+  const toast = document.getElementById('toastMsg');
+  if (toast) {
+    toast.textContent = '已切换到『' + tag + '』词库';
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 1500);
+  }
+}
 function selectGrade(el) {
   // 取消同一页面所有选中
   document.querySelectorAll('.grade-tag,.circle-select').forEach(c => c.classList.remove('active'));
@@ -1696,7 +1711,6 @@ function selectGrade(el) {
 function confirmGrade() {
   const selected = document.querySelector('.grade-tag.active,.circle-select.active');
   if (!selected) {
-    // 提示选择
     const toast = document.getElementById('toastMsg');
     if (toast) {
       toast.textContent = '请先选择一个学习阶段';
@@ -1705,6 +1719,10 @@ function confirmGrade() {
     }
     return;
   }
+  // 更新当前学段标签
+  window.currentTag = selected.textContent;
+  const tagEl = document.getElementById('currentTag');
+  if (tagEl) tagEl.textContent = window.currentTag;
   showPage('P04');
 }
 

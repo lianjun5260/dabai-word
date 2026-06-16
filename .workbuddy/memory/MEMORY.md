@@ -46,6 +46,11 @@ LC-05 汉译英-直选 | LC-06 汉译英-全拼 | LC-07 汉译英-拼读 | LC-08
 - Git仓库: 项目根目录，分支main，文件变更后需随手 `git add` + `git commit`
 - 原型部署: 每次更新原型后部署到CloudStudio并生成二维码（绿色#52C41A）
 
+## 每次改完原型后的默认动作（三连）
+1. `git add` + `git commit` — 备份
+2. `preview_url` 本地文件 — 更新右侧预览
+3. CloudStudio 部署 `deploy/` — 发布PWA（手机下拉刷新即更新）
+
 ## UI设计规范要点
 - 主色：#52C41A(品牌绿)，辅色#FF4D4F(错误红)、#FAAD14(警告橙)
 - 字体：iOS=SF Pro/PingFang SC，Android=Roboto/Noto Sans SC

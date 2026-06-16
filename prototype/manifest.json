@@ -1,0 +1,11 @@
+{
+  "name": "大白陪你背单词",
+  "short_name": "大白背单词",
+  "description": "大白陪你背单词 - AI智能英语学习",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#FFFFFF",
+  "theme_color": "#52C41A",
+  "orientation": "portrait",
+  "icons": []
+}

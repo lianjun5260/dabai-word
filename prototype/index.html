@@ -1862,24 +1862,78 @@ function submitSpell() {
 
 // ========== 下拉刷新 ==========
 { // block scope
-let pullY = 0, pullStart = 0, pulling = false;
+let pullY = 0, pullStart = 0, pulling = false, refreshing = false;
 const THRESHOLD = 80;
 const indicator = document.getElementById('pullIndicator');
 const icon = document.getElementById('pullIcon');
 const text = document.getElementById('pullText');
 
-const phoneFrame = document.querySelector('.phone-frame');
+function getActivePage() {
+  return document.querySelector('.page.active');
+}
 
-phoneFrame.addEventListener('touchstart', e => {
-  // 只在页面滚动到顶部时才启用下拉
-  const activePage = document.querySelector('.page.active');
-  if (!activePage || activePage.scrollTop > 5) return;
+function doRefresh() {
+  refreshing = true;
+  indicator.classList.remove('ready');
+  indicator.classList.add('refreshing');
+  icon.textContent = '⟳';
+  text.textContent = '正在刷新...';
+  // 阻止下拉指示器跟随手指
+  indicator.style.position = 'fixed';
+  indicator.style.top = '40px';
+
+  setTimeout(() => {
+    // 重置所有状态
+    pageStack.length = 0;
+    document.querySelectorAll('.page').forEach(p => {
+      p.classList.remove('active','slide-forward','slide-forward-out','slide-back','slide-back-out','tab-switch');
+      p.querySelectorAll('.option-item').forEach(o => {
+        o.classList.remove('correct','wrong');
+        if (o.parentElement) o.parentElement.dataset.answered = '';
+      });
+      p.querySelectorAll('.letter-btn').forEach(b => {
+        b.classList.remove('placed','wrong-placed');
+        b.disabled = false;
+      });
+      p.querySelectorAll('.letter-slot').forEach(s => {
+        s.textContent = '';
+        s.classList.remove('filled','wrong');
+      });
+    });
+    spellPos = 0;
+    spellSelected = [];
+    recordState = 'init';
+    showPage('P01');
+
+    indicator.classList.remove('refreshing');
+    indicator.classList.add('done');
+    icon.textContent = '';
+    text.textContent = '刷新完成 ✓';
+
+    setTimeout(() => {
+      indicator.classList.remove('pulling','done');
+      indicator.style.position = '';
+      indicator.style.top = '';
+      icon.textContent = '↓';
+      text.textContent = '下拉刷新';
+      refreshing = false;
+    }, 1000);
+  }, 600);
+}
+
+document.addEventListener('touchstart', function(e) {
+  if (refreshing) return;
+  const page = getActivePage();
+  if (!page || page.scrollTop > 5) return;
   pullStart = e.touches[0].clientY;
   pulling = true;
 }, { passive: true });
 
-phoneFrame.addEventListener('touchmove', e => {
-  if (!pulling) return;
+document.addEventListener('touchmove', function(e) {
+  if (!pulling || refreshing) return;
+  const page = getActivePage();
+  if (!page || page.scrollTop > 5) { pulling = false; return; }
+
   pullY = e.touches[0].clientY - pullStart;
   if (pullY < 10) return;
 
@@ -1887,69 +1941,27 @@ phoneFrame.addEventListener('touchmove', e => {
   text.textContent = pullY > THRESHOLD ? '释放刷新' : '下拉刷新';
   indicator.classList.toggle('ready', pullY > THRESHOLD);
 
-  // 阻止页面滚动
   if (pullY > 20) e.preventDefault();
 }, { passive: false });
 
-phoneFrame.addEventListener('touchend', () => {
-  if (!pulling) return;
+document.addEventListener('touchend', function() {
+  if (!pulling || refreshing) return;
   pulling = false;
 
   if (pullY > THRESHOLD) {
-    // 触发刷新
-    indicator.classList.remove('ready');
-    indicator.classList.add('refreshing');
-    icon.textContent = '⟳';
-    text.textContent = '正在刷新...';
-
-    // 模拟刷新（清除缓存、重新加载）
-    setTimeout(() => {
-      // 重置所有状态
-      pageStack.length = 0;
-      document.querySelectorAll('.page').forEach(p => {
-        p.classList.remove('active','slide-forward','slide-forward-out','slide-back','slide-back-out','tab-switch');
-        // 清空选择题状态
-        p.querySelectorAll('.option-item').forEach(o => {
-          o.classList.remove('correct','wrong');
-          if (o.parentElement) o.parentElement.dataset.answered = '';
-        });
-        // 清空拼写
-        p.querySelectorAll('.letter-btn').forEach(b => {
-          b.classList.remove('placed','wrong-placed');
-          b.disabled = false;
-        });
-        p.querySelectorAll('.letter-slot').forEach(s => {
-          s.textContent = '';
-          s.classList.remove('filled','wrong');
-        });
-      });
-      spellPos = 0;
-      spellSelected = [];
-      recordState = 'init';
-      // 返回首页
-      showPage('P01');
-
-      // 显示完成
-      indicator.classList.remove('refreshing');
-      indicator.classList.add('done');
-      icon.textContent = '';
-      text.textContent = '刷新完成 ✓';
-
-      // 收起
-      setTimeout(() => {
-        indicator.classList.remove('pulling','done');
-        icon.textContent = '↓';
-        text.textContent = '下拉刷新';
-      }, 800);
-    }, 600);
+    doRefresh();
   } else {
-    // 未到达阈值，收起
     indicator.classList.remove('pulling','ready');
     text.textContent = '下拉刷新';
   }
   pullY = 0;
 });
 }
+
+// ========== 初始化 ==========
+document.addEventListener('DOMContentLoaded', () => {
+  showPage('P01');
+});
 
 // ========== 初始化 ==========
 document.addEventListener('DOMContentLoaded', () => {

@@ -1508,9 +1508,9 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
         </div>
         <span style="font-size:20px;color:var(--text-4);cursor:pointer;padding:4px;" onclick="openBankDetail('英语课本拍照')">⋯</span>
       </div>
-      <div class="progress-bar" style="height:4px;margin-bottom:8px;"><div class="fill" style="width:35%;"></div></div>
+      <div class="progress-bar" style="height:4px;margin-bottom:8px;"><div class="fill" style="width:0%;"></div></div>
       <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-3);">
-        <span>共23词<span style="padding:0 6px;color:var(--divider);">|</span>掌握8词</span>
+        <span>共0词<span style="padding:0 6px;color:var(--divider);">|</span>掌握0词</span>
         <span>创建于06-16</span>
       </div>
     </div>
@@ -1590,11 +1590,6 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
     <!-- 生成词库 -->
     <button class="btn-primary" id="genBankBtn" onclick="generateBank()" style="opacity:0.4;">尚未添加素材</button>
 
-    <!-- 开始学习入口 -->
-    <div style="text-align:center;padding:12px 0;">
-      <button onclick="showPage('P05')" style="background:none;border:1px solid var(--brand);color:var(--brand);border-radius:var(--r-md);padding:10px 32px;font-size:14px;cursor:pointer;">开始学习</button>
-    </div>
-
     <!-- 删除 -->
     <div style="text-align:center;padding:8px 0 16px;">
       <button onclick="deleteBank()" style="background:none;border:none;color:var(--text-4);font-size:14px;cursor:pointer;">删除这个词库</button>
@@ -1626,45 +1621,6 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
     </div>
   </div>
 </div>
-
-<!-- ========================================== -->
-<!-- P23b 创建词库 -->
-<!-- ========================================== -->
-<div class="page" id="P23b">
-  <div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
-  <div class="navbar">
-    <div class="back" onclick="showPage('P23')"><</div>
-    <div class="title">创建词库</div>
-    <div class="right"></div>
-  </div>
-
-  <div style="padding:24px 16px;">
-    <!-- 名称输入 -->
-    <div style="margin-bottom:24px;">
-      <div style="font-size:14px;font-weight:600;color:var(--text-2);margin-bottom:10px;">词库名称</div>
-      <input id="newBankName" type="text" placeholder="例如：拍照整理0617" maxlength="20"
-        style="width:100%;height:48px;border:1px solid var(--divider);border-radius:var(--r-md);padding:0 14px;font-size:15px;outline:none;box-sizing:border-box;transition:border-color .2s;"
-        onfocus="this.style.borderColor='var(--brand)'" onblur="this.style.borderColor='var(--divider)'" oninput="checkCreateBtn()">
-      <div style="font-size:12px;color:var(--text-3);margin-top:6px;" id="nameHint">名称创建后可修改</div>
-    </div>
-
-    <!-- 图标选择 -->
-    <div style="margin-bottom:32px;">
-      <div style="font-size:14px;font-weight:600;color:var(--text-2);margin-bottom:10px;">图标</div>
-      <div style="display:flex;gap:12px;" id="iconSelector">
-        <div class="icon-opt selected" data-icon="📕" onclick="selectIcon(this)" style="flex:1;height:52px;border:2px solid var(--brand);border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;font-size:24px;cursor:pointer;background:var(--brand-light);transition:all .2s;">📕</div>
-        <div class="icon-opt" data-icon="📗" onclick="selectIcon(this)" style="flex:1;height:52px;border:2px solid var(--divider);border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;font-size:24px;cursor:pointer;transition:all .2s;">📗</div>
-        <div class="icon-opt" data-icon="📘" onclick="selectIcon(this)" style="flex:1;height:52px;border:2px solid var(--divider);border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;font-size:24px;cursor:pointer;transition:all .2s;">📘</div>
-        <div class="icon-opt" data-icon="📙" onclick="selectIcon(this)" style="flex:1;height:52px;border:2px solid var(--divider);border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;font-size:24px;cursor:pointer;transition:all .2s;">📙</div>
-      </div>
-    </div>
-
-    <!-- 创建按钮 -->
-    <button id="createBankBtn" class="btn-primary" onclick="doCreateBank()" style="opacity:0.4;">创建词库</button>
-  </div>
-</div>
-
-</div><!-- phone-frame end -->
 
 </div><!-- phone-frame end -->
 
@@ -2145,12 +2101,17 @@ function submitSpell() {
 
 // ========== 词库管理 ==========
 const bankData = {
-  '英语课本拍照': { icon:'📕', total:23, mastered:8, learning:15, date:'06-16', materials:[] },
-  '英语试卷生词': { icon:'📗', total:15, mastered:9, learning:6, date:'06-15', materials:[] }
+  '英语课本拍照': { icon:'📕', total:0, mastered:0, learning:0, date:'06-16', materials:[] },
+  '英语试卷生词': { icon:'📗', total:15, mastered:9, learning:6, date:'06-15', materials:[
+    { icon:'🖼️', name:'课本第3单元', file:'IMG_001.jpg', status:'识别完成' },
+    { icon:'📄', name:'单词表附录', file:'单词表.pdf', status:'识别完成' }
+  ]}
 };
 let currentBank = '';
 let matCount = 0;
-let selectedIcon = '📕';
+
+// AI 命名池（模拟AI自动生成词库名）
+const aiNames = ['随手整理词库','拍照识词本','今日收集词汇','清晨单词本','课后生词汇总','阅读摘录词库','考试冲刺词库','日常积累词库','错词整理本','词汇小助手','AI识词合集','新发现词汇','碎片时间词库','突击背诵词库','睡前词汇本'];
 
 // ========== P23a 打开词库详情（从 P23 ⋯ 进入） ==========
 function openBankDetail(name) {
@@ -2180,31 +2141,22 @@ function openBankDetail(name) {
   showPage('P23a');
 }
 
-// ========== P23b 创建词库 ==========
-function createBank() { showPage('P23b'); }
-
-function selectIcon(el) {
-  document.querySelectorAll('.icon-opt').forEach(o => { o.classList.remove('selected'); o.style.borderColor='var(--divider)'; o.style.background='transparent'; });
-  el.classList.add('selected'); el.style.borderColor='var(--brand)'; el.style.background='var(--brand-light)';
-  selectedIcon = el.dataset.icon;
-}
-function checkCreateBtn() {
-  document.getElementById('createBankBtn').style.opacity = document.getElementById('newBankName').value.trim() ? '1' : '0.4';
-}
-function doCreateBank() {
-  const val = document.getElementById('newBankName').value.trim();
-  if (!val) return;
-  if (bankData[val]) { alert('该词库名称已存在'); return; }
-  bankData[val] = { icon:selectedIcon, total:0, mastered:0, learning:0,
+// ========== 一键创建词库（AI自动命名） ==========
+function createBank() {
+  // AI 随机选一个不重复的名称
+  let name;
+  let tries = 0;
+  do {
+    name = aiNames[Math.floor(Math.random() * aiNames.length)] + '-' + Math.floor(Math.random()*99);
+    tries++;
+    if (tries > 50) { name = '词库' + Date.now().toString(36); break; }
+  } while (bankData[name]);
+  bankData[name] = { icon:'📕', total:0, mastered:0, learning:0,
     date: new Date().toISOString().slice(5,10).replace('-','月')+'日', materials:[] };
-  document.getElementById('newBankName').value = '';
-  document.getElementById('createBankBtn').style.opacity = '0.4';
-  document.querySelectorAll('.icon-opt').forEach((o,i) => {
-    o.classList.remove('selected'); o.style.borderColor='var(--divider)'; o.style.background='transparent';
-    if(i===0){ o.classList.add('selected'); o.style.borderColor='var(--brand)'; o.style.background='var(--brand-light)'; }
-  });
-  selectedIcon = '📕';
-  openBankDetail(val);
+  // toast 提示
+  const toast = document.getElementById('toastMsg');
+  if (toast) { toast.textContent = '✨ AI已为你创建「'+name+'」'; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2000); }
+  setTimeout(() => openBankDetail(name), 600);
 }
 
 // ========== 重命名 ==========
@@ -2342,7 +2294,7 @@ function generateBank() {
       setTimeout(() => {
         loading.style.display = 'none';
         const toast = document.getElementById('toastMsg');
-        if (toast) { toast.textContent = '✅ 词库已生成，可以开始学习了'; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2000); }
+        if (toast) { toast.textContent = '✅ 词库已生成'; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2000); }
         document.getElementById('genBankBtn').textContent = '🔄 重新生成词库';
       }, 800);
     } else {

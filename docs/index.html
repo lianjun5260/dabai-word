@@ -1380,10 +1380,10 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
         <div class="mi-value"></div>
         <div class="mi-arrow">›</div>
       </div>
-      <div class="menu-item">
+      <div class="menu-item" onclick="showPage('P26')">
         <div class="mi-icon" style="background:#FFF1F0;">❤️</div>
         <div class="mi-title">我的收藏</div>
-        <div class="mi-value">28个</div>
+        <div class="mi-value" id="favCount">0个</div>
         <div class="mi-arrow">›</div>
       </div>
       <div class="menu-item">
@@ -1638,6 +1638,39 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
 
 </div><!-- phone-frame end -->
 
+<!-- ========================================== -->
+<!-- P26 我的收藏 -->
+<!-- ========================================== -->
+<div class="page" id="P26">
+  <div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
+  <div class="navbar">
+    <div class="back" onclick="showPage('P21', true)"><</div>
+    <div class="title" id="favTitle">我的收藏</div>
+    <div class="right"></div>
+  </div>
+
+  <!-- Tab切换 -->
+  <div style="display:flex;border-bottom:1px solid var(--divider);background:var(--bg-card);">
+    <div class="fav-tab active" id="favTabLearning" onclick="switchFavTab('learning')" style="flex:1;text-align:center;padding:12px 0;font-size:14px;color:var(--brand);cursor:pointer;border-bottom:2px solid var(--brand);font-weight:500;transition:all .2s;">正在学习</div>
+    <div class="fav-tab" id="favTabMastered" onclick="switchFavTab('mastered')" style="flex:1;text-align:center;padding:12px 0;font-size:14px;color:var(--text-3);cursor:pointer;border-bottom:2px solid transparent;font-weight:400;transition:all .2s;">已掌握</div>
+  </div>
+
+  <!-- 列表区域 -->
+  <div style="overflow-y:auto;padding-bottom:80px;flex:1;" id="favList"></div>
+
+  <!-- 空状态 -->
+  <div id="favEmpty" style="display:none;text-align:center;padding:80px 24px;">
+    <div style="font-size:56px;margin-bottom:16px;">🗂️</div>
+    <div style="font-size:15px;color:var(--text-2);margin-bottom:8px;">还没有收藏的单词</div>
+    <div style="font-size:13px;color:var(--text-3);">学习过程中点击 ⭐ 即可收藏</div>
+  </div>
+
+  <!-- 底部按钮 -->
+  <div id="favReviewBtn" style="display:none;position:absolute;bottom:0;left:0;right:0;padding:12px 16px;background:var(--bg-card);border-top:.5px solid var(--divider);z-index:10;">
+    <button onclick="toastFav('功能开发中，敬请期待')" class="btn-primary" style="width:100%;">📚 开始复习</button>
+  </div>
+</div>
+
 <!-- ========== JavaScript ========== -->
 <script>
 // ========== 页面导航栈 ==========
@@ -1697,6 +1730,8 @@ function showPage(id, isBack) {
   if (id === 'P09') initSpellPage();
   // 初始化词库列表
   if (id === 'P05') buildWordBanks();
+  // 初始化收藏页
+  if (id === 'P26') { updateFavCount(); renderFavorites(); }
 
   // 滚动到顶部
   setTimeout(() => { if (newPage) newPage.scrollTop = 0; }, 50);
@@ -2447,6 +2482,123 @@ document.addEventListener('DOMContentLoaded', () => {
     if (document.getElementById(id)) showPage(id);
   });
 });
+// ========== 我的收藏 P26 ==========
+const favData = [
+  { id:1, word:'abandon', phonetic:'/əˈbændən/', meaning:'放弃；抛弃；遗弃', status:'learning', reviewDue: new Date(new Date().setHours(23,59,0,0)), collected: Date.now()-2*86400000 },
+  { id:2, word:'abstract', phonetic:'/ˈæbstrækt/', meaning:'抽象的；摘要', status:'learning', reviewDue: new Date(Date.now()+86400000), collected: Date.now()-5*86400000 },
+  { id:3, word:'barrier', phonetic:'/ˈbæriə(r)/', meaning:'障碍；屏障', status:'learning', reviewDue: new Date(Date.now()+3*86400000), collected: Date.now()-7*86400000 },
+  { id:4, word:'elaborate', phonetic:'/ɪˈlæbərət/', meaning:'精心制作的；详细阐述', status:'learning', reviewDue: new Date(2026,5,25), collected: Date.now()-10*86400000 },
+  { id:5, word:'fluctuate', phonetic:'/ˈflʌktʃueɪt/', meaning:'波动；起伏', status:'learning', reviewDue: new Date(2025,11,30), collected: Date.now()-14*86400000 },
+  { id:6, word:'genuine', phonetic:'/ˈdʒenjuɪn/', meaning:'真正的；真诚的', status:'learning', reviewDue: new Date(Date.now()+5*86400000), collected: Date.now()-3*86400000 },
+  { id:7, word:'hypothesis', phonetic:'/haɪˈpɒθəsɪs/', meaning:'假设；假说', status:'learning', reviewDue: new Date(Date.now()+86400000), collected: Date.now()-4*86400000 },
+  { id:8, word:'inevitable', phonetic:'/ɪnˈevɪtəbl/', meaning:'不可避免的', status:'learning', reviewDue: new Date(2026,5,30), collected: Date.now()-1*86400000 },
+  { id:9, word:'persistence', phonetic:'/pəˈsɪstəns/', meaning:'坚持；持续', status:'mastered', reviewDue: null, collected: Date.now()-20*86400000 },
+  { id:10, word:'sophisticated', phonetic:'/səˈfɪstɪkeɪtɪd/', meaning:'精密的；老练的', status:'mastered', reviewDue: null, collected: Date.now()-15*86400000 },
+  { id:11, word:'vulnerable', phonetic:'/ˈvʌlnərəbl/', meaning:'脆弱的；易受伤的', status:'mastered', reviewDue: null, collected: Date.now()-25*86400000 },
+  { id:12, word:'resilience', phonetic:'/rɪˈzɪliəns/', meaning:'韧性；适应力', status:'mastered', reviewDue: null, collected: Date.now()-30*86400000 }
+];
+let favTab = 'learning';
+let favTouchX = 0, favSwipedId = null;
+
+function formatReviewTime(dueDate) {
+  if (!dueDate) return '';
+  const now = Date.now(), diff = dueDate.getTime() - now;
+  const day = Math.ceil(diff/86400000);
+  const today = new Date(); today.setHours(23,59,59,0);
+  const dDay = new Date(dueDate); dDay.setHours(0,0,0,0);
+  const nowDay = new Date(); nowDay.setHours(0,0,0,0);
+  const d = Math.ceil((dDay.getTime()-nowDay.getTime())/86400000);
+  if (d <= 0) return '今天';
+  if (d === 1) return '最近两天';
+  if (d <= 7) return d+'天之内';
+  if (dueDate.getFullYear() === new Date().getFullYear()) return ('0'+(dueDate.getMonth()+1)).slice(-2)+'-'+('0'+dueDate.getDate()).slice(-2)+'之前';
+  return dueDate.getFullYear()+'-'+('0'+(dueDate.getMonth()+1)).slice(-2)+'-'+('0'+dueDate.getDate()).slice(-2)+'之前';
+}
+
+function renderFavorites() {
+  const list = document.getElementById('favList');
+  const empty = document.getElementById('favEmpty');
+  const btn = document.getElementById('favReviewBtn');
+  const filtered = favData.filter(f => f.status === favTab);
+  document.getElementById('favTitle').textContent = '我的收藏 (' + favData.length + ')';
+
+  if (filtered.length === 0) {
+    list.style.display = 'none'; empty.style.display = 'block'; btn.style.display = 'none';
+    return;
+  }
+  list.style.display = 'block'; empty.style.display = 'none';
+  btn.style.display = favTab === 'learning' ? 'block' : 'none';
+  list.innerHTML = '';
+  filtered.forEach(f => {
+    const row = document.createElement('div');
+    row.className = 'fav-row';
+    row.id = 'fav-' + f.id;
+    row.style.cssText = 'position:relative;overflow:hidden;border-bottom:.5px solid var(--divider);background:var(--bg-card);';
+    row.setAttribute('ontouchstart', 'favTouchStart(event,'+f.id+')');
+    row.setAttribute('ontouchmove', 'favTouchMove(event,'+f.id+')');
+    row.setAttribute('ontouchend', 'favTouchEnd(event,'+f.id+')');
+    row.innerHTML =
+      '<div class="fav-inner" style="padding:14px 16px;background:var(--bg-card);position:relative;z-index:1;transition:transform .2s;">'+
+        '<div style="display:flex;align-items:baseline;gap:6px;margin-bottom:4px;">'+
+          '<span style="font-size:17px;font-weight:600;color:var(--text-1);">'+f.word+'</span>'+
+          '<span style="font-size:13px;color:var(--text-3);">'+f.phonetic+'</span>'+
+        '</div>'+
+        '<div style="font-size:14px;color:var(--text-2);margin-bottom:6px;">'+f.meaning+'</div>'+
+        '<div style="display:flex;gap:16px;font-size:12px;color:var(--text-3);">'+
+          '<span>下次复习：'+(f.reviewDue?formatReviewTime(f.reviewDue):'—')+'</span>'+
+          '<span>收藏于：'+formatRelativeTime(f.collected)+'</span>'+
+        '</div>'+
+      '</div>'+
+      '<div onclick="deleteFav('+f.id+')" style="position:absolute;right:0;top:0;bottom:0;width:80px;background:var(--error);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;">取消收藏</div>';
+    list.appendChild(row);
+  });
+}
+function switchFavTab(tab) {
+  favTab = tab;
+  document.getElementById('favTabLearning').style.cssText = tab==='learning'?'flex:1;text-align:center;padding:12px 0;font-size:14px;color:var(--brand);cursor:pointer;border-bottom:2px solid var(--brand);font-weight:500;transition:all .2s;':'flex:1;text-align:center;padding:12px 0;font-size:14px;color:var(--text-3);cursor:pointer;border-bottom:2px solid transparent;font-weight:400;transition:all .2s;';
+  document.getElementById('favTabMastered').style.cssText = tab==='mastered'?'flex:1;text-align:center;padding:12px 0;font-size:14px;color:var(--brand);cursor:pointer;border-bottom:2px solid var(--brand);font-weight:500;transition:all .2s;':'flex:1;text-align:center;padding:12px 0;font-size:14px;color:var(--text-3);cursor:pointer;border-bottom:2px solid transparent;font-weight:400;transition:all .2s;';
+  renderFavorites();
+}
+function favTouchStart(e, id) {
+  favTouchX = e.touches[0].clientX; favSwipedId = id;
+}
+function favTouchMove(e, id) {
+  if (favSwipedId !== id) return;
+  const dx = e.touches[0].clientX - favTouchX;
+  const inner = document.querySelector('#favList [class="fav-inner"]');
+  const row = document.getElementById('fav-'+id);
+  if (!row) return;
+  const target = row.querySelector('.fav-inner');
+  if (!target) return;
+  if (dx < 0 && Math.abs(dx) < 100) target.style.transform = 'translateX('+dx+'px)';
+  e.preventDefault();
+}
+function favTouchEnd(e, id) {
+  if (favSwipedId !== id) return;
+  const row = document.getElementById('fav-'+id);
+  if (!row) return;
+  const target = row.querySelector('.fav-inner');
+  if (!target) return;
+  const dx = (e.changedTouches[0] ? e.changedTouches[0].clientX : e.clientX) - favTouchX;
+  if (dx < -60) target.style.transform = 'translateX(-80px)';
+  else target.style.transform = 'translateX(0)';
+  favSwipedId = null;
+}
+function deleteFav(id) {
+  const idx = favData.findIndex(f => f.id === id);
+  if (idx >= 0) favData.splice(idx, 1);
+  updateFavCount();
+  renderFavorites();
+}
+function toastFav(msg) {
+  const toast = document.getElementById('toastMsg');
+  if (toast) { toast.textContent = msg; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2000); }
+}
+function updateFavCount() {
+  const el = document.getElementById('favCount');
+  if (el) el.textContent = favData.length + '个';
+}
+
 </script>
 
 </body>

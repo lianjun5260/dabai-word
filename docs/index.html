@@ -1647,17 +1647,21 @@ const TAB_PAGES = ['P04','P05a','P21'];
 
 // ========== 页面切换（带滑动动画） ==========
 function showPage(id, isBack) {
-  if (navTimer) { clearTimeout(navTimer); navTimer = null; }
+  // 强制清理上一次未完成的动画状态
+  if (navTimer) {
+    clearTimeout(navTimer); navTimer = null;
+    const lingering = document.querySelector('.page.slide-back-out, .page.slide-forward-out');
+    if (lingering) lingering.classList.remove('active');
+  }
+  document.querySelectorAll('.page').forEach(p => {
+    p.classList.remove('slide-forward','slide-forward-out','slide-back','slide-back-out','tab-switch');
+  });
+
   const oldPage = document.querySelector('.page.active');
   const newPage = document.getElementById(id);
   if (!newPage || oldPage === newPage) return;
 
   const isTabSwitch = TAB_PAGES.includes(id) && TAB_PAGES.includes(oldPage ? oldPage.id : '');
-
-  // 清理所有动画类
-  document.querySelectorAll('.page').forEach(p => {
-    p.classList.remove('slide-forward','slide-forward-out','slide-back','slide-back-out','tab-switch');
-  });
 
   if (isTabSwitch) {
     // Tab切换: 淡入

@@ -1254,70 +1254,61 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
 </div>
 
 <!-- ========================================== -->
-<!-- P20 单词详情 -->
-<!-- ========================================== -->
+<!-- P20 单词详情（动态） -->
 <div class="page" id="P20">
   <div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
   <div class="navbar">
     <div class="back" onclick="goBack()"><</div>
-    <div class="title">单词详情</div>
-    <div class="right" style="cursor:pointer;font-size:18px;">☆</div>
+    <div class="title" id="wdTitle">单词详情</div>
+    <div class="right" id="wdStar" style="cursor:pointer;font-size:20px;" onclick="toggleWordFav()">☆</div>
   </div>
-  <div style="padding:16px;">
-    <!-- 单词头部 -->
-    <div style="text-align:center;margin-bottom:24px;">
-      <div style="font-size:32px;font-weight:600;color:var(--text-1);margin-bottom:8px;">industrious</div>
-      <div style="display:flex;align-items:center;justify-content:center;gap:16px;">
-        <span style="font-size:14px;color:var(--text-3);">英 [ɪnˈdʌstriəs]</span>
-        <span style="font-size:20px;cursor:pointer;">🔊</span>
-      </div>
-      <div style="display:flex;align-items:center;justify-content:center;gap:16px;margin-top:4px;">
-        <span style="font-size:14px;color:var(--text-3);">美 [ɪnˈdʌstriəs]</span>
-        <span style="font-size:20px;cursor:pointer;">🔊</span>
+  <div style="padding:16px 16px 40px;overflow-y:auto;flex:1;">
+    <div style="text-align:center;margin-bottom:20px;">
+      <div style="font-size:34px;font-weight:600;color:var(--text-1);margin-bottom:6px;" id="wdWord">~</div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:12px;font-size:14px;color:var(--text-3);">
+        <span>英 <span id="wdEnPhone">~</span></span><span style="font-size:18px;cursor:pointer;" id="wdEnAudio">🔊</span>
+        <span style="color:var(--divider);">|</span>
+        <span>美 <span id="wdUsPhone">~</span></span><span style="font-size:18px;cursor:pointer;" id="wdUsAudio">🔊</span>
       </div>
     </div>
-    <!-- 释义 -->
-    <div style="background:var(--bg-page);border-radius:var(--r-lg);padding:16px;margin-bottom:16px;">
-      <div style="font-size:14px;font-weight:600;color:var(--text-1);margin-bottom:12px;">释义</div>
-      <div style="font-size:16px;color:var(--text-1);line-height:1.8;">
-        <span style="color:var(--brand);font-weight:500;">adj.</span> 勤奋的；勤劳的
-      </div>
-      <div style="font-size:13px;color:var(--text-3);margin-top:8px;line-height:1.6;">
-        指人勤奋努力、不怕辛苦的品质
-      </div>
+    <div class="card" style="padding:16px;margin-bottom:14px;">
+      <div style="font-size:14px;font-weight:600;color:var(--text-1);margin-bottom:10px;">释义</div>
+      <div style="font-size:16px;color:var(--text-1);line-height:1.8;" id="wdMeaning">~</div>
+      <div style="font-size:13px;color:var(--text-3);margin-top:8px;line-height:1.6;" id="wdPos">~</div>
     </div>
-    <!-- 例句 -->
-    <div style="background:var(--bg-page);border-radius:var(--r-lg);padding:16px;margin-bottom:16px;">
-      <div style="font-size:14px;font-weight:600;color:var(--text-1);margin-bottom:12px;">例句</div>
-      <div style="font-size:15px;color:var(--text-1);line-height:1.8;margin-bottom:8px;">
-        The <span style="color:var(--brand);font-weight:600;">industrious</span> student always finished homework early.
-      </div>
-      <div style="font-size:13px;color:var(--text-3);line-height:1.6;">那个勤奋的学生总是早早完成作业。</div>
+    <div class="card" style="padding:16px;margin-bottom:14px;" id="wdTransformsCard">
+      <div style="font-size:14px;font-weight:600;color:var(--text-1);margin-bottom:10px;">词形变化</div>
+      <div style="font-size:15px;color:var(--text-1);" id="wdTransforms">~</div>
     </div>
-    <!-- 扩展信息 -->
-    <div style="background:var(--bg-page);border-radius:var(--r-lg);padding:16px;">
+    <div class="card" style="padding:16px;margin-bottom:14px;" id="wdPhrasesCard">
+      <div style="font-size:14px;font-weight:600;color:var(--text-1);margin-bottom:10px;">常用短语</div>
+      <div id="wdPhrases" style="font-size:14px;color:var(--text-1);line-height:1.8;"></div>
+    </div>
+    <div class="card" style="padding:16px;margin-bottom:14px;" id="wdSentencesCard">
+      <div style="font-size:14px;font-weight:600;color:var(--text-1);margin-bottom:10px;">例句</div>
+      <div id="wdSentences"></div>
+    </div>
+    <div class="card" style="padding:16px;">
       <div style="font-size:14px;font-weight:600;color:var(--text-1);margin-bottom:12px;">扩展信息</div>
       <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
-        <span style="font-size:14px;color:var(--text-3);">难度系数</span>
-        <span style="font-size:14px;color:var(--warn);font-weight:600;">★★★☆☆</span>
+        <span style="font-size:14px;color:var(--text-3);">标签</span>
+        <span style="font-size:14px;color:var(--brand);font-weight:500;" id="wdTags">~</span>
       </div>
       <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
-        <span style="font-size:14px;color:var(--text-3);">记忆阶段</span>
-        <span style="font-size:14px;color:var(--brand);font-weight:600;">巩固期</span>
+        <span style="font-size:14px;color:var(--text-3);">难度</span>
+        <span style="font-size:14px;color:var(--warn);" id="wdDifficulty">★★★☆☆</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+        <span style="font-size:14px;color:var(--text-3);">频次</span>
+        <span style="font-size:14px;color:var(--text-1);font-weight:600;" id="wdFreq">~</span>
       </div>
       <div style="display:flex;justify-content:space-between;">
-        <span style="font-size:14px;color:var(--text-3);">已复习次数</span>
-        <span style="font-size:14px;color:var(--text-1);font-weight:600;">7次</span>
+        <span style="font-size:14px;color:var(--text-3);">助记</span>
+        <span style="font-size:14px;color:var(--text-1);" id="wdMemory">~</span>
       </div>
     </div>
   </div>
 </div>
-
-<!-- ========================================== -->
-<!-- P21 我的 -->
-<!-- ========================================== -->
-<div class="page" id="P21">
-  <div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
   <div style="padding:16px;padding-bottom:80px;">
     <!-- 用户信息 -->
     <div style="display:flex;align-items:center;padding:16px 0;margin-bottom:8px;cursor:pointer;" onclick="showPage('P22')">
@@ -1645,14 +1636,14 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
   <div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
   <div class="navbar">
     <div class="back" onclick="showPage('P21', true)"><</div>
-    <div class="title" id="favTitle">我的收藏</div>
+    <div class="title">我的收藏</div>
     <div class="right"></div>
   </div>
 
   <!-- Tab切换 -->
   <div style="display:flex;border-bottom:1px solid var(--divider);background:var(--bg-card);">
-    <div class="fav-tab active" id="favTabLearning" onclick="switchFavTab('learning')" style="flex:1;text-align:center;padding:12px 0;font-size:14px;color:var(--brand);cursor:pointer;border-bottom:2px solid var(--brand);font-weight:500;transition:all .2s;">正在学习</div>
-    <div class="fav-tab" id="favTabMastered" onclick="switchFavTab('mastered')" style="flex:1;text-align:center;padding:12px 0;font-size:14px;color:var(--text-3);cursor:pointer;border-bottom:2px solid transparent;font-weight:400;transition:all .2s;">已掌握</div>
+    <div class="fav-tab active" id="favTabLearning" onclick="switchFavTab('learning')" style="flex:1;text-align:center;padding:12px 0;font-size:14px;cursor:pointer;border-bottom:2px solid var(--brand);font-weight:500;transition:all .2s;">正在学习（<span id="favLearnCount">0</span>）</div>
+    <div class="fav-tab" id="favTabMastered" onclick="switchFavTab('mastered')" style="flex:1;text-align:center;padding:12px 0;font-size:14px;color:var(--text-3);cursor:pointer;border-bottom:2px solid transparent;font-weight:400;transition:all .2s;">已掌握（<span id="favMasteredCount">0</span>）</div>
   </div>
 
   <!-- 列表区域 -->
@@ -1666,7 +1657,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
   </div>
 
   <!-- 底部按钮 -->
-  <div id="favReviewBtn" style="display:none;position:absolute;bottom:0;left:0;right:0;padding:12px 16px;background:var(--bg-card);border-top:.5px solid var(--divider);z-index:10;">
+  <div id="favReviewBtn" style="position:absolute;bottom:0;left:0;right:0;padding:12px 16px;background:var(--bg-card);border-top:.5px solid var(--divider);z-index:10;">
     <button onclick="toastFav('功能开发中，敬请期待')" class="btn-primary" style="width:100%;">📚 开始复习</button>
   </div>
 </div>
@@ -2500,6 +2491,61 @@ const favData = [
 let favTab = 'learning';
 let favTouchX = 0, favSwipedId = null;
 
+// 完整单词数据（P20详情 + 收藏联动）
+const wdDB = {
+  abandon:{ en_phonetic:'/əˈbændən/',us_phonetic:'/əˈbændən/',part_speech:'v.',phrases:[{en:'abandon oneself to',cn:'沉溺于...'},{en:'with abandon',cn:'尽情地，放纵地'}],sentences:[{en:'She <b>abandoned</b> her plan to study abroad.',cn:'她放弃了出国留学的计划。'},{en:'They had to <b>abandon</b> the sinking ship.',cn:'他们不得不弃船逃生。'}],transforms:'abandons / abandoning / abandoned',stage_label:'高考,四级',total_frequency:15,difficulty:3,memory_skill:'a(一个)+band(乐队)+on(上)→一个乐队被抛弃了',meaning:'放弃；抛弃；遗弃'},
+  abstract:{ en_phonetic:'/ˈæbstrækt/',us_phonetic:'/ˈæbstrækt/',part_speech:'adj.&n.',phrases:[{en:'abstract art',cn:'抽象艺术'},{en:'in the abstract',cn:'抽象地，理论上'}],sentences:[{en:'The <b>abstract</b> concept was hard to grasp.',cn:'这个抽象概念很难理解。'}],transforms:'',stage_label:'四级,考研',total_frequency:12,difficulty:3,memory_skill:'abs(离开)+tract(拉)→从具体中拉出来→抽象',meaning:'抽象的；摘要'},
+  barrier:{ en_phonetic:'/ˈbæriə(r)/',us_phonetic:'/ˈbæriər/',part_speech:'n.',phrases:[{en:'language barrier',cn:'语言障碍'},{en:'break the barrier',cn:'打破障碍'}],sentences:[{en:'The <b>barrier</b> between them grew stronger.',cn:'他们之间的隔阂越来越深。'}],transforms:'barriers',stage_label:'四级,雅思',total_frequency:10,difficulty:2,memory_skill:'bar(棒)+rier→栅栏→障碍',meaning:'障碍；屏障'},
+  elaborate:{ en_phonetic:'/ɪˈlæbərət/',us_phonetic:'/ɪˈlæbərət/',part_speech:'adj.&v.',phrases:[{en:'elaborate on',cn:'详细说明'}],sentences:[{en:'She <b>elaborated</b> on her proposal.',cn:'她详细阐述了自己的提案。'}],transforms:'elaborates / elaborating / elaborated',stage_label:'六级,考研',total_frequency:8,difficulty:4,memory_skill:'e(出)+labor(劳动)+ate→辛苦做出来的→精心制作',meaning:'精心制作的；详细阐述'},
+  fluctuate:{ en_phonetic:'/ˈflʌktʃueɪt/',us_phonetic:'/ˈflʌktʃueɪt/',part_speech:'v.',phrases:[{en:'fluctuate between',cn:'在...之间波动'}],sentences:[{en:'Prices <b>fluctuate</b> according to demand.',cn:'价格随需求波动。'}],transforms:'fluctuates / fluctuating / fluctuated',stage_label:'六级,托福',total_frequency:7,difficulty:4,memory_skill:'flu(流动)+ctu+ate→流动变化→波动',meaning:'波动；起伏'},
+  genuine:{ en_phonetic:'/ˈdʒenjuɪn/',us_phonetic:'/ˈdʒenjuɪn/',part_speech:'adj.',phrases:[{en:'genuine leather',cn:'真皮'},{en:'genuine concern',cn:'真诚关心'}],sentences:[{en:'His <b>genuine</b> smile made everyone happy.',cn:'他真诚的微笑让每个人都很开心。'}],transforms:'',stage_label:'四级,高考',total_frequency:11,difficulty:2,memory_skill:'genu(产生)+ine→天生的→真正的',meaning:'真正的；真诚的'},
+  hypothesis:{ en_phonetic:'/haɪˈpɒθəsɪs/',us_phonetic:'/haɪˈpɑːθəsɪs/',part_speech:'n.',phrases:[{en:'null hypothesis',cn:'零假设'},{en:'working hypothesis',cn:'工作假设'}],sentences:[{en:'The <b>hypothesis</b> was proven correct.',cn:'这个假设被证明是正确的。'}],transforms:'hypotheses',stage_label:'考研,雅思',total_frequency:6,difficulty:5,memory_skill:'hypo(下)+thesis(放置)→放在下面→假设',meaning:'假设；假说'},
+  inevitable:{ en_phonetic:'/ɪnˈevɪtəbl/',us_phonetic:'/ɪnˈevɪtəbl/',part_speech:'adj.',phrases:[{en:'the inevitable',cn:'必然的事'}],sentences:[{en:'Change is <b>inevitable</b> in life.',cn:'变化是生活中不可避免的。'}],transforms:'',stage_label:'六级,考研',total_frequency:9,difficulty:4,memory_skill:'in(不)+evitable(可避免的)→不可避免的',meaning:'不可避免的'},
+  persistence:{ en_phonetic:'/pəˈsɪstəns/',us_phonetic:'/pərˈsɪstəns/',part_speech:'n.',phrases:[{en:'persistence of vision',cn:'视觉暂留'},{en:'with persistence',cn:'坚持不懈地'}],sentences:[{en:'<b>Persistence</b> is the key to success.',cn:'坚持不懈是成功的关键。'}],transforms:'',stage_label:'四级,高考',total_frequency:14,difficulty:2,memory_skill:'per(贯穿)+sist(站立)+ence→一直站立→坚持',meaning:'坚持；持续'},
+  sophisticated:{ en_phonetic:'/səˈfɪstɪkeɪtɪd/',us_phonetic:'/səˈfɪstɪkeɪtɪd/',part_speech:'adj.',phrases:[{en:'sophisticated technology',cn:'尖端技术'}],sentences:[{en:'The system is highly <b>sophisticated</b>.',cn:'这个系统非常精密。'}],transforms:'',stage_label:'六级,雅思',total_frequency:8,difficulty:5,memory_skill:'soph(智慧)+istic+ated→充满智慧的→精密的',meaning:'精密的；老练的'},
+  vulnerable:{ en_phonetic:'/ˈvʌlnərəbl/',us_phonetic:'/ˈvʌlnərəbl/',part_speech:'adj.',phrases:[{en:'vulnerable to',cn:'易受...伤害'}],sentences:[{en:'Children are <b>vulnerable</b> to diseases.',cn:'儿童易受疾病侵袭。'}],transforms:'',stage_label:'六级,考研',total_frequency:10,difficulty:4,memory_skill:'vulner(伤口)+able→有伤口的→脆弱的',meaning:'脆弱的；易受伤的'},
+  resilience:{ en_phonetic:'/rɪˈzɪliəns/',us_phonetic:'/rɪˈzɪliəns/',part_speech:'n.',phrases:[{en:'build resilience',cn:'培养适应力'},{en:'show resilience',cn:'表现出韧性'}],sentences:[{en:'Her <b>resilience</b> helped her overcome hardship.',cn:'她的韧性帮她克服了困难。'}],transforms:'',stage_label:'考研,雅思',total_frequency:7,difficulty:5,memory_skill:'re(回)+sili(跳)+ence→跳回来的能力→韧性',meaning:'韧性；适应力'}
+};
+let currentWord = null;
+
+function openWordDetail(word) {
+  currentWord = word;
+  const d = wdDB[word] || {};
+  document.getElementById('wdWord').textContent = word;
+  document.getElementById('wdEnPhone').textContent = d.en_phonetic||'/-/';
+  document.getElementById('wdUsPhone').textContent = d.us_phonetic||'/-/';
+  document.getElementById('wdMeaning').innerHTML = '<span style=\"color:var(--brand);font-weight:500;\">'+d.part_speech+'</span> '+d.meaning;
+  document.getElementById('wdPos').textContent = '';
+  if (d.transforms) { document.getElementById('wdTransforms').textContent = d.transforms; document.getElementById('wdTransformsCard').style.display = ''; }
+  else { document.getElementById('wdTransformsCard').style.display = 'none'; }
+  if (d.phrases && d.phrases.length) {
+    document.getElementById('wdPhrases').innerHTML = d.phrases.map(p => '<div style=\"display:flex;justify-content:space-between;padding:6px 0;border-bottom:.5px solid var(--divider);\"><span style=\"color:var(--text-1);\">'+p.en+'</span><span style=\"color:var(--text-3);\">'+p.cn+'</span></div>').join('');
+    document.getElementById('wdPhrasesCard').style.display = '';
+  } else { document.getElementById('wdPhrasesCard').style.display = 'none'; }
+  if (d.sentences && d.sentences.length) {
+    document.getElementById('wdSentences').innerHTML = d.sentences.map((s,i) => '<div style=\"'+(i>0?'margin-top:10px;padding-top:10px;border-top:.5px solid var(--divider);':'')+'\"><div style=\"font-size:15px;color:var(--text-1);line-height:1.8;\">'+s.en+'</div><div style=\"font-size:13px;color:var(--text-3);line-height:1.6;margin-top:4px;\">'+s.cn+'</div></div>').join('');
+    document.getElementById('wdSentencesCard').style.display = '';
+  } else { document.getElementById('wdSentencesCard').style.display = 'none'; }
+  document.getElementById('wdTags').textContent = d.stage_label||'—';
+  document.getElementById('wdDifficulty').textContent = ['☆☆☆☆☆','★☆☆☆☆','★★☆☆☆','★★★☆☆','★★★★☆','★★★★★'][d.difficulty||0];
+  document.getElementById('wdFreq').textContent = (d.total_frequency||0)+'次';
+  document.getElementById('wdMemory').textContent = d.memory_skill||'暂无';
+  const star = document.getElementById('wdStar');
+  const isFav = favData.some(f => f.word === word);
+  star.textContent = isFav ? '★' : '☆'; star.style.color = isFav ? 'var(--warn)' : 'var(--text-4)';
+  showPage('P20');
+}
+function toggleWordFav() {
+  if (!currentWord) return;
+  const idx = favData.findIndex(f => f.word === currentWord);
+  if (idx >= 0) { favData.splice(idx, 1); }
+  else { const dw = wdDB[currentWord]||{}; favData.push({ id:Date.now(),word:currentWord,phonetic:dw.en_phonetic||'',meaning:dw.meaning||'',status:'learning',reviewDue:new Date(Date.now()+86400000),collected:Date.now()}); }
+  const star = document.getElementById('wdStar');
+  const isFav = favData.some(f => f.word === currentWord);
+  star.textContent = isFav ? '★' : '☆'; star.style.color = isFav ? 'var(--warn)' : 'var(--text-4)';
+  updateFavCount(); renderFavorites();
+}
+
 function formatReviewTime(dueDate) {
   if (!dueDate) return '';
   const now = Date.now(), diff = dueDate.getTime() - now;
@@ -2518,16 +2564,16 @@ function formatReviewTime(dueDate) {
 function renderFavorites() {
   const list = document.getElementById('favList');
   const empty = document.getElementById('favEmpty');
-  const btn = document.getElementById('favReviewBtn');
   const filtered = favData.filter(f => f.status === favTab);
-  document.getElementById('favTitle').textContent = '我的收藏 (' + favData.length + ')';
+  document.getElementById('favLearnCount').textContent = favData.filter(f => f.status==='learning').length;
+  document.getElementById('favMasteredCount').textContent = favData.filter(f => f.status==='mastered').length;
 
   if (filtered.length === 0) {
-    list.style.display = 'none'; empty.style.display = 'block'; btn.style.display = 'none';
-    return;
+    list.style.display = 'none'; empty.style.display = 'block';
+  } else {
+    list.style.display = 'block'; empty.style.display = 'none';
   }
-  list.style.display = 'block'; empty.style.display = 'none';
-  btn.style.display = favTab === 'learning' ? 'block' : 'none';
+  list.innerHTML = '';
   list.innerHTML = '';
   filtered.forEach(f => {
     const row = document.createElement('div');
@@ -2539,7 +2585,7 @@ function renderFavorites() {
     row.setAttribute('ontouchend', 'favTouchEnd(event,'+f.id+')');
     row.innerHTML =
       '<div class="fav-inner" style="padding:14px 16px;background:var(--bg-card);position:relative;z-index:1;transition:transform .2s;">'+
-        '<div style="display:flex;align-items:baseline;gap:6px;margin-bottom:4px;">'+
+        '<div style="display:flex;align-items:baseline;gap:6px;margin-bottom:4px;" onclick="event.stopPropagation();openWordDetail(\''+f.word+'\')">'+
           '<span style="font-size:17px;font-weight:600;color:var(--text-1);">'+f.word+'</span>'+
           '<span style="font-size:13px;color:var(--text-3);">'+f.phonetic+'</span>'+
         '</div>'+

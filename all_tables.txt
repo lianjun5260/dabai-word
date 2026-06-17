@@ -1,0 +1,119 @@
+## ★ 单词主表 word | 24个字段
+
+| 字段名 | 类型 | 必填 | 默认值 | NULL | 说明 |
+|---|---|---|---|---|---|
+| id | bigint | 是 | 自增 | 否 | 主键自增，唯一标识 |
+| word | varchar(50) | 是 | 无 | 否 | 英文单词，唯一索引，统一小写存储 |
+| en_phonetic | varchar(100) | 是 | 无 | 否 | 英式音标 |
+| us_phonetic | varchar(100) | 是 | 无 | 否 | 美式音标 |
+| word_audio_uk | varchar(255) | 否 | 无 | 是 | 英式发音音频文件URL |
+| word_audio_us | varchar(255) | 否 | 无 | 是 | 美式发音音频文件URL |
+| part_speech | varchar(100) | 是 | 无 | 否 | 词性，多值逗号分隔（如"n.,v."） |
+| meaning | text | 是 | 无 | 否 | 中文释义 |
+| phrases | text | 否 | 无 | 是 | 常用短语+释义，JSON格式（详见5.1.1） |
+| sentences | json | 否 | 无 | 是 | 例句集合，JSON格式，建议5条/单词。前端随机抽取展示。使用[word]标记填空位，含中文翻译和例句发音（详见5.1.2） |
+| transforms | varchar(200) | 否 | 无 | 是 | 规则变形（如takes/taking/books），逗号分隔 |
+| root_word_id | bigint | 否 | NULL | 是 | 原形词ID。不规则变形词（如made）指向原形词（make）ID。原形词此字段为NULL |
+| memory_skill | text | 否 | 无 | 是 | 记忆技巧/助记法 |
+| stage_label | varchar(200) | 是 | 无 | 否 | 绑定标签名称，逗号分隔（如"高考,四级"） |
+| tag_frequency_json | json | 是 | {} | 否 | 各标签下单词频次，如{"高考":15,"四级":8,"托福":3} |
+| total_frequency | int | 是 | 0 | 否 | 全局总频次，所有素材累计曝光次数 |
+| difficulty | tinyint | 是 | 0 | 否 | 学习难度等级1-5，0=未设定。可基于频次自动推算或人工设置 |
+| is_delete | tinyint | 是 | 0 | 否 | 0=未删除，1=已删除（软删除/逻辑删除） |
+| status | tinyint | 是 | 0 | 否 | 0=待上架，1=已上架，2=已下架，3=审核中 |
+| source | tinyint | 是 | 0 | 否 | 词条来源：0=手动新增，1=单词库侧文件上传，2=资源库侧教材上传识别 |
+| create_user | bigint | 是 | 无 | 否 | 创建人ID |
+| update_user | bigint | 否 | 无 | 是 | 最近修改人ID |
+| create_time | datetime | 是 | 当前时间 | 否 | 创建时间 |
+| update_time | datetime | 否 | 无 | 是 | 最近修改时间 |
+
+## 标签表 word_tag | 12个字段
+
+| 字段名 | 类型 | 必填 | 默认值 | NULL | 说明 |
+|---|---|---|---|---|---|
+| id | bigint | 是 | 自增 | 否 | 主键自增 |
+| file_id | varchar(64) | 是 | 无 | 否 | 上传文件唯一ID |
+| file_name | varchar(255) | 是 | 无 | 否 | 文件名称 |
+| word_id | bigint | 是 | 无 | 否 | 关联单词主表ID |
+| word | varchar(50) | 是 | 无 | 否 | 关联单词名称（冗余，方便查询） |
+| freq_increment | int | 是 | 0 | 否 | 本次文件内该单词新增频次（单文件出现次数） |
+| tag_id | bigint | 是 | 无 | 否 | 关联标签ID，用于按标签精确扣减频次 |
+| task_id | varchar(64) | 是 | 无 | 否 | 识别任务ID，关联日志溯源 |
+| upload_user | bigint | 是 | 无 | 否 | 上传操作人ID |
+| upload_time | datetime | 是 | 当前时间 | 否 | 文件上传时间 |
+| freq_status | tinyint | 是 | 1 | 否 | 1=频次已生效计入，0=频次已扣减失效 |
+| delete_time | datetime | 否 | 无 | 是 | 文件删除、频次扣减完成时间 |
+
+## 文件-单词频次表 file_word_frequency | 7个字段
+
+| 字段名 | 类型 | 必填 | 默认值 | NULL | 说明 |
+|---|---|---|---|---|---|
+| id | bigint | 是 | 自增 | 否 | 主键自增 |
+| name | varchar(50) | 是 | 无 | 否 | 标签名称，唯一不可重复 |
+| group_name | varchar(50) | 否 | 空 | 是 | 所属分组（如"基础教育""大学考试""留学考试"） |
+| sort_order | int | 是 | 0 | 否 | 排序权重，越小越靠前，用于前端词库列表展示顺序 |
+| status | tinyint | 是 | 1 | 否 | 0=禁用，1=启用 |
+| create_time | datetime | 是 | 当前时间 | 否 | 创建时间 |
+| update_time | datetime | 否 | 无 | 是 | 最近修改时间 |
+
+## 资源文件表 resource_file | 16个字段
+
+| 字段名 | 类型 | 必填 | 默认值 | NULL | 说明 |
+|---|---|---|---|---|---|
+| id | bigint | 是 | 自增 | 否 | 主键自增 |
+| file_id | varchar(64) | 是 | 无 | 否 | 文件唯一ID，关联 file_word_frequency.file_id |
+| file_name | varchar(255) | 是 | 无 | 否 | 文件名称 |
+| file_type | varchar(20) | 是 | 无 | 否 | 文件类型：TXT/PDF/图片/Word/Excel |
+| file_path | varchar(500) | 否 | 无 | 是 | 文件存储路径（OSS/CDN URL） |
+| file_size | bigint | 否 | 无 | 是 | 文件大小（字节） |
+| tag_id | bigint | 是 | 无 | 否 | 关联标签ID（word_tag.id） |
+| folder_id | bigint | 是 | 无 | 否 | 关联文件夹ID（file_folder.id），默认指向「默认」文件夹 |
+| status | tinyint | 是 | 0 | 否 | 文件状态：0=正常，1=失效（逻辑删除），2=彻底删除（物理删除标记） |
+| word_count | int | 是 | 0 | 否 | 本次文件识别出的单词数量（去重后） |
+| total_freq_increment | int | 是 | 0 | 否 | 本次文件贡献的总频次增量 |
+| upload_user | bigint | 是 | 无 | 否 | 上传人ID（admin_user.id） |
+| create_time | datetime | 是 | 当前时间 | 否 | 上传时间 |
+| delete_time | datetime | 否 | 无 | 是 | 失效时间 |
+| thorough_delete_time | datetime | 否 | 无 | 是 | 彻底删除时间 |
+| update_time | datetime | 否 | 无 | 是 | 最近修改时间 |
+
+## 识别任务表 recognition_task | 19个字段
+
+| 字段名 | 类型 | 必填 | 默认值 | NULL | 说明 |
+|---|---|---|---|---|---|
+| id | bigint | 是 | 自增 | 否 | 主键自增 |
+| task_id | varchar(64) | 是 | 无 | 否 | 任务唯一ID |
+| file_name | varchar(500) | 是 | 无 | 否 | 上传文件名（多文件逗号分隔） |
+| file_count | int | 是 | 1 | 否 | 本次任务上传文件数量 |
+| file_type | varchar(50) | 是 | 无 | 否 | 文件类型 |
+| source | tinyint | 是 | 0 | 否 | 来源：0=单词库上传，1=资源库上传 |
+| tag_id | bigint | 否 | 无 | 是 | 关联标签ID |
+| folder_id | bigint | 否 | 无 | 是 | 关联文件夹ID（资源库来源时有效） |
+| total_count | int | 是 | 0 | 否 | 识别总条数 |
+| duplicate_count | int | 是 | 0 | 否 | 重复条数 |
+| error_count | int | 是 | 0 | 否 | 错误条数 |
+| new_word_count | int | 是 | 0 | 否 | 新增单词数（单词主表此前不存在的词条数） |
+| passed_count | int | 是 | 0 | 否 | 审核通过条数（status=0） |
+| freq_increment_total | int | 是 | 0 | 否 | 本次累计新增单词频次总量 |
+| task_status | tinyint | 是 | 0 | 否 | 任务状态：0=处理中，1=已完成，2=失败，3=已取消 |
+| error_msg | text | 否 | 无 | 是 | 失败错误信息 |
+| upload_user | bigint | 是 | 无 | 否 | 上传人ID |
+| create_time | datetime | 是 | 当前时间 | 否 | 任务创建时间 |
+| finish_time | datetime | 否 | 无 | 是 | 任务完成时间 |
+
+## 操作日志表 operation_log | 11个字段
+
+| 字段名 | 类型 | 必填 | 默认值 | NULL | 说明 |
+|---|---|---|---|---|---|
+| id | bigint | 是 | 自增 | 否 | 主键自增 |
+| operator_id | bigint | 是 | 无 | 否 | 操作人ID（admin_user.id） |
+| operator_name | varchar(50) | 是 | 无 | 否 | 操作人用户名（冗余，方便查询） |
+| operation_type | varchar(50) | 是 | 无 | 否 | 操作类型（如：审核删除/审核通过/单词删除/批量上架/标签创建/管理员删除/文件上传/文件失效/文件彻底删除 等，详见4.4节枚举列表） |
+| target_type | varchar(50) | 否 | 无 | 是 | 操作目标类型（word/tag/file/folder/admin） |
+| target_id | varchar(500) | 否 | 无 | 是 | 操作目标ID（批量操作时逗号分隔） |
+| target_name | varchar(255) | 否 | 无 | 是 | 操作目标名称（冗余） |
+| detail | text | 否 | 无 | 是 | 操作详情（JSON格式：操作前/后数据快照、删除原因、影响单词数量等） |
+| result | tinyint | 是 | 1 | 否 | 操作结果：1=成功，0=失败 |
+| ip_address | varchar(45) | 否 | 无 | 是 | 操作IP地址 |
+| create_time | datetime | 是 | 当前时间 | 否 | 操作时间 |
+

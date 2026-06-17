@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<!-- BUILD: 202606171633 -->
+<!-- BUILD: 202606171647 -->
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -164,44 +164,47 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
   color:var(--brand);
 }
 
-/* ========== 错题本阶段卡片 ========== */
+/* ========== 错题本阶段卡片（双列网格） ========== */
+.err-group-title {
+  font-size:13px; color:var(--text-3); margin:16px 16px 8px; font-weight:500;
+}
+.err-grid {
+  display:grid; grid-template-columns:1fr 1fr; gap:8px; padding:0 16px; margin-bottom:4px;
+}
 .err-stage-card {
   background:var(--bg-card); border-radius:var(--r-lg);
-  padding:16px; margin:8px 16px; cursor:pointer;
+  padding:14px 12px; cursor:pointer;
   box-shadow:0 1px 3px rgba(0,0,0,.06);
   transition:all .15s; position:relative;
   -webkit-tap-highlight-color:transparent; user-select:none; -webkit-user-select:none;
+  min-height:68px; display:flex; flex-direction:column; justify-content:center;
 }
 .err-stage-card:active {
-  background:var(--brand-light); transform:scale(.98);
+  background:var(--brand-light); transform:scale(.97);
 }
 .err-stage-card::after {
-  content:'\203A'; position:absolute; right:16px; top:50%;
-  transform:translateY(-50%); color:var(--text-4); font-size:20px;
+  content:'\203A'; position:absolute; right:10px; top:50%;
+  transform:translateY(-50%); color:var(--text-4); font-size:18px;
 }
 .err-stage-card .err-name {
-  font-size:16px; font-weight:600; color:var(--text-1); margin-bottom:4px;
+  font-size:15px; font-weight:600; color:var(--text-1); margin-bottom:4px;
 }
 .err-stage-card .err-meta {
-  font-size:12px; color:var(--text-3);
+  font-size:11px; color:var(--text-3);
 }
 .err-stage-card .err-count {
   display:inline-block; background:var(--error); color:#fff;
-  font-size:12px; font-weight:600; padding:2px 8px; border-radius:var(--r-pill);
-  margin-left:8px; vertical-align:middle;
+  font-size:11px; font-weight:600; padding:2px 7px; border-radius:var(--r-pill);
+  margin-left:6px; vertical-align:middle;
 }
 .err-stage-card.empty {
-  opacity:.5; cursor:default;
+  opacity:.4; cursor:default;
 }
 .err-stage-card.empty:active {
   background:var(--bg-card); transform:none;
 }
 .err-stage-card.empty::after {
   content:none;
-}
-/* 错题分组标题 */
-.err-group-title {
-  font-size:13px; color:var(--text-3); margin:16px 16px 8px; font-weight:500;
 }
 /* 单词名称行 */
 .fav-word-click {
@@ -2886,6 +2889,10 @@ function renderErrorBook() {
     title.textContent = group.title;
     container.appendChild(title);
 
+    // 双列网格容器
+    const grid = document.createElement('div');
+    grid.className = 'err-grid';
+
     group.stages.forEach(stage => {
       const data = errorBookData[stage] || {};
       const count = (data.words && data.words.length) || 0;
@@ -2899,8 +2906,10 @@ function renderErrorBook() {
       if (!isEmpty) {
         card.setAttribute('onclick', 'openErrorStage(\''+stage+'\')');
       }
-      container.appendChild(card);
+      grid.appendChild(card);
     });
+
+    container.appendChild(grid);
   });
 
   updateErrCount();

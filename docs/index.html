@@ -1657,13 +1657,6 @@ function showPage(id, isBack) {
   const oldPage = document.querySelector('.page.active');
   const newPage = document.getElementById(id);
   if (!newPage || oldPage === newPage) return;
-  document.querySelectorAll('.page').forEach(p => {
-    p.classList.remove('slide-forward','slide-forward-out','slide-back','slide-back-out','tab-switch');
-  });
-
-  const oldPage = document.querySelector('.page.active');
-  const newPage = document.getElementById(id);
-  if (!newPage || oldPage === newPage) return;
 
   const isTabSwitch = TAB_PAGES.includes(id) && TAB_PAGES.includes(oldPage ? oldPage.id : '');
 

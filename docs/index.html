@@ -1544,7 +1544,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
 </div>
 
 <!-- ========================================== -->
-<!-- P23a 词库详情（动态-根据选中的词库加载） -->
+<!-- P23a 词库详情（动态-统一模板） -->
 <!-- ========================================== -->
 <div class="page" id="P23a">
   <div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
@@ -1553,7 +1553,6 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
     <div class="title" id="p23aTitle" style="cursor:pointer;" onclick="toggleRename()">词库详情</div>
     <div class="right"></div>
   </div>
-  <!-- 改名条 -->
   <div id="renameBar" style="display:none;padding:4px 16px 8px;border-bottom:.5px solid var(--divider);">
     <div style="display:flex;gap:8px;">
       <input id="renameInput" style="flex:1;height:34px;border:1px solid var(--brand);border-radius:6px;padding:0 10px;font-size:14px;outline:none;background:var(--brand-light);">
@@ -1562,7 +1561,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
   </div>
 
   <!-- 内容区 -->
-  <div style="padding:16px;padding-bottom:16px;overflow-y:auto;">
+  <div style="padding:16px;padding-bottom:100px;overflow-y:auto;">
 
     <!-- 学习概览 -->
     <div class="card" style="margin:0 0 14px 0;padding:18px;">
@@ -1575,24 +1574,36 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
       <div class="progress-bar" style="height:6px;"><div class="fill" id="p23aProgress" style="width:0%;"></div></div>
     </div>
 
-    <!-- 素材库 -->
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-      <div style="font-size:15px;font-weight:600;color:var(--text-1);">
-        📎 素材库 (<span id="matCount">0</span>)
-      </div>
-      <button onclick="toggleAddOptions()" id="addMaterialBtn" style="background:none;border:1px solid var(--brand);color:var(--brand);border-radius:16px;padding:4px 14px;font-size:13px;cursor:pointer;font-weight:500;">+ 添加素材</button>
-    </div>
+    <!-- 素材库标题 -->
+    <div style="font-size:15px;font-weight:600;color:var(--text-1);margin-bottom:10px;">📎 素材库 (<span id="matCount">0</span>)</div>
 
     <!-- 素材列表 -->
     <div id="materialList" style="background:var(--bg-card);border-radius:var(--r-lg);box-shadow:0 1px 4px rgba(0,0,0,.06);overflow:hidden;margin-bottom:16px;">
+      <div id="materialEmpty" style="text-align:center;padding:32px 16px;color:var(--text-3);font-size:14px;">还没有素材<br/>点击下方按钮添加</div>
     </div>
 
-    <!-- 生成词库 -->
-    <button class="btn-primary" id="genBankBtn" onclick="generateBank()" style="opacity:0.4;">尚未添加素材</button>
+    <!-- 删除词库 -->
+    <div style="text-align:center;padding:8px 0;">
+      <button onclick="confirmDeleteBank()" style="background:none;border:none;color:var(--text-4);font-size:14px;cursor:pointer;">删除这个词库</button>
+    </div>
+  </div>
 
-    <!-- 删除 -->
-    <div style="text-align:center;padding:8px 0 16px;">
-      <button onclick="deleteBank()" style="background:none;border:none;color:var(--text-4);font-size:14px;cursor:pointer;">删除这个词库</button>
+  <!-- 底部固定按钮 -->
+  <div style="position:absolute;bottom:0;left:0;right:0;padding:12px 16px;background:var(--bg-card);border-top:.5px solid var(--divider);display:flex;gap:12px;z-index:10;">
+    <button onclick="startMaterialParse('photo')" style="flex:1;height:44px;background:var(--brand);color:#fff;border:none;border-radius:var(--r-md);font-size:15px;font-weight:500;cursor:pointer;">📷 拍照</button>
+    <button onclick="startMaterialParse('file')" style="flex:1;height:44px;background:var(--info);color:#fff;border:none;border-radius:var(--r-md);font-size:15px;font-weight:500;cursor:pointer;">📁 上传文件</button>
+  </div>
+
+  <!-- 删除确认弹窗 -->
+  <div id="deleteConfirmOverlay" style="display:none;position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:30;align-items:center;justify-content:center;">
+    <div style="width:300px;background:#fff;border-radius:16px;padding:28px 24px;box-shadow:0 16px 48px rgba(0,0,0,.2);">
+      <div style="text-align:center;font-size:32px;margin-bottom:12px;">⚠️</div>
+      <div style="text-align:center;font-size:16px;font-weight:600;color:var(--text-1);margin-bottom:8px;">确认删除词库？</div>
+      <div style="text-align:center;font-size:13px;color:var(--text-3);line-height:1.6;margin-bottom:20px;">删除后将无法恢复：<br/>所有素材文件将被清空<br/>已识别的单词数据将丢失</div>
+      <div style="display:flex;gap:12px;">
+        <button onclick="hideDeleteConfirm()" style="flex:1;height:42px;background:var(--bg-gray);border:1px solid var(--divider);border-radius:var(--r-md);font-size:14px;cursor:pointer;color:var(--text-2);">取消</button>
+        <button onclick="doDeleteBank()" style="flex:1;height:42px;background:var(--error);color:#fff;border:none;border-radius:var(--r-md);font-size:14px;cursor:pointer;font-weight:500;">确认删除</button>
+      </div>
     </div>
   </div>
 
@@ -1601,23 +1612,10 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
     <div style="width:280px;background:#fff;border-radius:16px;padding:32px 24px;text-align:center;box-shadow:0 16px 48px rgba(0,0,0,.2);">
       <div style="font-size:48px;margin-bottom:12px;" id="matIcon">🖼️</div>
       <div style="font-size:13px;color:var(--text-3);margin-bottom:8px;" id="matFile">IMG_001.jpg</div>
-      <div style="font-size:16px;font-weight:600;color:var(--text-1);margin-bottom:16px;">正在识别中...</div>
+      <div style="font-size:16px;font-weight:600;color:var(--text-1);margin-bottom:16px;">正在上传并预处理...</div>
       <div class="progress-bar" style="height:6px;margin-bottom:8px;"><div class="fill" id="matBar" style="width:0%;transition:width .4s;"></div></div>
-      <div style="font-size:13px;color:var(--text-3);margin-bottom:20px;" id="matStatus">已识别 0 个单词</div>
-      <button style="background:none;border:none;color:var(--text-4);font-size:14px;cursor:pointer;" onclick="cancelMatLoading()">取消</button>
-    </div>
-  </div>
-
-  <!-- 生成词库进度弹窗 -->
-  <div id="genLoading" style="display:none;position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:25;align-items:center;justify-content:center;">
-    <div style="width:290px;background:#fff;border-radius:16px;padding:32px 24px;text-align:center;box-shadow:0 16px 48px rgba(0,0,0,.2);">
-      <div style="width:56px;height:56px;border-radius:50%;background:var(--brand);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;animation:spin .8s linear infinite;">
-        <svg width="28" height="28" viewBox="0 0 28 28"><circle cx="14" cy="14" r="10" stroke="#fff" stroke-width="3" fill="none" stroke-dasharray="50" stroke-dashoffset="15"/></svg>
-      </div>
-      <div style="font-size:16px;font-weight:600;color:var(--text-1);margin-bottom:6px;">正在生成词库</div>
-      <div style="font-size:13px;color:var(--text-3);margin-bottom:16px;">AI正在分析全部素材...</div>
-      <div class="progress-bar" style="height:6px;margin-bottom:8px;"><div class="fill" id="genBar" style="width:0%;transition:width .5s;"></div></div>
-      <div style="font-size:13px;color:var(--text-3);" id="genStatus">正在汇总素材...</div>
+      <div style="font-size:13px;color:var(--text-3);margin-bottom:20px;" id="matStatus">准备中...</div>
+      <button style="background:none;border:none;color:var(--text-4);font-size:14px;cursor:pointer;" onclick="cancelUpload()">取消</button>
     </div>
   </div>
 </div>
@@ -2103,8 +2101,8 @@ function submitSpell() {
 const bankData = {
   '英语课本拍照': { icon:'📕', total:0, mastered:0, learning:0, date:'06-16', materials:[] },
   '英语试卷生词': { icon:'📗', total:15, mastered:9, learning:6, date:'06-15', materials:[
-    { icon:'🖼️', name:'课本第3单元', file:'IMG_001.jpg', status:'识别完成' },
-    { icon:'📄', name:'单词表附录', file:'单词表.pdf', status:'识别完成' }
+    { id:1, icon:'🖼️', name:'课本第3单元', file:'IMG_001.jpg', status:'completed', progress:100, words:12 },
+    { id:2, icon:'📄', name:'单词表附录', file:'单词表.pdf', status:'completed', progress:100, words:8 }
   ]}
 };
 let currentBank = '';
@@ -2113,32 +2111,27 @@ let matCount = 0;
 // AI 命名池（模拟AI自动生成词库名）
 const aiNames = ['随手整理词库','拍照识词本','今日收集词汇','清晨单词本','课后生词汇总','阅读摘录词库','考试冲刺词库','日常积累词库','错词整理本','词汇小助手','AI识词合集','新发现词汇','碎片时间词库','突击背诵词库','睡前词汇本'];
 
-// ========== P23a 打开词库详情（从 P23 ⋯ 进入） ==========
+// ========== P23a 打开词库详情 ==========
 function openBankDetail(name) {
   currentBank = name;
   const data = bankData[name];
   if (!data) { showPage('P23a'); return; }
   document.getElementById('p23aTitle').textContent = name;
   document.getElementById('renameInput').value = name;
+  updateOverviewStats(data);
+  matCount = data.materials.length;
+  document.getElementById('matCount').textContent = matCount;
+  renderMaterialList();
+  showPage('P23a');
+}
+
+function updateOverviewStats(data) {
+  data = data || bankData[currentBank];
+  if (!data) return;
   document.getElementById('p23aTotal').textContent = data.total;
   document.getElementById('p23aMastered').textContent = data.mastered;
   document.getElementById('p23aLearning').textContent = data.learning;
   document.getElementById('p23aProgress').style.width = data.total>0 ? Math.round(data.mastered/data.total*100)+'%' : '0%';
-  matCount = data.materials.length;
-  document.getElementById('matCount').textContent = matCount;
-  const list = document.getElementById('materialList');
-  list.innerHTML = '';
-  data.materials.forEach(m => {
-    const item = document.createElement('div');
-    item.style.cssText = 'padding:14px 16px;border-bottom:.5px solid var(--divider);display:flex;align-items:center;gap:10px;';
-    item.innerHTML = '<span style="font-size:24px;">'+m.icon+'</span>'+
-      '<div style="flex:1;"><div style="font-size:14px;font-weight:500;color:var(--text-1);">'+m.name+'</div>'+
-      '<div style="font-size:12px;color:var(--text-3);">'+m.file+' · '+m.status+'</div></div>'+
-      '<span style="font-size:18px;color:var(--text-4);cursor:pointer;padding:4px;" onclick="deleteMaterial(this)">🗑</span>';
-    list.appendChild(item);
-  });
-  updateGenBtn();
-  showPage('P23a');
 }
 
 // ========== 一键创建词库（AI自动命名） ==========
@@ -2174,142 +2167,177 @@ function saveRename() {
   document.getElementById('renameBar').style.display = 'none';
 }
 
-// ========== 查看词库词库列表（从 P23a 进入学习时显示的 P05 联动） ==========
-// 注：P05 目前是硬编码词库列表，需后续迭代为动态加载 bankData
+// ========== 素材管理 ==========
+let uploadTimer = null;
+let matIdSeq = 100;
 
-// 添加素材 - 展开/收起选项
-function toggleAddOptions() {
-  const list = document.getElementById('materialList');
-  const existing = document.getElementById('addMaterialRow');
-  if (existing) { existing.remove(); return; }
-
-  const row = document.createElement('div');
-  row.id = 'addMaterialRow';
-  row.style.cssText = 'padding:0 16px 14px;display:flex;gap:10px;';
-  row.innerHTML =
-    '<button onclick="startRecognize(\'photo\')" style="flex:1;height:42px;background:var(--brand);color:#fff;border:none;border-radius:var(--r-md);font-size:14px;cursor:pointer;">📷 拍照</button>' +
-    '<button onclick="startRecognize(\'file\')" style="flex:1;height:42px;background:var(--info);color:#fff;border:none;border-radius:var(--r-md);font-size:14px;cursor:pointer;">📁 上传文件</button>';
-  list.parentNode.insertBefore(row, list.nextSibling);
-}
-
-// 拍照/上传识别
-let matTimer = null;
-function startRecognize(type) {
-  // 收起添加选项面板
-  const row = document.getElementById('addMaterialRow'); if (row) row.remove();
+// 拍照/上传 - 预处理弹窗
+function startMaterialParse(type) {
   const loading = document.getElementById('matLoading');
   if (!loading) return;
   document.getElementById('matIcon').textContent = type === 'file' ? '📄' : '🖼️';
-  document.getElementById('matFile').textContent = type === 'file' ? '单词表.pdf' : 'IMG_' + Date.now().toString(36) + '.jpg';
+  const fname = type === 'file' ? '单词表' + (matIdSeq-99) + '.pdf' : 'IMG_' + Date.now().toString(36) + '.jpg';
+  document.getElementById('matFile').textContent = fname;
   loading.style.display = 'flex';
-  const bar = document.getElementById('matBar');
-  const stat = document.getElementById('matStatus');
-  bar.style.width = '0%';
+  const bar = document.getElementById('matBar'); bar.style.width = '0%';
+  const stat = document.getElementById('matStatus'); stat.textContent = '准备中...';
   let pct = 0;
-  matTimer = setInterval(() => {
-    pct += 20 + Math.random() * 10;
-    if (pct >= 100) { pct = 100; clearInterval(matTimer);
-      stat.textContent = '识别完成！共 ' + Math.floor(5 + Math.random() * 15) + ' 个单词';
+  uploadTimer = setInterval(() => {
+    pct += 25 + Math.random() * 15;
+    if (pct >= 100) { pct = 100; clearInterval(uploadTimer);
+      stat.textContent = '预处理完成';
       setTimeout(() => {
         loading.style.display = 'none';
-        addMaterialToList(type);
-      }, 600);
+        addMaterialAndParse(type);
+      }, 400);
     } else {
       bar.style.width = pct + '%';
-      stat.textContent = '已识别 ' + Math.floor(pct * 0.15) + ' 个单词';
+      stat.textContent = pct > 30 ? '传输中...' : '准备中...';
     }
-  }, 500);
+  }, 400);
 }
-function cancelMatLoading() {
-  clearInterval(matTimer);
-  document.getElementById('matLoading').style.display = 'none';
-}
+function cancelUpload() { clearInterval(uploadTimer); document.getElementById('matLoading').style.display = 'none'; }
 
-function addMaterialToList(type) {
+// 添加素材并自动开始解析
+function addMaterialAndParse(type) {
   const icon = type === 'file' ? '📄' : '🖼️';
-  const name = type === 'file' ? '单词表' : ('课本第' + (matCount+1) + '单元');
-  const fname = type === 'file' ? '单词表.pdf' : ('IMG_00' + (matCount+1) + '.jpg');
-  // 保存到数据模型
-  bankData[currentBank].materials.push({ icon, name, file:fname, status:'识别完成' });
+  const idx = bankData[currentBank].materials.length + 1;
+  const name = type === 'file' ? '单词表' + idx : ('课本第' + idx + '单元');
+  const fname = type === 'file' ? '单词表' + idx + '.pdf' : ('IMG_00' + idx + '.jpg');
+  const id = matIdSeq++;
+  const mat = { id, icon, name, file:fname, status:'parsing', progress:0, words:0 };
+  bankData[currentBank].materials.push(mat);
   matCount = bankData[currentBank].materials.length;
   document.getElementById('matCount').textContent = matCount;
-  // 渲染素材列表
-  const list = document.getElementById('materialList');
-  const item = document.createElement('div');
-  item.style.cssText = 'padding:14px 16px;border-bottom:.5px solid var(--divider);display:flex;align-items:center;gap:10px;';
-  item.innerHTML =
-    '<span style="font-size:24px;">' + icon + '</span>' +
-    '<div style="flex:1;"><div style="font-size:14px;font-weight:500;color:var(--text-1);">' + name + '</div>' +
-    '<div style="font-size:12px;color:var(--text-3);">' + fname + ' · 识别完成</div></div>' +
-    '<span style="font-size:18px;color:var(--text-4);cursor:pointer;padding:4px;" onclick="deleteMaterial(this)">🗑</span>';
-  list.appendChild(item);
-  updateGenBtn();
+  renderMaterialList();
+  startParsing(mat);
 }
 
-function deleteMaterial(el) {
-  const row = el.closest('div');
-  const idx = Array.from(row.parentNode.children).indexOf(row);
-  row.remove();
-  // 从数据模型中删除
-  if (bankData[currentBank] && bankData[currentBank].materials) {
-    bankData[currentBank].materials.splice(idx, 1);
-    matCount = bankData[currentBank].materials.length;
-  }
-  document.getElementById('matCount').textContent = matCount;
-  updateGenBtn();
-}
-
-function updateGenBtn() {
-  const btn = document.getElementById('genBankBtn');
-  if (!btn) return;
-  if (matCount === 0) { btn.style.opacity = '0.4'; btn.textContent = '尚未添加素材'; }
-  else { btn.style.opacity = '1'; btn.textContent = '⚡ 生成词库（' + matCount + '个素材）'; }
-}
-
-function generateBank() {
-  if (matCount === 0) return;
-  const loading = document.getElementById('genLoading');
-  loading.style.display = 'flex';
-  const bar = document.getElementById('genBar');
-  const stat = document.getElementById('genStatus');
-  bar.style.width = '0%';
-  const steps = ['正在汇总素材...', 'AI识别单词中...', '智能去重...', '生成词库...'];
-  let step = 0;
-  let pct = 0;
-  const timer = setInterval(() => {
-    pct += 12 + Math.random() * 8;
-    if (pct >= 100) { pct = 100; clearInterval(timer);
-      stat.textContent = '词库生成完成！共 23 个单词';
-      bar.style.width = '100%';
-      // 更新数据模型
-      if (bankData[currentBank]) {
-        bankData[currentBank].total = 23;
-        bankData[currentBank].mastered = 0;
-        bankData[currentBank].learning = 23;
-        document.getElementById('p23aTotal').textContent = '23';
-        document.getElementById('p23aMastered').textContent = '0';
-        document.getElementById('p23aLearning').textContent = '23';
-        document.getElementById('p23aProgress').style.width = '0%';
-      }
-      setTimeout(() => {
-        loading.style.display = 'none';
-        const toast = document.getElementById('toastMsg');
-        if (toast) { toast.textContent = '✅ 词库已生成'; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2000); }
-        document.getElementById('genBankBtn').textContent = '🔄 重新生成词库';
-      }, 800);
-    } else {
-      bar.style.width = pct + '%';
-      if (pct > 30 && step < 1) { step = 1; stat.textContent = steps[1]; }
-      else if (pct > 60 && step < 2) { step = 2; stat.textContent = steps[2]; }
-      else if (pct > 85 && step < 3) { step = 3; stat.textContent = steps[3]; }
+// 解析进度条动画
+function startParsing(mat) {
+  mat.timer = setInterval(() => {
+    mat.progress += 8 + Math.random() * 7;
+    if (mat.progress >= 100) {
+      mat.progress = 100; clearInterval(mat.timer); mat.timer = null;
+      mat.words = Math.floor(3 + Math.random() * 15);
+      mat.status = 'completed';
+      updateOverviewFromMaterials();
     }
-  }, 600);
+    refreshMaterialItem(mat.id);
+  }, 350);
+}
+function pauseMaterial(id) {
+  const mat = findMat(id); if (!mat || mat.status !== 'parsing') return;
+  clearInterval(mat.timer); mat.timer = null; mat.status = 'paused';
+  refreshMaterialItem(id);
+}
+function resumeMaterial(id) {
+  const mat = findMat(id); if (!mat || mat.status !== 'paused') return;
+  mat.status = 'parsing';
+  startParsing(mat);
+}
+function retryMaterial(id) {
+  const mat = findMat(id); if (!mat || mat.status !== 'failed') return;
+  mat.status = 'parsing'; mat.progress = 0;
+  startParsing(mat);
+}
+function deleteMaterial(id) {
+  clearInterval(findMat(id)?.timer);
+  bankData[currentBank].materials = bankData[currentBank].materials.filter(m => m.id !== id);
+  matCount = bankData[currentBank].materials.length;
+  document.getElementById('matCount').textContent = matCount;
+  updateOverviewFromMaterials();
+  renderMaterialList();
+}
+function findMat(id) { return bankData[currentBank]?.materials.find(m => m.id === id); }
+
+// 刷新单个素材行UI
+function refreshMaterialItem(id) {
+  const mat = findMat(id); if (!mat) return;
+  const row = document.getElementById('mat-' + id); if (!row) return;
+  const pct = mat.status === 'paused' ? Math.round(mat.progress) : Math.round(mat.progress);
+  const barColor = mat.status === 'failed' ? 'var(--error)' : mat.status === 'completed' ? 'var(--brand)' : mat.status === 'paused' ? 'var(--warn)' : 'var(--brand)';
+  const pctText = mat.status === 'completed' ? '识别出' + mat.words + '词' : mat.status === 'paused' ? '已暂停' : mat.status === 'failed' ? '识别失败' : '识别中';
+  const statLabel = mat.status === 'completed' ? '识别完成' : mat.status === 'paused' ? '已暂停' : mat.status === 'failed' ? '识别失败' : '识别中 ' + pct + '%';
+  row.querySelector('.mat-bar-fill').style.width = pct + '%';
+  row.querySelector('.mat-bar-fill').style.background = barColor;
+  row.querySelector('.mat-status-text').textContent = statLabel;
+  row.querySelector('.mat-pct-text').textContent = pctText;
+  // 操作按钮
+  const actions = row.querySelector('.mat-actions');
+  if (mat.status === 'parsing') {
+    actions.innerHTML = '<span onclick="pauseMaterial('+id+')" style="color:var(--warn);cursor:pointer;font-size:13px;">暂停</span><span style="padding:0 6px;color:var(--divider);">|</span><span onclick="deleteMaterial('+id+')" style="color:var(--text-3);cursor:pointer;font-size:13px;">删除</span>';
+  } else if (mat.status === 'paused') {
+    actions.innerHTML = '<span onclick="resumeMaterial('+id+')" style="color:var(--brand);cursor:pointer;font-size:13px;">继续</span><span style="padding:0 6px;color:var(--divider);">|</span><span onclick="deleteMaterial('+id+')" style="color:var(--text-3);cursor:pointer;font-size:13px;">删除</span>';
+  } else if (mat.status === 'failed') {
+    actions.innerHTML = '<span onclick="retryMaterial('+id+')" style="color:var(--info);cursor:pointer;font-size:13px;">重试</span><span style="padding:0 6px;color:var(--divider);">|</span><span onclick="deleteMaterial('+id+')" style="color:var(--text-3);cursor:pointer;font-size:13px;">删除</span>';
+  } else {
+    actions.innerHTML = '<span onclick="deleteMaterial('+id+')" style="color:var(--text-3);cursor:pointer;font-size:13px;">删除</span>';
+  }
 }
 
-function deleteBank() {
+// 全量重渲染素材列表
+function renderMaterialList() {
+  const list = document.getElementById('materialList');
+  const empty = document.getElementById('materialEmpty');
+  const mats = bankData[currentBank]?.materials || [];
+  if (mats.length === 0) { list.innerHTML = ''; list.appendChild(empty); empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+  list.innerHTML = '';
+  mats.forEach(m => {
+    const pct = m.status === 'completed' ? 100 : Math.round(m.progress);
+    const barColor = m.status === 'failed' ? 'var(--error)' : m.status === 'completed' ? 'var(--brand)' : m.status === 'paused' ? 'var(--warn)' : 'var(--brand)';
+    const statLabel = m.status === 'completed' ? '识别完成' : m.status === 'paused' ? '已暂停' : m.status === 'failed' ? '识别失败' : '识别中 ' + pct + '%';
+    const pctText = m.status === 'completed' ? '识别出' + m.words + '词' : m.status === 'paused' ? '已暂停' : m.status === 'failed' ? '识别失败' : '识别中';
+    let actions;
+    if (m.status === 'parsing') actions = '<span onclick="pauseMaterial('+m.id+')" style="color:var(--warn);cursor:pointer;font-size:13px;">暂停</span><span style="padding:0 6px;color:var(--divider);">|</span><span onclick="deleteMaterial('+m.id+')" style="color:var(--text-3);cursor:pointer;font-size:13px;">删除</span>';
+    else if (m.status === 'paused') actions = '<span onclick="resumeMaterial('+m.id+')" style="color:var(--brand);cursor:pointer;font-size:13px;">继续</span><span style="padding:0 6px;color:var(--divider);">|</span><span onclick="deleteMaterial('+m.id+')" style="color:var(--text-3);cursor:pointer;font-size:13px;">删除</span>';
+    else if (m.status === 'failed') actions = '<span onclick="retryMaterial('+m.id+')" style="color:var(--info);cursor:pointer;font-size:13px;">重试</span><span style="padding:0 6px;color:var(--divider);">|</span><span onclick="deleteMaterial('+m.id+')" style="color:var(--text-3);cursor:pointer;font-size:13px;">删除</span>';
+    else actions = '<span onclick="deleteMaterial('+m.id+')" style="color:var(--text-3);cursor:pointer;font-size:13px;">删除</span>';
+    const div = document.createElement('div');
+    div.id = 'mat-' + m.id;
+    div.style.cssText = 'padding:12px 16px;border-bottom:.5px solid var(--divider);';
+    div.innerHTML =
+      '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">'+
+        '<span style="font-size:22px;">'+m.icon+'</span>'+
+        '<div style="flex:1;"><div style="font-size:14px;font-weight:500;color:var(--text-1);">'+m.name+'</div>'+
+        '<div style="font-size:12px;color:var(--text-3);">'+m.file+'</div></div>'+
+        '<span class="mat-pct-text" style="font-size:12px;color:var(--text-3);">'+pctText+'</span>'+
+      '</div>'+
+      '<div class="progress-bar" style="height:4px;margin-bottom:4px;"><div class="fill mat-bar-fill" style="width:'+pct+'%;background:'+barColor+';"></div></div>'+
+      '<div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-3);">'+
+        '<span class="mat-status-text">'+statLabel+'</span>'+
+        '<span class="mat-actions">'+actions+'</span>'+
+      '</div>';
+    list.appendChild(div);
+  });
+  // 恢复解析中的素材动画
+  bankData[currentBank].materials.forEach(m => { if (m.status === 'parsing' && !m.timer) startParsing(m); });
+}
+
+// 从素材统计更新概览
+function updateOverviewFromMaterials() {
+  const mats = bankData[currentBank]?.materials || [];
+  let totalWords = 0;
+  mats.forEach(m => { if (m.status === 'completed' && m.words) totalWords += m.words; });
+  bankData[currentBank].total = totalWords;
+  bankData[currentBank].learning = totalWords;
+  bankData[currentBank].mastered = 0;
+  document.getElementById('p23aTotal').textContent = totalWords;
+  document.getElementById('p23aLearning').textContent = totalWords;
+  document.getElementById('p23aMastered').textContent = '0';
+  document.getElementById('p23aProgress').style.width = '0%';
+}
+
+// ========== 删除词库 ==========
+function confirmDeleteBank() { document.getElementById('deleteConfirmOverlay').style.display = 'flex'; }
+function hideDeleteConfirm() { document.getElementById('deleteConfirmOverlay').style.display = 'none'; }
+function doDeleteBank() {
   if (!currentBank || !bankData[currentBank]) return;
+  bankData[currentBank].materials.forEach(m => { if (m.timer) clearInterval(m.timer); });
   delete bankData[currentBank];
   currentBank = '';
+  hideDeleteConfirm();
   const toast = document.getElementById('toastMsg');
   if (toast) { toast.textContent = '词库已删除'; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 1500); }
   setTimeout(() => showPage('P23'), 500);

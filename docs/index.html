@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<!-- BUILD: 202606171647 -->
+<!-- BUILD: 202606171710 -->
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -164,7 +164,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
   color:var(--brand);
 }
 
-/* ========== 错题本阶段卡片（双列网格） ========== */
+/* ========== 错词本阶段卡片（双列网格） ========== */
 .err-group-title {
   font-size:13px; color:var(--text-3); margin:16px 16px 8px; font-weight:500;
 }
@@ -377,8 +377,8 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
   <a onclick="showPage('P23')" id="nav-P23">P23 我的词库</a>
   <a onclick="showPage('P23a')" id="nav-P23a">P23a 词库详情</a>
   <a onclick="showPage('P26')" id="nav-P26">P26 我的收藏</a>
-  <a onclick="showPage('P27')" id="nav-P27">P27 错题本</a>
-  <a onclick="showPage('P27a')" id="nav-P27a">P27a 错题列表</a>
+  <a onclick="showPage('P27')" id="nav-P27">P27 错词本</a>
+  <a onclick="showPage('P27a')" id="nav-P27a">P27a 错词列表</a>
 </div>
 
 <!-- ========================================== -->
@@ -1453,7 +1453,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
       </div>
       <div class="menu-item" onclick="showPage('P27')">
         <div class="mi-icon" style="background:#F9F0FF;">📝</div>
-        <div class="mi-title">错题本</div>
+        <div class="mi-title">错词本</div>
         <div class="mi-value" id="errTotalCount">0个</div>
         <div class="mi-arrow">›</div>
       </div>
@@ -1731,35 +1731,41 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
 </div>
 
 <!-- ========================================== -->
-<!-- P27 错题本首页 -->
+<!-- P27 错词本首页 -->
 <!-- ========================================== -->
 <div class="page" id="P27">
   <div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
   <div class="navbar">
     <div class="back" onclick="showPage('P21', true)"><</div>
-    <div class="title">错题本</div>
+    <div class="title">错词本</div>
     <div class="right"></div>
   </div>
-  <div style="padding-bottom:20px;" id="errorBookList">
+  <div style="padding-bottom:80px;" id="errorBookList">
     <!-- 动态渲染 -->
+  </div>
+  <div style="position:absolute;bottom:0;left:0;right:0;padding:12px 16px;background:var(--bg-card);border-top:.5px solid var(--divider);z-index:10;">
+    <button onclick="toastMsg('练习功能开发中，敬请期待')" class="btn-primary" style="width:100%;">📝 开始练习</button>
   </div>
 </div>
 
 <!-- ========================================== -->
-<!-- P27a 阶段错题列表 -->
+<!-- P27a 阶段错词列表 -->
 <!-- ========================================== -->
 <div class="page" id="P27a">
   <div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
   <div class="navbar">
     <div class="back" onclick="showPage('P27', true)"><</div>
-    <div class="title" id="errStageTitle">错题详情</div>
+    <div class="title" id="errStageTitle">错词详情</div>
     <div class="right"></div>
   </div>
-  <div id="errWordList" style="padding-bottom:20px;"></div>
+  <div id="errWordList" style="padding-bottom:80px;"></div>
   <div id="errEmpty" style="display:none;text-align:center;padding:80px 24px;">
     <div style="font-size:56px;margin-bottom:16px;">📝</div>
-    <div style="font-size:15px;color:var(--text-2);margin-bottom:8px;">这个阶段还没有错题</div>
+    <div style="font-size:15px;color:var(--text-2);margin-bottom:8px;">这个阶段还没有错词</div>
     <div style="font-size:13px;color:var(--text-3);">多练习，错误会自动汇集到这里</div>
+  </div>
+  <div style="position:absolute;bottom:0;left:0;right:0;padding:12px 16px;background:var(--bg-card);border-top:.5px solid var(--divider);z-index:10;">
+    <button onclick="toastMsg('练习功能开发中，敬请期待')" class="btn-primary" style="width:100%;">📝 开始练习</button>
   </div>
 </div>
 
@@ -2817,12 +2823,16 @@ function toastFav(msg) {
   const toast = document.getElementById('toastMsg');
   if (toast) { toast.textContent = msg; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2000); }
 }
+function toastMsg(msg) {
+  const toast = document.getElementById('toastMsg');
+  if (toast) { toast.textContent = msg; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2000); }
+}
 function updateFavCount() {
   const el = document.getElementById('favCount');
   if (el) el.textContent = favData.length + '个';
 }
 
-// ========== 错题本 P27/P27a ==========
+// ========== 错词本 P27/P27a ==========
 const STAGES = [
   // 📘 基础阶段 15
   '一年级','二年级','三年级','四年级','五年级','六年级','小升初',
@@ -2838,20 +2848,21 @@ const STAGE_GROUPS = [
   { title:'🌍 留学考试', stages:STAGES.slice(20,24) }
 ];
 
-// 错题本数据：只有部分阶段有错题
+// 错词本数据：只有部分阶段有错词
+// words: [{word, errCount, added(ms)}]
 const errorBookData = {
-  '一年级': { words:['apple','banana','cat','dog','egg','fish'], lastErr:Date.now()-2*86400000 },
-  '三年级': { words:['beautiful','dangerous','elephant','furniture','geography'], lastErr:Date.now()-86400000 },
-  '五年级': { words:['independent','knowledge','literature','magnificent','necessary','opportunity','phenomenon'], lastErr:Date.now() },
-  '小升初': { words:['abandon','abstract','barrier','genuine'], lastErr:Date.now()-4*86400000 },
-  '初一': { words:['accomplish','ambiguous','comprehensive'], lastErr:Date.now()-6*86400000 },
-  '初三': { words:['dilemma','tremendous','meticulous','conspicuous','substantial'], lastErr:Date.now()-3*86400000 },
-  '中考': { words:['fluctuate','hypothesis','resilience','vulnerable'], lastErr:Date.now()-5*86400000 },
-  '高一': { words:['sophisticated','inevitable','elaborate'], lastErr:Date.now()-1*86400000 },
-  '高考': { words:['paradox','pervasive','imperative','nostalgia','clandestine','ubiquitous','rhetoric','profound'], lastErr:Date.now() },
-  '四级': { words:['contemporary','demonstrate','equivalent','fundamental'], lastErr:Date.now()-7*86400000 },
-  '六级': { words:['benevolent','spontaneous','magnitude','articulate'], lastErr:Date.now()-10*86400000 },
-  '雅思': { words:['infrastructure','jurisdiction','methodology','negotiation','procrastination','questionnaire','sustainability'], lastErr:Date.now()-2*86400000 }
+  '一年级': { words:[{word:'apple',errCount:3,added:Date.now()-2*86400000},{word:'banana',errCount:2,added:Date.now()-4*86400000},{word:'cat',errCount:5,added:Date.now()-1*86400000},{word:'dog',errCount:1,added:Date.now()-6*86400000},{word:'egg',errCount:4,added:Date.now()-3*86400000},{word:'fish',errCount:2,added:Date.now()-5*86400000}] },
+  '三年级': { words:[{word:'beautiful',errCount:3,added:Date.now()-7*86400000},{word:'dangerous',errCount:2,added:Date.now()-1*86400000},{word:'elephant',errCount:1,added:Date.now()-10*86400000},{word:'furniture',errCount:4,added:Date.now()-3*86400000},{word:'geography',errCount:2,added:Date.now()-5*86400000}] },
+  '五年级': { words:[{word:'independent',errCount:5,added:Date.now()-2*86400000},{word:'knowledge',errCount:3,added:Date.now()-8*86400000},{word:'literature',errCount:2,added:Date.now()-12*86400000},{word:'magnificent',errCount:1,added:Date.now()-1*86400000},{word:'necessary',errCount:4,added:Date.now()-4*86400000},{word:'opportunity',errCount:3,added:Date.now()-6*86400000},{word:'phenomenon',errCount:2,added:Date.now()}] },
+  '小升初': { words:[{word:'abandon',errCount:2,added:Date.now()-4*86400000},{word:'abstract',errCount:1,added:Date.now()-8*86400000},{word:'barrier',errCount:3,added:Date.now()-6*86400000},{word:'genuine',errCount:2,added:Date.now()-2*86400000}] },
+  '初一': { words:[{word:'accomplish',errCount:3,added:Date.now()-6*86400000},{word:'ambiguous',errCount:2,added:Date.now()-3*86400000},{word:'comprehensive',errCount:1,added:Date.now()-9*86400000}] },
+  '初三': { words:[{word:'dilemma',errCount:4,added:Date.now()-3*86400000},{word:'tremendous',errCount:2,added:Date.now()-7*86400000},{word:'meticulous',errCount:3,added:Date.now()-1*86400000},{word:'conspicuous',errCount:1,added:Date.now()-10*86400000},{word:'substantial',errCount:2,added:Date.now()-5*86400000}] },
+  '中考': { words:[{word:'fluctuate',errCount:2,added:Date.now()-5*86400000},{word:'hypothesis',errCount:3,added:Date.now()-8*86400000},{word:'resilience',errCount:2,added:Date.now()-3*86400000},{word:'vulnerable',errCount:1,added:Date.now()-2*86400000}] },
+  '高一': { words:[{word:'sophisticated',errCount:3,added:Date.now()-1*86400000},{word:'inevitable',errCount:2,added:Date.now()-5*86400000},{word:'elaborate',errCount:4,added:Date.now()-7*86400000}] },
+  '高考': { words:[{word:'paradox',errCount:3,added:Date.now()-2*86400000},{word:'pervasive',errCount:2,added:Date.now()-6*86400000},{word:'imperative',errCount:1,added:Date.now()-4*86400000},{word:'nostalgia',errCount:2,added:Date.now()-8*86400000},{word:'clandestine',errCount:3,added:Date.now()-1*86400000},{word:'ubiquitous',errCount:1,added:Date.now()-3*86400000},{word:'rhetoric',errCount:4,added:Date.now()-5*86400000},{word:'profound',errCount:2,added:Date.now()}] },
+  '四级': { words:[{word:'contemporary',errCount:2,added:Date.now()-7*86400000},{word:'demonstrate',errCount:1,added:Date.now()-10*86400000},{word:'equivalent',errCount:3,added:Date.now()-4*86400000},{word:'fundamental',errCount:2,added:Date.now()-12*86400000}] },
+  '六级': { words:[{word:'benevolent',errCount:1,added:Date.now()-10*86400000},{word:'spontaneous',errCount:2,added:Date.now()-14*86400000},{word:'magnitude',errCount:3,added:Date.now()-8*86400000},{word:'articulate',errCount:2,added:Date.now()-6*86400000}] },
+  '雅思': { words:[{word:'infrastructure',errCount:2,added:Date.now()-2*86400000},{word:'jurisdiction',errCount:1,added:Date.now()-5*86400000},{word:'methodology',errCount:3,added:Date.now()-8*86400000},{word:'negotiation',errCount:2,added:Date.now()-3*86400000},{word:'procrastination',errCount:1,added:Date.now()-6*86400000},{word:'questionnaire',errCount:2,added:Date.now()-1*86400000},{word:'sustainability',errCount:3,added:Date.now()-4*86400000}] }
 };
 
 function getErrTotal() {
@@ -2868,13 +2879,12 @@ function updateErrCount() {
   if (el) el.textContent = getErrTotal() + '个';
 }
 
-// 阶段卡片最近错题时间格式化
-function errLastTime(ts) {
-  if (!ts) return '';
-  const d = new Date(ts);
-  const mm = ('0'+(d.getMonth()+1)).slice(-2);
-  const dd = ('0'+d.getDate()).slice(-2);
-  return mm+'-'+dd;
+// 阶段卡片最近错词时间格式化（取该阶段所有单词中最近添加的时间）
+function errLastTime(words) {
+  if (!words || !words.length) return '';
+  const latest = Math.max(...words.map(w => w.added));
+  const d = new Date(latest);
+  return ('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);
 }
 
 function renderErrorBook() {
@@ -2902,7 +2912,7 @@ function renderErrorBook() {
       card.className = 'err-stage-card' + (isEmpty ? ' empty' : '');
       card.innerHTML =
         '<div class="err-name">'+stage+(isEmpty?'':'<span class="err-count">'+count+'</span>')+'</div>'+
-        '<div class="err-meta">'+(isEmpty?'暂无错题':'最近错题：'+errLastTime(data.lastErr))+'</div>';
+        '<div class="err-meta">'+(isEmpty?'暂无错词':'最近错词：'+errLastTime(data.words))+'</div>';
       if (!isEmpty) {
         card.setAttribute('onclick', 'openErrorStage(\''+stage+'\')');
       }
@@ -2920,7 +2930,7 @@ let errTouchX = 0, errSwipedId = null;
 
 function openErrorStage(stage) {
   currentErrStage = stage;
-  document.getElementById('errStageTitle').textContent = stage + '错题';
+  document.getElementById('errStageTitle').textContent = stage + '错词';
   showPage('P27a');
   renderErrorList(stage);
 }
@@ -2937,8 +2947,8 @@ function renderErrorList(stage) {
   list.style.display = 'block'; empty.style.display = 'none';
   list.innerHTML = '';
 
-  words.forEach((word, idx) => {
-    const wd = wdDB[word] || {};
+  words.forEach((w, idx) => {
+    const wd = wdDB[w.word] || {};
     const phonetic = wd.en_phonetic || '/-/';
     const meaning = wd.meaning || '';
 
@@ -2949,14 +2959,15 @@ function renderErrorList(stage) {
     row.setAttribute('ontouchmove', 'errTouchMove(event,'+idx+')');
     row.setAttribute('ontouchend', 'errTouchEnd(event,'+idx+')');
     row.innerHTML =
-      '<div class="fav-inner" onclick="event.stopPropagation();tapErrCard(\''+word+'\',this)">'+
+      '<div class="fav-inner" onclick="event.stopPropagation();tapErrCard(\''+w.word+'\',this)">'+
         '<div class="fav-word-click">'+
-          '<span style="font-size:17px;font-weight:600;color:var(--text-1);">'+word+'</span>'+
+          '<span style="font-size:17px;font-weight:600;color:var(--text-1);">'+w.word+'</span>'+
           '<span style="font-size:13px;color:var(--text-3);padding-right:18px;">'+phonetic+'</span>'+
         '</div>'+
         '<div style="font-size:14px;color:var(--text-2);margin-bottom:6px;">'+meaning+'</div>'+
         '<div style="display:flex;gap:16px;font-size:12px;color:var(--text-3);">'+
-          '<span>错误次数：'+(Math.floor(Math.random()*5)+1)+'次</span>'+
+          '<span>错误 '+w.errCount+' 次</span>'+
+          '<span>收录于：'+formatRelativeTime(w.added)+'</span>'+
         '</div>'+
       '</div>'+
       '<div onclick="deleteErrWord(\''+stage+'\','+idx+')" style="position:absolute;right:0;top:0;bottom:0;width:80px;background:var(--error);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;">移除</div>';

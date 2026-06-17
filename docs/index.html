@@ -1,0 +1,2281 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#FFFFFF">
+<meta name="screen-orientation" content="portrait">
+<meta name="x5-fullscreen" content="true">
+<meta name="360-fullscreen" content="true">
+<meta name="full-screen" content="yes">
+<title>大白陪你背单词</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+/* ========== CSS变量体系 ========== */
+:root {
+  --brand: #52C41A;
+  --brand-light: #F6FFED;
+  --brand-lighter: #D9F7BE;
+  --brand-dark: #389E0D;
+  --error: #FF4D4F;
+  --error-light: #FFF1F0;
+  --error-border: #FFCCC7;
+  --warn: #FAAD14;
+  --warn-light: #FFFBE6;
+  --info: #1890FF;
+  --info-light: #E6F7FF;
+  --text-1: #262626;
+  --text-2: #595959;
+  --text-3: #8C8C8C;
+  --text-4: #BFBFBF;
+  --border: #E8E8E8;
+  --divider: #F0F0F0;
+  --bg-page: #F5F5F5;
+  --bg-card: #FFFFFF;
+  --opt-correct-bg: #F6FFED;
+  --opt-correct-border: #B7EB8F;
+  --opt-error-bg: #FFF1F0;
+  --opt-error-border: #FFCCC7;
+  --sp-xs: 4px; --sp-sm: 8px; --sp-md: 12px; --sp-lg: 16px; --sp-xl: 24px; --sp-xxl: 32px;
+  --r-sm: 4px; --r-md: 8px; --r-lg: 12px; --r-pill: 999px;
+  --fs-10: 10px; --fs-12: 12px; --fs-14: 14px; --fs-15: 15px;
+  --fs-16: 16px; --fs-18: 18px; --fs-22: 22px; --fs-28: 28px;
+}
+
+/* ========== 全局重置 ========== */
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html, body { height:100%; overflow:hidden; overscroll-behavior:none; }
+body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif; background:#2C2C2C; display:flex; }
+/* 桌面端: 水平居中 + 左侧导航面板 */
+@media (min-width:701px) {
+  body { align-items:flex-start; min-height:100vh; justify-content:flex-start; }
+  .nav-panel { display:block; }
+  .phone-frame { width:375px; height:812px; margin:20px auto 20px 0; border-radius:40px; box-shadow:0 0 0 8px #1a1a1a,0 0 0 10px #333,0 20px 60px rgba(0,0,0,.5); flex-shrink:0; }
+  .phone-frame::before { content:''; position:absolute; top:0; left:50%; transform:translateX(-50%); width:150px; height:28px; background:#1a1a1a; border-radius:0 0 18px 18px; z-index:999; }
+  /* 桌面滑动手势提示 */
+  .swipe-hint { display:none; }
+}
+/* 移动端: 全屏沉浸式小程序体验 */
+@media (max-width:700px) {
+  body { align-items:stretch; background:#FFFFFF; }
+  .nav-panel { display:none; }
+  .phone-frame { width:100vw; height:100vh; height:100dvh; margin:0; border-radius:0; box-shadow:none; border:none; }
+  .phone-frame::before { display:none; }
+  /* 状态栏使用真实系统安全区 */
+  .status-bar { top:0; height:env(safe-area-inset-top, 24px); padding:0 20px; display:flex; justify-content:space-between; align-items:flex-end; padding-bottom:4px; font-size:11px; color:var(--text-1); font-weight:600; background:var(--bg-card);}
+  .page { padding-top:env(safe-area-inset-top, 24px); }
+  /* 底部Tab避开导航栏 */
+  .tab-bar { padding-bottom:env(safe-area-inset-bottom, 0); height:calc(56px + env(safe-area-inset-bottom, 0)); }
+  /* 底部Tab避开虚拟导航栏 */
+  .tab-bar { padding-bottom:env(safe-area-inset-bottom, 0); height:calc(56px + env(safe-area-inset-bottom, 0)); }
+  .safe-bottom { padding-bottom:calc(80px + env(safe-area-inset-bottom, 0)); }
+}
+
+/* ========== 桌面端左侧导航面板 ========== */
+.nav-panel { width:200px; background:#1E1E1E; padding:16px 0; overflow-y:auto; flex-shrink:0; height:100vh; position:sticky; top:0; }
+.nav-panel h3 { color:#fff; font-size:13px; padding:8px 16px; opacity:.6; letter-spacing:1px; }
+.nav-panel a { display:block; color:#aaa; font-size:13px; padding:8px 16px; text-decoration:none; cursor:pointer; transition:all .15s; border-left:3px solid transparent; }
+.nav-panel a:hover { color:#fff; background:#333; }
+.nav-panel a.active { color:#52C41A; background:#2a3a20; border-left-color:#52C41A; }
+
+/* ========== 手机外框 ========== */
+.phone-frame { background:var(--bg-card); overflow:hidden; position:relative; flex-shrink:0; }
+/* 给手机框顶部加白条，防止页面背景色渗到状态栏区域 */
+.phone-frame::after { content:''; position:absolute; top:0; left:0; right:0; height:env(safe-area-inset-top, 24px); background:#FFFFFF; z-index:998; pointer-events:none; }
+
+/* ========== 页面容器与切换动画 ========== */
+.page { display:none; width:100%; height:100%; background:var(--bg-card); overflow-y:auto; overflow-x:hidden; position:absolute; top:0; left:0; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; }
+.page.active { display:block; }
+/* 页面入场: 从右侧滑入（前进） */
+@keyframes slideInRight { from{transform:translateX(100%);opacity:1} to{transform:translateX(0);opacity:1} }
+@keyframes slideOutLeft { from{transform:translateX(0);opacity:1} to{transform:translateX(-30%);opacity:.6} }
+/* 页面入场: 从左侧滑入（返回） */
+@keyframes slideInLeft { from{transform:translateX(-30%);opacity:.6} to{transform:translateX(0);opacity:1} }
+@keyframes slideOutRight { from{transform:translateX(0);opacity:1} to{transform:translateX(100%);opacity:1} }
+/* Tab切换: 简单淡入 */
+@keyframes tabFadeIn { from{opacity:0} to{opacity:1} }
+
+.page.slide-forward { animation:slideInRight .3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; z-index:1; }
+.page.slide-forward-out { animation:slideOutLeft .3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; z-index:0; pointer-events:none; }
+.page.slide-back { animation:slideInLeft .3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; z-index:1; }
+.page.slide-back-out { animation:slideOutRight .3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; z-index:0; pointer-events:none; }
+.page.tab-switch { animation:tabFadeIn .2s ease forwards; }
+
+/* ========== 通用组件 ========== */
+/* 导航栏 */
+.navbar { height:44px; display:flex; align-items:center; padding:0 16px; background:var(--bg-card); position:sticky; top:0; z-index:10; }
+.navbar .back { width:24px; height:24px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:20px; color:var(--text-1); }
+.navbar .back-btn { width:32px; height:32px; display:flex; align-items:center; justify-content:center; cursor:pointer; border-radius:50%; transition:background .15s; }
+.navbar .back-btn:active { background:var(--bg-page); }
+.navbar .title { flex:1; text-align:center; font-size:17px; font-weight:600; color:var(--text-1); }
+.navbar .right { width:24px; }
+
+/* 按钮 */
+.btn-primary { width:100%; height:48px; background:var(--brand); color:#fff; border:none; border-radius:var(--r-md); font-size:16px; font-weight:500; cursor:pointer; transition:transform .1s,background .1s; }
+.btn-primary:active { transform:scale(.98); background:var(--brand-dark); }
+.btn-primary:disabled { background:var(--text-4); cursor:not-allowed; }
+.btn-outline { width:100%; height:48px; background:transparent; color:var(--brand); border:1px solid var(--brand); border-radius:var(--r-md); font-size:16px; cursor:pointer; transition:all .1s; }
+.btn-outline:active { transform:scale(.98); background:var(--brand-light); }
+.btn-sm { height:36px; font-size:14px; padding:0 16px; border-radius:var(--r-md); border:none; cursor:pointer; transition:transform .1s; }
+.btn-sm:active { transform:scale(.98); }
+.btn-sm.green { background:var(--brand); color:#fff; }
+.btn-sm.gray { background:#F5F5F5; color:var(--text-3); }
+.btn-sm.red { background:var(--error); color:#fff; }
+
+/* 标签 */
+.tag { display:inline-block; padding:2px 8px; border-radius:var(--r-sm); font-size:var(--fs-12); font-weight:500; }
+.tag-yellow { background:#FFF7E6; color:#FA8C16; }
+.tag-green { background:var(--brand-light); color:var(--brand); }
+.tag-red { background:var(--error-light); color:var(--error); }
+
+/* 卡片 */
+.card { background:var(--bg-card); border-radius:var(--r-lg); padding:var(--sp-lg); box-shadow:0 1px 4px rgba(0,0,0,.06); margin:var(--sp-md) var(--sp-lg); }
+
+/* 底部Tab */
+.tab-bar { position:absolute; bottom:0; left:0; right:0; height:56px; background:var(--bg-card); border-top:0.5px solid var(--divider); display:flex; z-index:10; }
+.tab-item { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; cursor:pointer; transition:color .15s; }
+.tab-item .icon { font-size:22px; }
+.tab-item .label { font-size:10px; }
+.tab-item.active { color:var(--brand); }
+.tab-item:not(.active) { color:var(--text-4); }
+
+/* 进度条 */
+.progress-bar { height:6px; background:#F0F0F0; border-radius:3px; overflow:hidden; }
+.progress-bar .fill { height:100%; border-radius:3px; background:linear-gradient(90deg,var(--brand),var(--brand-lighter)); transition:width .3s; }
+
+/* 分割线 */
+.divider { height:.5px; background:var(--divider); margin:0 var(--sp-lg); }
+
+/* 选择题选项 */
+.option-item { min-height:52px; display:flex; align-items:center; padding:0 16px; margin-bottom:8px; border:1px solid var(--border); border-radius:var(--r-md); background:var(--bg-card); cursor:pointer; transition:all .15s; font-size:var(--fs-15); color:var(--text-1); }
+.option-item:active { transform:scale(.98); }
+.option-item.correct { background:var(--opt-correct-bg); border-color:var(--opt-correct-border); }
+.option-item.correct::after { content:'✓'; margin-left:auto; color:var(--brand); font-weight:700; }
+.option-item.wrong { background:var(--opt-error-bg); border-color:var(--opt-error-border); }
+.option-item.wrong::after { content:'✕'; margin-left:auto; color:var(--error); font-weight:700; }
+.option-item .opt-letter { width:24px; height:24px; border-radius:50%; background:var(--bg-page); display:flex; align-items:center; justify-content:center; font-size:12px; margin-right:12px; color:var(--text-2); flex-shrink:0; }
+
+/* 字母选择按钮 */
+.letter-btn { width:40px; height:40px; border-radius:50%; background:#F5F5F5; border:none; font-size:16px; color:var(--text-1); cursor:pointer; transition:all .15s; }
+.letter-btn:active { transform:scale(.9); }
+.letter-btn.placed { background:var(--brand); color:#fff; }
+.letter-btn.wrong-placed { background:var(--error); color:#fff; }
+
+/* 字母占位 */
+.letter-slot { width:28px; height:36px; border-bottom:2px solid var(--text-4); display:flex; align-items:center; justify-content:center; font-size:20px; color:var(--brand); font-weight:600; margin:0 4px; }
+.letter-slot.filled { border-bottom-color:var(--brand); }
+.letter-slot.wrong { border-bottom-color:var(--error); color:var(--error); }
+
+/* Toast */
+.toast { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:rgba(0,0,0,.75); color:#fff; padding:12px 24px; border-radius:var(--r-md); font-size:14px; z-index:1000; display:none; }
+.toast.show { display:block; animation:toastIn .3s ease; }
+@keyframes toastIn { from{opacity:0;transform:translate(-50%,-50%) scale(.8)} to{opacity:1;transform:translate(-50%,-50%) scale(1)} }
+
+/* 卡片翻转 */
+.flip-card { perspective:1000px; width:100%; }
+.flip-card-inner { position:relative; width:100%; transition:transform .6s; transform-style:preserve-3d; }
+.flip-card-inner.flipped { transform:rotateY(180deg); }
+.flip-card-front,.flip-card-back { backface-visibility:hidden; border-radius:var(--r-lg); padding:32px 24px; background:var(--bg-card); box-shadow:0 2px 8px rgba(0,0,0,.08); min-height:300px; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+.flip-card-back { position:absolute; top:0; left:0; width:100%; transform:rotateY(180deg); }
+
+/* 波形动画 */
+@keyframes pulse { 0%,100%{transform:scaleY(1)} 50%{transform:scaleY(1.8)} }
+.wave-bar { width:3px; height:20px; background:var(--brand); border-radius:2px; display:inline-block; margin:0 2px; animation:pulse .6s ease-in-out infinite; }
+.wave-bar:nth-child(2) { animation-delay:.1s; }
+.wave-bar:nth-child(3) { animation-delay:.2s; }
+.wave-bar:nth-child(4) { animation-delay:.3s; }
+.wave-bar:nth-child(5) { animation-delay:.15s; }
+
+/* 星星评分 */
+.stars { font-size:28px; letter-spacing:4px; }
+.star-on { color:#FAAD14; }
+.star-off { color:#E8E8E8; }
+
+/* 通用工具类 */
+.text-center { text-align:center; }
+.text-brand { color:var(--brand); }
+.text-error { color:var(--error); }
+.text-warn { color:var(--warn); }
+.text-gray { color:var(--text-3); }
+.text-sm { font-size:var(--fs-12); }
+.text-md { font-size:var(--fs-14); }
+.text-lg { font-size:var(--fs-16); }
+.text-xl { font-size:var(--fs-18); }
+.text-xxl { font-size:var(--fs-28); }
+.fw-600 { font-weight:600; }
+.fw-700 { font-weight:700; }
+.mt-sm { margin-top:var(--sp-sm); }
+.mt-md { margin-top:var(--sp-md); }
+.mt-lg { margin-top:var(--sp-lg); }
+.mt-xl { margin-top:var(--sp-xl); }
+.mb-sm { margin-bottom:var(--sp-sm); }
+.mb-md { margin-bottom:var(--sp-md); }
+.mb-lg { margin-bottom:var(--sp-lg); }
+.p-lg { padding:var(--sp-lg); }
+.px-lg { padding-left:var(--sp-lg); padding-right:var(--sp-lg); }
+.flex { display:flex; }
+.flex-col { flex-direction:column; }
+.items-center { align-items:center; }
+.justify-between { justify-content:space-between; }
+.justify-center { justify-content:center; }
+.gap-sm { gap:var(--sp-sm); }
+.gap-md { gap:var(--sp-md); }
+.gap-lg { gap:var(--sp-lg); }
+.flex-1 { flex:1; }
+
+/* 菜单列表项 */
+.menu-item { display:flex; align-items:center; padding:16px; border-bottom:.5px solid var(--divider); cursor:pointer; }
+.menu-item:active { background:var(--bg-page); }
+.menu-item .mi-icon { width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:18px; margin-right:12px; flex-shrink:0; }
+.menu-item .mi-title { flex:1; font-size:var(--fs-15); color:var(--text-1); }
+.menu-item .mi-value { font-size:var(--fs-14); color:var(--text-3); margin-right:8px; }
+.menu-item .mi-arrow { color:var(--text-4); font-size:14px; }
+
+/* 状态栏模拟 */
+.status-bar { display:none !important; }
+
+/* 圆形选择按钮 */
+.circle-select { width:44px; height:44px; border-radius:50%; border:2px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:600; color:var(--text-2); cursor:pointer; transition:all .15s; }
+.circle-select.active { border-color:var(--brand); background:var(--brand-light); color:var(--brand); }
+.circle-select:active { transform:scale(.95); }
+
+/* 年级/阶段标签选择 */
+.grade-tag { display:inline-flex; align-items:center; justify-content:center; height:40px; padding:0 16px; border-radius:var(--r-md); border:1px solid var(--border); background:var(--bg-card); font-size:15px; color:var(--text-1); cursor:pointer; transition:all .15s; white-space:nowrap; }
+.grade-tag:active { transform:scale(.96); }
+.grade-tag.active { border-color:var(--brand); background:var(--brand-light); color:var(--brand); font-weight:600; }
+.grade-tag.exam-tag { border-style:dashed; }
+
+/* 词库列表选中态 */
+.tbank-row.selected { background:var(--brand-light); border-left:3px solid var(--brand); }
+.tbank-row.selected .tag-yellow { display:none; }
+
+/* 模式选择卡片 */
+.mode-card { border:1.5px solid var(--border); border-radius:var(--r-lg); padding:16px; text-align:center; cursor:pointer; transition:all .15s; position:relative; }
+.mode-card.active { border-color:var(--brand); background:var(--brand-light); }
+.mode-card:active { transform:scale(.98); }
+.mode-card .rec-tag { position:absolute; top:-8px; right:-4px; background:var(--brand); color:#fff; font-size:10px; padding:2px 8px; border-radius:var(--r-pill); }
+
+/* 安全区域 */
+.safe-bottom { padding-bottom:80px; }
+
+/* 遮罩层（模态框用） */
+.overlay { position:fixed; top:0;left:0;right:0;bottom:0; background:rgba(0,0,0,.45); z-index:100; display:none; }
+.overlay.show { display:block; }
+
+/* 旋转动画（页内刷新用） */
+@keyframes spin { to{transform:rotate(360deg)} }
+</style>
+</head>
+<body>
+
+<!-- ========== 左侧导航面板 ========== -->
+<div class="nav-panel">
+  <h3>页面导航</h3>
+  <a onclick="showPage('P01')" class="active" id="nav-P01">P01 登录页</a>
+  <a onclick="showPage('P02')" id="nav-P02">P02 手机号登录</a>
+  <a onclick="showPage('P03')" id="nav-P03">P03 选择年级</a>
+  <a onclick="showPage('P04')" id="nav-P04">P04 首页</a>
+  <a onclick="showPage('P05a')" id="nav-P05a">P05a 学习统计</a>
+  <a onclick="showPage('P05')" id="nav-P05">P05 词库练习</a>
+  <a onclick="showPage('P06')" id="nav-P06">P06 设置学习目标</a>
+  <a onclick="showPage('P07')" id="nav-P07">P07 新学(卡片翻转)</a>
+  <a onclick="showPage('P08')" id="nav-P08">P08 LC-01读单词</a>
+  <a onclick="showPage('P09')" id="nav-P09">P09 LC-02拼单词</a>
+  <a onclick="showPage('P10')" id="nav-P10">P10 LC-03读例句</a>
+  <a onclick="showPage('P11')" id="nav-P11">P11 LC-04英译汉</a>
+  <a onclick="showPage('P12')" id="nav-P12">P12 LC-05汉译英-直选</a>
+  <a onclick="showPage('P13')" id="nav-P13">P13 LC-06汉译英-全拼</a>
+  <a onclick="showPage('P14')" id="nav-P14">P14 LC-07汉译英-拼读</a>
+  <a onclick="showPage('P15')" id="nav-P15">P15 LC-08听力(词)</a>
+  <a onclick="showPage('P16')" id="nav-P16">P16 LC-09听力(句)</a>
+  <a onclick="showPage('P17')" id="nav-P17">P17 新学结束</a>
+  <a onclick="showPage('P18')" id="nav-P18">P18 复习结束</a>
+  <a onclick="showPage('P19')" id="nav-P19">P19 今日学习结束</a>
+  <a onclick="showPage('P20')" id="nav-P20">P20 单词详情</a>
+  <a onclick="showPage('P21')" id="nav-P21">P21 我的</a>
+  <a onclick="showPage('P22')" id="nav-P22">P22 会员中心</a>
+  <a onclick="showPage('P23')" id="nav-P23">P23 我的词库</a>
+  <a onclick="showPage('P23a')" id="nav-P23a">P23a 词库详情</a>
+</div>
+
+<!-- ========================================== -->
+<!-- P01 登录页 -->
+<!-- ========================================== -->
+<div class="page active" id="P01">
+  <div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
+  <!-- 上部淡绿色渐变装饰（从安全区下方开始，桌面端保持原样） -->
+  <div style="position:absolute;top:0;left:0;right:0;height:340px;background:linear-gradient(180deg,#FFFFFF 0%,#E8F5E0 10%,#F6FFED 50%,#FFFFFF 100%);z-index:0;"></div>
+  <div style="position:relative;z-index:1;padding-top:100px;display:flex;flex-direction:column;align-items:center;">
+    <!-- 大白IP - 更圆润的Baymax风格 -->
+    <div style="width:120px;height:120px;border-radius:50%;background:linear-gradient(135deg,#52C41A,#73D13D);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(82,196,26,.3);">
+      <svg width="90" height="90" viewBox="0 0 90 90">
+        <!-- 白色圆润身体 -->
+        <ellipse cx="45" cy="48" rx="38" ry="40" fill="#FFFFFF"/>
+        <!-- 头部 -->
+        <ellipse cx="45" cy="28" rx="22" ry="20" fill="#FFFFFF"/>
+        <!-- 眼睛连接线 -->
+        <line x1="33" y1="27" x2="57" y2="27" stroke="#262626" stroke-width="2" stroke-linecap="round"/>
+        <!-- 左眼 -->
+        <circle cx="36" cy="27" r="5" fill="#262626"/>
+        <circle cx="37" cy="25.5" r="1.5" fill="#fff"/>
+        <!-- 右眼 -->
+        <circle cx="54" cy="27" r="5" fill="#262626"/>
+        <circle cx="55" cy="25.5" r="1.5" fill="#fff"/>
+        <!-- 手臂 -->
+        <ellipse cx="10" cy="52" rx="10" ry="14" fill="#FFFFFF" transform="rotate(-10 10 52)"/>
+        <ellipse cx="80" cy="52" rx="10" ry="14" fill="#FFFFFF" transform="rotate(10 80 52)"/>
+        <!-- 肚子上的圆 -->
+        <circle cx="45" cy="55" r="14" fill="#F5F5F5"/>
+        <!-- 心形 -->
+        <path d="M45 50 C43 47, 38 47, 38 51 C38 54, 45 59, 45 59 C45 59, 52 54, 52 51 C52 47, 47 47, 45 50Z" fill="#FF4D4F" opacity="0.8"/>
+      </svg>
+    </div>
+    <!-- 应用名称 -->
+    <div style="margin-top:20px;font-size:22px;font-weight:700;color:var(--text-1);">大白陪你背单词</div>
+    <div style="margin-top:4px;font-size:13px;color:var(--text-3);">每天进步一点点</div>
+  </div>
+  <!-- 登录区域 -->
+  <div style="position:relative;z-index:1;padding:60px 24px 40px;">
+    <!-- 手机号脱敏 -->
+    <div style="text-align:center;font-size:18px;color:var(--text-1);font-weight:500;margin-bottom:24px;">185****8493</div>
+    <!-- 一键登录 -->
+    <button class="btn-primary" onclick="showPage('P03')">本机号码一键登录</button>
+    <!-- 其他手机号 -->
+    <div style="text-align:center;margin-top:16px;">
+      <a style="color:var(--brand);font-size:14px;cursor:pointer;text-decoration:none;" onclick="showPage('P02')">其他手机号登录</a>
+    </div>
+    <!-- 协议区 -->
+    <div style="display:flex;align-items:center;justify-content:center;margin-top:32px;gap:6px;">
+      <div id="agreeCheck" onclick="toggleAgree()" style="width:16px;height:16px;border-radius:50%;border:1.5px solid var(--text-4);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
+        <span id="agreeMark" style="display:none;color:#fff;font-size:10px;">✓</span>
+      </div>
+      <span style="font-size:12px;color:var(--text-3);">我已阅读并同意<a style="color:var(--brand);">《用户服务协议》</a></span>
+    </div>
+  </div>
+</div>
+
+<!-- ========================================== -->
+<!-- P02 手机号登录 -->
+<!-- ========================================== -->
+<div class="page" id="P02">
+  <div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
+  <div class="navbar">
+    <div class="back" onclick="showPage('P01')">←</div>
+    <div class="title">手机号登录</div>
+    <div class="right"></div>
+  </div>
+  <div style="padding:32px 24px;">
+    <div style="font-size:22px;font-weight:700;color:var(--text-1);margin-bottom:8px;">欢迎登录</div>
+    <div style="font-size:14px;color:var(--text-3);margin-bottom:32px;">请输入手机号和验证码</div>
+    <!-- 手机号输入 -->
+    <div style="border-bottom:1px solid var(--divider);padding:12px 0;margin-bottom:24px;display:flex;align-items:center;">
+      <span style="font-size:16px;color:var(--text-1);margin-right:8px;">+86</span>
+      <input type="tel" placeholder="请输入手机号" style="border:none;outline:none;font-size:16px;flex:1;color:var(--text-1);" />
+    </div>
+    <!-- 验证码输入 -->
+    <div style="border-bottom:1px solid var(--divider);padding:12px 0;margin-bottom:32px;display:flex;align-items:center;">
+      <input type="text" placeholder="请输入验证码" style="border:none;outline:none;font-size:16px;flex:1;color:var(--text-1);" />
+      <a style="color:var(--brand);font-size:14px;cursor:pointer;white-space:nowrap;">获取验证码</a>
+    </div>
+    <button class="btn-primary" onclick="showPage('P03')">登录</button>
+  </div>
+</div>
+
+<!-- ========================================== -->
+<!-- P03 选择年级 -->
+<!-- ========================================== -->
+<div class="page" id="P03">
+  <div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
+  <div style="padding:40px 24px 0;">
+    <div style="font-size:22px;font-weight:700;color:var(--text-1);margin-bottom:4px;">选择你的学习阶段</div>
+    <div style="font-size:14px;color:var(--text-3);">选择后将推荐适合你的词库</div>
+  </div>
+  <div style="padding:6px 24px 16px;overflow-y:auto;max-height:calc(100% - 220px);" class="safe-bottom">
+    <!-- 📘 基础阶段 -->
+    <div style="font-size:13px;color:var(--text-3);margin:16px 0 10px;font-weight:500;">📘 基础阶段</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;" id="group-basic">
+      <div class="grade-tag" onclick="selectGrade(this)">一年级</div>
+      <div class="grade-tag" onclick="selectGrade(this)">二年级</div>
+      <div class="grade-tag" onclick="selectGrade(this)">三年级</div>
+      <div class="grade-tag" onclick="selectGrade(this)">四年级</div>
+      <div class="grade-tag" onclick="selectGrade(this)">五年级</div>
+      <div class="grade-tag" onclick="selectGrade(this)">六年级</div>
+      <div class="grade-tag exam-tag" onclick="selectGrade(this)">小升初</div>
+      <div class="grade-tag" onclick="selectGrade(this)">初一</div>
+      <div class="grade-tag" onclick="selectGrade(this)">初二</div>
+      <div class="grade-tag" onclick="selectGrade(this)">初三</div>
+      <div class="grade-tag exam-tag" onclick="selectGrade(this)">中考</div>
+      <div class="grade-tag" onclick="selectGrade(this)">高一</div>
+      <div class="grade-tag" onclick="selectGrade(this)">高二</div>
+      <div class="grade-tag" onclick="selectGrade(this)">高三</div>
+      <div class="grade-tag exam-tag" onclick="selectGrade(this)">高考</div>
+    </div>
+    <!-- 🎓 大学考试 -->
+    <div style="font-size:13px;color:var(--text-3);margin:16px 0 10px;font-weight:500;">🎓 大学考试</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;" id="group-college">
+      <div class="grade-tag" onclick="selectGrade(this)">四级</div>
+      <div class="grade-tag" onclick="selectGrade(this)">六级</div>
+      <div class="grade-tag" onclick="selectGrade(this)">考研</div>
+      <div class="grade-tag" onclick="selectGrade(this)">专升本</div>
+      <div class="grade-tag" onclick="selectGrade(this)">专四专八</div>
+    </div>
+    <!-- 🌍 留学考试 -->
+    <div style="font-size:13px;color:var(--text-3);margin:16px 0 10px;font-weight:500;">🌍 留学考试</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;" id="group-abroad">
+      <div class="grade-tag" onclick="selectGrade(this)">雅思</div>
+      <div class="grade-tag" onclick="selectGrade(this)">托福</div>
+      <div class="grade-tag" onclick="selectGrade(this)">GRE</div>
+      <div class="grade-tag" onclick="selectGrade(this)">GMAT</div>
+    </div>
+  </div>
+  <div style="position:absolute;bottom:0;left:0;right:0;padding:12px 24px;background:var(--bg-card);z-index:10;">
+    <button class="btn-primary" id="gradeConfirm" onclick="confirmGrade()" style="opacity:0.4;">选择阶段，开始学习</button>
+  </div>
+</div>
+
+<!-- ========================================== -->
+<!-- P04 首页 -->
+<!-- ========================================== -->
+<div class="page" id="P04">
+  <div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
+  <!-- 顶部 -->
+  <div style="padding:8px 16px;display:flex;align-items:center;justify-content:space-between;background:var(--bg-card);">
+    <span style="font-size:18px;font-weight:700;color:var(--text-1);">大白陪你背单词</span>
+    <span style="font-size:20px;cursor:pointer;" onclick="showPage('P20')">🔍</span>
+  </div>
+  <!-- 搜索框 -->
+  <div style="padding:0 16px 12px;">
+    <div style="background:#F5F5F5;border-radius:var(--r-md);height:36px;display:flex;align-items:center;padding:0 12px;cursor:pointer;" onclick="showPage('P20')">
+      <span style="color:var(--text-4);margin-right:8px;">🔍</span>
+      <span style="color:var(--text-4);font-size:14px;">搜索单词</span>
+    </div>
+  </div>
+  <div style="padding-bottom:70px;">
+    <!-- 当前在学卡片 -->
+    <div class="card" onclick="showPage('P05')">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <span style="font-size:16px;font-weight:600;color:var(--text-1);">当前在学</span>
+        <span class="tag tag-yellow" id="currentTag">六年级</span>
+      </div>
+      <div class="progress-bar" style="margin-bottom:8px;">
+        <div class="fill" style="width:42%;"></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:16px;font-size:13px;color:var(--text-3);">
+        <span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--brand);margin-right:4px;"></span>掌握128</span>
+        <span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--brand-lighter);margin-right:4px;"></span>已学292</span>
+        <span style="margin-left:auto;color:var(--text-2);">2930词</span>
+      </div>
+    </div>
+    <!-- 今日计划卡片 -->
+    <div style="background:#FFFBE6;border-radius:var(--r-lg);padding:16px;margin:12px 16px;">
+      <div style="font-size:16px;font-weight:600;color:var(--text-1);margin-bottom:16px;">今日计划 🎉</div>
+      <div style="display:flex;margin-bottom:16px;">
+        <div style="flex:1;text-align:center;">
+          <div style="font-size:24px;font-weight:700;color:var(--brand);">20/20</div>
+          <div style="font-size:12px;color:var(--text-3);margin-top:4px;">新学(词)</div>
+        </div>
+        <div style="width:1px;background:#F0E5C0;"></div>
+        <div style="flex:1;text-align:center;">
+          <div style="font-size:24px;font-weight:700;color:var(--warn);">45/60</div>
+          <div style="font-size:12px;color:var(--text-3);margin-top:4px;">复习(词)</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:12px;">
+        <button class="btn-sm gray" style="flex:1;" disabled>再学一组</button>
+        <button class="btn-sm green" style="flex:1;" onclick="showPage('P07')">复习</button>
+      </div>
+    </div>
+  </div>
+  <!-- 底部Tab -->
+  <div class="tab-bar">
+    <div class="tab-item active" onclick="showPage('P04')"><div class="icon">🏠</div><div class="label">首页</div></div>
+    <div class="tab-item" onclick="showPage('P05a')"><div class="icon">📊</div><div class="label">统计</div></div>
+    <div class="tab-item" onclick="showPage('P21')"><div class="icon">👤</div><div class="label">我的</div></div>
+  </div>
+</div>
+
+<!-- ========================================== -->
+<!-- P05a 学习统计 -->
+<!-- ========================================== -->
+<div class="page" id="P05a">
+  <div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
+  <div class="navbar">
+    <div class="back" onclick="goBack()">←</div>
+    <div class="title">学习统计</div>
+    <div class="right"></div>
+  </div>
+  <div style="padding:16px;">
+    <!-- 概览卡片 -->
+    <div style="background:linear-gradient(135deg,#52C41A,#73D13D);border-radius:var(--r-lg);padding:24px;color:#fff;margin-bottom:16px;">
+      <div style="display:flex;justify-content:space-around;">
+        <div style="text-align:center;">
+          <div style="font-size:28px;font-weight:700;">32</div>
+          <div style="font-size:12px;opacity:.8;margin-top:4px;">连续打卡(天)</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="font-size:28px;font-weight:700;">186</div>
+          <div style="font-size:12px;opacity:.8;margin-top:4px;">累计学习(天)</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="font-size:28px;font-weight:700;">1280</div>
+          <div style="font-size:12px;opacity:.8;margin-top:4px;">掌握单词</div>
+        </div>
+      </div>
+    </div>
+    <!-- 本周学习 -->
+    <div class="card">
+      <div style="font-size:15px;font-weight:600;color:var(--text-1);margin-bottom:16px;">本周学习</div>
+      <div style="display:flex;align-items:flex-end;justify-content:space-around;height:120px;padding-bottom:8px;">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+          <div style="width:24px;background:var(--brand-light);border-radius:4px 4px 0 0;height:40px;"></div>
+          <span style="font-size:10px;color:var(--text-3);">周一</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+          <div style="width:24px;background:var(--brand-light);border-radius:4px 4px 0 0;height:60px;"></div>
+          <span style="font-size:10px;color:var(--text-3);">周二</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+          <div style="width:24px;background:var(--brand-light);border-radius:4px 4px 0 0;height:80px;"></div>
+          <span style="font-size:10px;color:var(--text-3);">周三</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+          <div style="width:24px;background:var(--brand);border-radius:4px 4px 0 0;height:90px;"></div>
+          <span style="font-size:10px;color:var(--text-3);">周四</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+          <div style="width:24px;background:var(--brand-light);border-radius:4px 4px 0 0;height:70px;"></div>
+          <span style="font-size:10px;color:var(--text-3);">周五</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+          <div style="width:24px;background:var(--brand-light);border-radius:4px 4px 0 0;height:50px;"></div>
+          <span style="font-size:10px;color:var(--text-3);">周六</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+          <div style="width:24px;background:#E8E8E8;border-radius:4px 4px 0 0;height:20px;"></div>
+          <span style="font-size:10px;color:var(--brand);font-weight:600;">周日</span>
+        </div>
+      </div>
+    </div>
+    <!-- 学习详情 -->
+    <div class="card">
+      <div style="font-size:15px;font-weight:600;color:var(--text-1);margin-bottom:16px;">学习详情</div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:12px;">
+        <span style="font-size:14px;color:var(--text-2);">今日新学</span>
+        <span style="font-size:14px;color:var(--text-1);font-weight:600;">20词</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:12px;">
+        <span style="font-size:14px;color:var(--text-2);">今日复习</span>
+        <span style="font-size:14px;color:var(--text-1);font-weight:600;">45词</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:12px;">
+        <span style="font-size:14px;color:var(--text-2);">平均正确率</span>
+        <span style="font-size:14px;color:var(--brand);font-weight:600;">87%</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;">
+        <span style="font-size:14px;color:var(--text-2);">平均用时</span>
+        <span style="font-size:14px;color:var(--text-1);font-weight:600;">12秒/词</span>
+      </div>
+    </div>
+  </div>
+  <div class="tab-bar">
+    <div class="tab-item" onclick="showPage('P04')"><div class="icon">🏠</div><div class="label">首页</div></div>
+    <div class="tab-item active" onclick="showPage('P05a')"><div class="icon">📊</div><div class="label">统计</div></div>
+    <div class="tab-item" onclick="showPage('P21')"><div class="icon">👤</div><div class="label">我的</div></div>
+  </div>
+</div>
+
+<!-- ========================================== -->
+<!-- P05 词库练习 -->
+<!-- ========================================== -->
+<div class="page" id="P05">
+  <div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
+  <div class="navbar">
+    <div style="font-size:15px;color:var(--brand);cursor:pointer;" onclick="goHome()">返回首页</div>
+    <div class="title">切换词库</div>
+    <div class="right"></div>
+  </div>
+  <div style="padding:12px 16px 0;">
+    <div style="font-size:14px;color:var(--text-3);">每个学段对应一个词库，选择后将切换当前在学内容</div>
+  </div>
+  <div style="padding:4px 16px 0;overflow-y:auto;max-height:calc(100% - 200px);">
+    <!-- 🎒 小学词库 -->
+    <div style="font-size:13px;color:var(--text-3);margin:12px 0 8px;font-weight:500;">🎒 小学</div>
+    <div style="background:var(--bg-card);border-radius:var(--r-lg);box-shadow:0 1px 4px rgba(0,0,0,.06);overflow:hidden;margin-bottom:12px;" id="tbank-primary"></div>
+    <!-- 📘 初中词库 -->
+    <div style="font-size:13px;color:var(--text-3);margin:12px 0 8px;font-weight:500;">📘 初中</div>
+    <div style="background:var(--bg-card);border-radius:var(--r-lg);box-shadow:0 1px 4px rgba(0,0,0,.06);overflow:hidden;margin-bottom:12px;" id="tbank-junior"></div>
+    <!-- 📙 高中词库 -->
+    <div style="font-size:13px;color:var(--text-3);margin:12px 0 8px;font-weight:500;">📙 高中</div>
+    <div style="background:var(--bg-card);border-radius:var(--r-lg);box-shadow:0 1px 4px rgba(0,0,0,.06);overflow:hidden;margin-bottom:12px;" id="tbank-senior"></div>
+    <!-- 🎓 大学词库 -->
+    <div style="font-size:13px;color:var(--text-3);margin:12px 0 8px;font-weight:500;">🎓 大学</div>
+    <div style="background:var(--bg-card);border-radius:var(--r-lg);box-shadow:0 1px 4px rgba(0,0,0,.06);overflow:hidden;margin-bottom:12px;" id="tbank-college"></div>
+    <!-- 🌍 留学词库 -->
+    <div style="font-size:13px;color:var(--text-3);margin:12px 0 8px;font-weight:500;">🌍 留学</div>
+    <div style="background:var(--bg-card);border-radius:var(--r-lg);box-shadow:0 1px 4px rgba(0,0,0,.06);overflow:hidden;margin-bottom:16px;" id="tbank-abroad"></div>
+  </div>
+  <!-- 底部确认按钮 -->
+  <div style="position:absolute;bottom:0;left:0;right:0;padding:12px 16px;background:var(--bg-card);z-index:10;border-top:.5px solid var(--divider);">
+    <button class="btn-primary" id="tbankConfirm" onclick="confirmWordBank()" style="opacity:0.4;">请先选择词库</button>
+  </div>
+  <!-- 创建词库loading浮层 -->
+  <div id="tbankLoading" style="display:none;position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(255,255,255,.85);z-index:20;flex-direction:column;align-items:center;justify-content:center;">
+    <div style="width:56px;height:56px;border-radius:50%;background:var(--brand);display:flex;align-items:center;justify-content:center;margin-bottom:16px;animation:spin .8s linear infinite;">
+      <svg width="28" height="28" viewBox="0 0 28 28"><circle cx="14" cy="14" r="10" stroke="#fff" stroke-width="3" fill="none" stroke-dasharray="50" stroke-dashoffset="15"/></svg>
+    </div>
+    <div style="font-size:16px;font-weight:600;color:var(--text-1);">正在创建词库...</div>
+    <div style="font-size:13px;color:var(--text-3);margin-top:4px;">将词库放入热区，加速后续访问</div>
+  </div>
+</div>
+
+<!-- ========================================== -->
+<!-- P06 设置学习目标 -->
+<!-- ========================================== -->
+<div class="page" id="P06">
+  <div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
+  <div class="navbar">
+    <div style="font-size:15px;color:var(--brand);cursor:pointer;" onclick="goHome()">返回首页</div>
+    <div class="title">设置学习目标</div>
+    <div class="right"></div>
+  </div>
+  <div style="padding:16px;">
+    <!-- 每日新学数量 -->
+    <div class="card">
+      <div style="font-size:15px;font-weight:600;color:var(--text-1);margin-bottom:16px;">每日数量</div>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+        <div class="circle-select" onclick="selectCount(this)">5</div>
+        <div class="circle-select active" onclick="selectCount(this)">10</div>
+        <div class="circle-select" onclick="selectCount(this)">15</div>
+        <div class="circle-select" onclick="selectCount(this)">20</div>
+        <div class="circle-select" onclick="selectCount(this)">30</div>
+        <div class="circle-select" style="width:auto;padding:0 16px;border-radius:24px;" id="customBtn" onclick="selectCustomCount()">自定义</div>
+      </div>
+      <!-- 自定义输入卡片 -->
+      <div id="customCountCard" style="display:none;margin-top:12px;background:var(--brand-light);border:1px solid var(--brand);border-radius:var(--r-md);padding:12px 16px;">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <span style="font-size:14px;color:var(--text-2);flex-shrink:0;">每天学习</span>
+          <input id="customCountInput" type="number" min="1" max="200" value="8" style="flex:1;height:36px;border:none;border-bottom:2px solid var(--brand);background:transparent;text-align:center;font-size:20px;font-weight:700;color:var(--brand);outline:none;width:60px;">
+          <span style="font-size:14px;color:var(--text-2);flex-shrink:0;">个单词</span>
+        </div>
+      </div>
+    </div>
+    <!-- 学习模式 -->
+    <div class="card">
+      <div style="font-size:15px;font-weight:600;color:var(--text-1);margin-bottom:16px;">学习模式</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="mode-card" onclick="selectMode(this)">
+          <div style="font-size:24px;margin-bottom:4px;">😊</div>
+          <div style="font-size:15px;font-weight:600;color:var(--text-1);">简单</div>
+          <div style="font-size:12px;color:var(--text-3);">只看卡片</div>
+        </div>
+        <div class="mode-card active" onclick="selectMode(this)">
+          <div style="font-size:24px;margin-bottom:4px;">📖</div>
+          <div style="font-size:15px;font-weight:600;color:var(--text-1);">标准</div>
+          <div style="font-size:12px;color:var(--text-3);">卡片+练习</div>
+        </div>
+        <div class="mode-card" onclick="selectMode(this)">
+          <div style="font-size:24px;margin-bottom:4px;">💪</div>
+          <div style="font-size:15px;font-weight:600;color:var(--text-1);">困难</div>
+          <div style="font-size:12px;color:var(--text-3);">全题型</div>
+        </div>
+        <div class="mode-card" onclick="selectMode(this)">
+          <div style="font-size:24px;margin-bottom:4px;">🤖</div>
+          <div style="font-size:15px;font-weight:600;color:var(--text-1);">智能</div>
+          <div style="font-size:12px;color:var(--text-3);">AI推荐</div>
+          <span class="rec-tag">推荐</span>
+        </div>
+      </div>
+    </div>
+    <button class="btn-primary" style="margin:16px 0;" onclick="goHome()">保存设置</button>
+  </div>
+</div>
+
+<!-- ========================================== -->
+<!-- P07 新学(卡片翻转) -->
+<!-- ========================================== -->
+<div class="page" id="P07">
+  <div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
+  <div class="navbar">
+    <div class="back" onclick="goBack()">←</div>
+    <div class="title">今日进度 1/20</div>
+    <div class="right" style="cursor:pointer;">⋯</div>
+  </div>
+  <div style="padding:24px 16px;display:flex;flex-direction:column;align-items:center;">
+    <!-- 进度指示 -->
+    <div style="display:flex;gap:4px;margin-bottom:20px;width:100%;">
+      <div style="flex:1;height:4px;border-radius:2px;background:var(--brand);"></div>
+      <div style="flex:1;height:4px;border-radius:2px;background:var(--brand-lighter);"></div>
+      <div style="flex:1;height:4px;border-radius:2px;background:#F0F0F0;"></div>
+      <div style="flex:1;height:4px;border-radius:2px;background:#F0F0F0;"></div>
+    </div>
+    <!-- 翻转卡片 -->
+    <div class="flip-card" style="width:100%;" onclick="flipCard(this)">
+      <div class="flip-card-inner" id="flipInner">
+        <!-- 正面 -->
+        <div class="flip-card-front">
+          <div style="font-size:32px;font-weight:600;color:var(--text-1);margin-bottom:8px;">industrious</div>
+          <div style="font-size:14px;color:var(--text-3);margin-bottom:16px;">英 [ɪnˈdʌstriəs] 美 [ɪnˈdʌstriəs]</div>
+          <div style="width:40px;height:40px;border-radius:50%;background:var(--brand-light);display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;position:absolute;right:20px;top:20px;">🔊</div>
+          <button class="btn-outline" style="margin-top:24px;width:200px;height:40px;font-size:14px;">点击查看词义</button>
+        </div>
+        <!-- 背面 -->
+        <div class="flip-card-back">
+          <div style="font-size:28px;font-weight:600;color:var(--text-1);margin-bottom:4px;">industrious</div>
+          <div style="font-size:14px;color:var(--text-3);margin-bottom:16px;">英 [ɪnˈdʌstriəs]</div>
+          <div style="font-size:18px;color:var(--text-1);margin-bottom:16px;text-align:center;">adj. 勤奋的；勤劳的</div>
+          <div style="font-size:14px;color:var(--text-2);line-height:1.6;text-align:center;background:var(--bg-page);border-radius:8px;padding:12px;width:100%;">
+            The <span style="color:var(--brand);font-weight:600;">industrious</span> student always finished homework early.<br/>
+            <span style="color:var(--text-3);">那个勤奋的学生总是早早完成作业。</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- 底部按钮 -->
+    <div style="display:flex;gap:16px;width:100%;margin-top:24px;" id="flipButtons">
+      <button class="btn-outline" style="flex:1;height:48px;color:var(--text-3);border-color:var(--border);" onclick="showPage('P07')">不认识</button>
+      <button class="btn-primary" style="flex:1;height:48px;" onclick="showPage('P08')">认识</button>
+    </div>
+    <div style="font-size:12px;color:var(--text-4);margin-top:12px;">点击卡片翻转查看释义</div>
+  </div>
+</div>
+
+<!-- ========================================== -->
+<!-- P08 LC-01 读单词 -->
+<!-- ========================================== -->
+<div class="page" id="P08">
+  <div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
+  <!-- 演示状态切换按钮 -->
+  <div style="display:flex;gap:4px;padding:4px 8px;background:#f0f0f0;font-size:10px;flex-wrap:wrap;position:sticky;top:0;z-index:20;">
+    <button onclick="setRecordState('init')" style="padding:2px 6px;border:1px solid #ccc;border-radius:4px;font-size:10px;cursor:pointer;">初始</button>
+    <button onclick="setRecordState('recording')" style="padding:2px 6px;border:1px solid #ccc;border-radius:4px;font-size:10px;cursor:pointer;">录音中</button>
+    <button onclick="setRecordState('short')" style="padding:2px 6px;border:1px solid #ccc;border-radius:4px;font-size:10px;cursor:pointer;">过短</button>
+    <button onclick="setRecordState('analyzing')" style="padding:2px 6px;border:1px solid #ccc;border-radius:4px;font-size:10px;cursor:pointer;">分析中</button>
+    <button onclick="setRecordState('timeout')" style="padding:2px 6px;border:1px solid #ccc;border-radius:4px;font-size:10px;cursor:pointer;">超时</button>
+    <button onclick="setRecordState('high')" style="padding:2px 6px;border:1px solid #ccc;border-radius:4px;font-size:10px;cursor:pointer;">高分</button>
+    <button onclick="setRecordState('low')" style="padding:2px 6px;border:1px solid #ccc;border-radius:4px;font-size:10px;cursor:pointer;">低分</button>
+  </div>
+  <div class="navbar">
+    <div class="back" onclick="goBack()">←</div>
+    <div class="title">今日进度 1/10</div>
+    <div class="right" style="cursor:pointer;">⋯</div>
+  </div>
+  <div style="padding:16px;position:relative;" id="recordPage">
+    <!-- 绿色徽章 -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+      <span class="tag tag-green">词·读</span>
+      <div style="display:flex;gap:12px;align-items:center;">
+        <span style="font-size:20px;cursor:pointer;">🔊</span>
+        <span style="cursor:pointer;">⋯</span>
+      </div>
+    </div>
+    <!-- 单词 -->
+    <div style="text-align:center;margin-bottom:8px;">
+      <div style="font-size:30px;font-weight:500;color:var(--text-1);margin-bottom:8px;">industrious</div>
+      <div style="font-size:14px;color:var(--text-3);margin-bottom:16px;">英 ⊙ [ɪnˈdʌstriəs]</div>
+      <div style="font-size:15px;color:var(--text-1);margin-bottom:24px;">adj. 勤奋的；勤劳的</div>
+    </div>
+    <!-- 提示 -->
+    <div style="text-align:center;font-size:13px;color:var(--text-3);margin-bottom:24px;" id="recordTip">请朗读上边单词，保持发音标准</div>
+    <!-- 波形区 -->
+    <div style="text-align:center;margin-bottom:24px;min-height:30px;display:flex;align-items:center;justify-content:center;" id="waveArea">
+    </div>
+    <!-- 工具栏 -->
+    <div style="display:flex;justify-content:space-around;margin-bottom:32px;">
+      <div style="text-align:center;cursor:pointer;"><div style="font-size:22px;">🔊</div><div style="font-size:11px;color:var(--text-3);margin-top:2px;">原声</div></div>
+      <div style="text-align:center;cursor:pointer;"><div style="font-size:22px;">☆</div><div style="font-size:11px;color:var(--text-3);margin-top:2px;">收藏</div></div>
+      <div style="text-align:center;cursor:pointer;"><div style="font-size:22px;">🎤</div><div style="font-size:11px;color:var(--text-3);margin-top:2px;">发音</div></div>
+    </div>
+    <!-- 录音按钮 -->
+    <div id="recordBtnArea">
+      <button class="btn-primary" style="font-size:16px;" id="recordBtn" onclick="toggleRecord()">长按录音</button>
+      <div style="text-align:center;font-size:12px;color:var(--text-4);margin-top:12px;" id="recordSlideTip">上滑下一词</div>
+    </div>
+    <!-- 评测结果区(默认隐藏) -->
+    <div id="scoreArea" style="display:none;text-align:center;">
+      <div id="scoreNum" style="font-size:64px;font-weight:700;margin-bottom:8px;">91</div>
+      <div id="scoreStars" class="stars" style="margin-bottom:8px;"></div>
+      <div id="scoreText" style="font-size:18px;font-weight:600;margin-bottom:24px;">太棒了！</div>
+      <div id="scoreActions"></div>
+    </div>
+  </div>
+  <!-- Toast -->
+  <div class="toast" id="toastMsg"></div>
+</div>
+
+<!-- ========================================== -->
+<!-- P09 LC-02 拼单词 -->
+<!-- ========================================== -->
+<div class="page" id="P09">
+  <div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
+  <div class="navbar">
+    <div class="back" onclick="goBack()">←</div>
+    <div class="title">今日进度 2/10</div>
+    <div class="right"></div>
+  </div>
+  <div style="padding:16px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+      <span class="tag tag-green">词·拼</span>
+    </div>
+    <!-- 例句 -->
+    <div style="background:var(--bg-page);border-radius:var(--r-lg);padding:16px;margin-bottom:24px;">
+      <div style="font-size:15px;color:var(--text-1);line-height:1.6;margin-bottom:8px;">
+        The <span style="color:var(--brand);font-weight:600;border-bottom:2px solid var(--brand);">industrious</span> student always finished homework early.
+      </div>
+      <div style="font-size:13px;color:var(--text-3);">那个勤奋的学生总是早早完成作业。</div>
+    </div>
+    <!-- 字母占位 -->
+    <div style="display:flex;justify-content:center;gap:4px;margin-bottom:32px;flex-wrap:wrap;" id="letterSlots">
+      <div class="letter-slot" data-pos="0"></div>
+      <div class="letter-slot" data-pos="1"></div>
+      <div class="letter-slot" data-pos="2"></div>
+      <div class="letter-slot" data-pos="3"></div>
+      <div class="letter-slot" data-pos="4"></div>
+      <div class="letter-slot" data-pos="5"></div>
+      <div class="letter-slot" data-pos="6"></div>
+      <div class="letter-slot" data-pos="7"></div>
+      <div class="letter-slot" data-pos="8"></div>
+      <div class="letter-slot" data-pos="9"></div>
+      <div class="letter-slot" data-pos="10"></div>
+    </div>
+    <!-- 字母选择区 -->
+    <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:8px;" id="letterChoices">
+    </div>
+    <div style="text-align:center;margin-top:24px;font-size:12px;color:var(--text-4);">选择字母拼出单词</div>
+  </div>
+</div>
+
+<!-- ========================================== -->
+<!-- P10 LC-03 读例句 -->
+<!-- ========================================== -->
+<div class="page" id="P10">
+  <div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
+  <div class="navbar">
+    <div class="back" onclick="goBack()">←</div>
+    <div class="title">今日进度 3/10</div>
+    <div class="right"></div>
+  </div>
+  <div style="padding:16px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+      <span class="tag tag-green">句·读</span>
+      <div style="display:flex;gap:12px;align-items:center;">
+        <span style="font-size:20px;cursor:pointer;">🔊</span>
+      </div>
+    </div>
+    <!-- 单词信息 -->
+    <div style="text-align:center;margin-bottom:24px;">
+      <div style="font-size:22px;font-weight:600;color:var(--text-1);margin-bottom:4px;">industrious</div>
+      <div style="font-size:14px;color:var(--text-3);">英 [ɪnˈdʌstriəs] · adj. 勤奋的</div>
+    </div>
+    <!-- 例句 -->
+    <div style="background:var(--bg-page);border-radius:var(--r-lg);padding:20px;margin-bottom:24px;">
+      <div style="font-size:17px;color:var(--text-1);line-height:1.8;margin-bottom:8px;">
+        The <span style="color:var(--brand);font-weight:600;">industrious</span> student always finished homework early.
+      </div>
+      <div style="font-size:14px;color:var(--text-3);">那个勤奋的学生总是早早完成作业。</div>
+    </div>
+    <!-- 提示 -->
+    <div style="text-align:center;font-size:13px;color:var(--text-3);margin-bottom:24px;">请朗读例句，保持发音标准</div>
+    <!-- 波形 -->
+    <div style="text-align:center;margin-bottom:24px;min-height:30px;" id="sentenceWaveArea"></div>
+    <!-- 工具栏 -->
+    <div style="display:flex;justify-content:space-around;margin-bottom:32px;">
+      <div style="text-align:center;cursor:pointer;"><div style="font-size:22px;">🔊</div><div style="font-size:11px;color:var(--text-3);">原声</div></div>
+      <div style="text-align:center;cursor:pointer;"><div style="font-size:22px;">☆</div><div style="font-size:11px;color:var(--text-3);">收藏</div></div>
+      <div style="text-align:center;cursor:pointer;"><div style="font-size:22px;">🎤</div><div style="font-size:11px;color:var(--text-3);">发音</div></div>
+    </div>
+    <button class="btn-primary" onclick="showPage('P11')">长按录音</button>
+    <div style="text-align:center;font-size:12px;color:var(--text-4);margin-top:12px;">上滑下一词</div>
+  </div>
+</div>
+
+<!-- ========================================== -->
+<!-- P11 LC-04 英译汉 -->
+<!-- ========================================== -->
+<div class="page" id="P11">
+  <div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
+  <div class="navbar">
+    <div class="back" onclick="goBack()">←</div>
+    <div class="title">今日进度 4/10</div>
+    <div class="right"></div>
+  </div>
+  <div style="padding:16px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+      <span class="tag tag-green">词·英译汉</span>
+      <span style="font-size:20px;cursor:pointer;">🔊</span>
+    </div>
+    <!-- 单词 -->
+    <div style="text-align:center;margin-bottom:32px;">
+      <div style="font-size:30px;font-weight:500;color:var(--text-1);margin-bottom:8px;">industrious</div>
+      <div style="font-size:14px;color:var(--text-3);">英 [ɪnˈdʌstriəs]</div>
+    </div>
+    <!-- 选项 -->
+    <div id="en2cnOptions">
+      <div class="option-item" data-correct="true" onclick="selectOption(this,'correct')">
+        <div class="opt-letter">A</div>
+        <span>adj. 勤奋的；勤劳的</span>
+      </div>
+      <div class="option-item" onclick="selectOption(this,'wrong')">
+        <div class="opt-letter">B</div>
+        <span>adj. 产业的；工业的</span>
+      </div>
+      <div class="option-item" onclick="selectOption(this,'wrong')">
+        <div class="opt-letter">C</div>
+        <span>adj. 懒惰的；懈怠的</span>
+      </div>
+      <div class="option-item" onclick="selectOption(this,'wrong')">
+        <div class="opt-letter">D</div>
+        <span>adj. 聪明的；机智的</span>
+      </div>
+    </div>
+    <div style="text-align:center;font-size:12px;color:var(--text-4);margin-top:24px;">选择正确的中文释义</div>
+  </div>
+</div>
+
+<!-- ========================================== -->
+<!-- P12 LC-05 汉译英-直选 -->
+<!-- ========================================== -->
+<div class="page" id="P12">
+  <div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
+  <div class="navbar">
+    <div class="back" onclick="goBack()">←</div>
+    <div class="title">今日进度 5/10</div>
+    <div class="right"></div>
+  </div>
+  <div style="padding:16px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+      <span class="tag tag-green">词·汉译英</span>
+    </div>
+    <!-- 中文释义 -->
+    <div style="text-align:center;margin-bottom:32px;">
+      <div style="font-size:22px;font-weight:600;color:var(--text-1);margin-bottom:8px;">adj. 勤奋的；勤劳的</div>
+      <div style="font-size:14px;color:var(--text-3);">请选择对应的英文单词</div>
+    </div>
+    <!-- 选项 -->
+    <div id="cn2enOptions">
+      <div class="option-item" onclick="selectOption(this,'wrong')">
+        <div class="opt-letter">A</div>
+        <span>industrial</span>
+      </div>
+      <div class="option-item" data-correct="true" onclick="selectOption(this,'correct')">
+        <div class="opt-letter">B</div>
+        <span>industrious</span>
+      </div>
+      <div class="option-item" onclick="selectOption(this,'wrong')">
+        <div class="opt-letter">C</div>
+        <span>intelligent</span>
+      </div>
+      <div class="option-item" onclick="selectOption(this,'wrong')">
+        <div class="opt-letter">D</div>
+        <span>delicious</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========================================== -->
+<!-- P13 LC-06 汉译英-全拼 -->
+<!-- ========================================== -->
+<div class="page" id="P13">
+  <div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
+  <div class="navbar">
+    <div class="back" onclick="goBack()">←</div>
+    <div class="title">今日进度 6/10</div>
+    <div class="right"></div>
+  </div>
+  <div style="padding:16px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+      <span class="tag tag-green">词·全拼</span>
+    </div>
+    <!-- 中文释义 -->
+    <div style="text-align:center;margin-bottom:24px;">
+      <div style="font-size:20px;font-weight:600;color:var(--text-1);margin-bottom:8px;">adj. 勤奋的；勤劳的</div>
+      <div style="font-size:14px;color:var(--text-3);">请拼写出对应的英文单词</div>
+    </div>
+    <!-- 字母占位 -->
+    <div style="display:flex;justify-content:center;gap:4px;margin-bottom:32px;flex-wrap:wrap;" id="spellSlots">
+      <div class="letter-slot"></div><div class="letter-slot"></div><div class="letter-slot"></div>
+      <div class="letter-slot"></div><div class="letter-slot"></div><div class="letter-slot"></div>
+      <div class="letter-slot"></div><div class="letter-slot"></div><div class="letter-slot"></div>
+      <div class="letter-slot"></div><div class="letter-slot"></div>
+    </div>
+    <!-- 输入区 -->
+    <div style="border:1px solid var(--border);border-radius:var(--r-md);padding:12px;margin-bottom:16px;">
+      <input type="text" placeholder="请输入英文单词" style="border:none;outline:none;font-size:18px;width:100%;color:var(--text-1);text-align:center;letter-spacing:2px;" id="spellInput" oninput="checkSpell()">
+    </div>
+    <div style="text-align:center;">
+      <button class="btn-primary" style="width:160px;height:44px;font-size:15px;" onclick="submitSpell()" id="spellSubmitBtn" disabled>确认提交</button>
+    </div>
+    <div style="text-align:center;font-size:12px;color:var(--text-4);margin-top:16px;" id="spellHint"></div>
+  </div>
+</div>
+
+<!-- ========================================== -->
+<!-- P14 LC-07 汉译英-拼读 -->
+<!-- ========================================== -->
+<div class="page" id="P14">
+  <div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
+  <div class="navbar">
+    <div class="back" onclick="goBack()">←</div>
+    <div class="title">今日进度 7/10</div>
+    <div class="right"></div>
+  </div>
+  <div style="padding:16px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+      <span class="tag tag-green">词·拼读</span>
+      <span style="font-size:20px;cursor:pointer;">🔊</span>
+    </div>
+    <!-- 中文释义 -->
+    <div style="text-align:center;margin-bottom:24px;">
+      <div style="font-size:20px;font-weight:600;color:var(--text-1);margin-bottom:8px;">adj. 勤奋的；勤劳的</div>
+      <div style="font-size:14px;color:var(--text-3);">听发音，拼写出单词</div>
+    </div>
+    <!-- 音频播放提示 -->
+    <div style="text-align:center;margin-bottom:24px;">
+      <div style="width:64px;height:64px;border-radius:50%;background:var(--brand-light);display:flex;align-items:center;justify-content:center;margin:0 auto;cursor:pointer;font-size:28px;" onclick="this.style.transform='scale(0.95)';setTimeout(()=>this.style.transform='',150)">🔊</div>
+      <div style="font-size:12px;color:var(--text-3);margin-top:8px;">点击播放发音</div>
+    </div>
+    <!-- 字母占位 -->
+    <div style="display:flex;justify-content:center;gap:4px;margin-bottom:24px;flex-wrap:wrap;">
+      <div class="letter-slot filled" style="color:var(--brand);">i</div>
+      <div class="letter-slot filled" style="color:var(--brand);">n</div>
+      <div class="letter-slot"></div><div class="letter-slot"></div>
+      <div class="letter-slot"></div><div class="letter-slot"></div>
+      <div class="letter-slot"></div><div class="letter-slot"></div>
+      <div class="letter-slot"></div><div class="letter-slot"></div>
+      <div class="letter-slot"></div>
+    </div>
+    <!-- 字母选择 -->
+    <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:8px;">
+      <button class="letter-btn" onclick="this.classList.add('placed')">d</button>
+      <button class="letter-btn placed" style="pointer-events:none;">u</button>
+      <button class="letter-btn" onclick="this.classList.add('placed')">s</button>
+      <button class="letter-btn" onclick="this.classList.add('placed')">t</button>
+      <button class="letter-btn" onclick="this.classList.add('placed')">r</button>
+      <button class="letter-btn" onclick="this.classList.add('placed')">o</button>
+      <button class="letter-btn placed" style="pointer-events:none;">i</button>
+      <button class="letter-btn" onclick="this.classList.add('placed')">e</button>
+      <button class="letter-btn placed" style="pointer-events:none;">s</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========================================== -->
+<!-- P15 LC-08 听力(词) -->
+<!-- ========================================== -->
+<div class="page" id="P15">
+  <div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
+  <div class="navbar">
+    <div class="back" onclick="goBack()">←</div>
+    <div class="title">今日进度 8/10</div>
+    <div class="right"></div>
+  </div>
+  <div style="padding:16px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+      <span class="tag tag-green">听·词</span>
+    </div>
+    <!-- 听力播放 -->
+    <div style="text-align:center;margin-bottom:32px;">
+      <div style="width:80px;height:80px;border-radius:50%;background:var(--brand);display:flex;align-items:center;justify-content:center;margin:0 auto;font-size:36px;cursor:pointer;box-shadow:0 4px 16px rgba(82,196,26,.3);">🔊</div>
+      <div style="font-size:14px;color:var(--text-3);margin-top:12px;">点击播放单词发音</div>
+    </div>
+    <div style="text-align:center;font-size:15px;color:var(--text-2);margin-bottom:24px;">请听发音，选择正确的单词</div>
+    <!-- 选项 -->
+    <div>
+      <div class="option-item" onclick="selectOption(this,'wrong')">
+        <div class="opt-letter">A</div>
+        <span>industrial</span>
+      </div>
+      <div class="option-item" data-correct="true" onclick="selectOption(this,'correct')">
+        <div class="opt-letter">B</div>
+        <span>industrious</span>
+      </div>
+      <div class="option-item" onclick="selectOption(this,'wrong')">
+        <div class="opt-letter">C</div>
+        <span>intelligence</span>
+      </div>
+      <div class="option-item" onclick="selectOption(this,'wrong')">
+        <div class="opt-letter">D</div>
+        <span>instructor</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========================================== -->
+<!-- P16 LC-09 听力(句) -->
+<!-- ========================================== -->
+<div class="page" id="P16">
+  <div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
+  <div class="navbar">
+    <div class="back" onclick="goBack()">←</div>
+    <div class="title">今日进度 9/10</div>
+    <div class="right"></div>
+  </div>
+  <div style="padding:16px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+      <span class="tag tag-green">听·句</span>
+    </div>
+    <!-- 听力播放 -->
+    <div style="text-align:center;margin-bottom:32px;">
+      <div style="width:80px;height:80px;border-radius:50%;background:var(--brand);display:flex;align-items:center;justify-content:center;margin:0 auto;font-size:36px;cursor:pointer;box-shadow:0 4px 16px rgba(82,196,26,.3);">🔊</div>
+      <div style="font-size:14px;color:var(--text-3);margin-top:12px;">点击播放例句发音</div>
+    </div>
+    <div style="text-align:center;font-size:15px;color:var(--text-2);margin-bottom:24px;">请听例句，选择正确的中文翻译</div>
+    <!-- 选项 -->
+    <div>
+      <div class="option-item" onclick="selectOption(this,'wrong')">
+        <div class="opt-letter">A</div>
+        <span>那个懒惰的学生总是完不成作业。</span>
+      </div>
+      <div class="option-item" data-correct="true" onclick="selectOption(this,'correct')">
+        <div class="opt-letter">B</div>
+        <span>那个勤奋的学生总是早早完成作业。</span>
+      </div>
+      <div class="option-item" onclick="selectOption(this,'wrong')">
+        <div class="opt-letter">C</div>
+        <span>那个聪明的学生经常帮助同学。</span>
+      </div>
+      <div class="option-item" onclick="selectOption(this,'wrong')">
+        <div class="opt-letter">D</div>
+        <span>那个学生每天都很早到学校。</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========================================== -->
+<!-- P17 新学结束 -->
+<!-- ========================================== -->
+<div class="page" id="P17">
+  <div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
+  <div style="padding:60px 24px 40px;text-align:center;">
+    <div style="font-size:64px;margin-bottom:16px;">🎉</div>
+    <div style="font-size:22px;font-weight:700;color:var(--text-1);margin-bottom:8px;">新学完成！</div>
+    <div style="font-size:14px;color:var(--text-3);margin-bottom:40px;">今天的新单词已经学完了</div>
+    <!-- 统计 -->
+    <div style="display:flex;justify-content:space-around;margin-bottom:40px;">
+      <div>
+        <div style="font-size:36px;font-weight:700;color:var(--brand);">20</div>
+        <div style="font-size:12px;color:var(--text-3);margin-top:4px;">新学单词</div>
+      </div>
+      <div>
+        <div style="font-size:36px;font-weight:700;color:var(--warn);">15</div>
+        <div style="font-size:12px;color:var(--text-3);margin-top:4px;">已掌握</div>
+      </div>
+      <div>
+        <div style="font-size:36px;font-weight:700;color:var(--error);">5</div>
+        <div style="font-size:12px;color:var(--text-3);margin-top:4px;">待巩固</div>
+      </div>
+    </div>
+    <!-- 操作按钮 -->
+    <button class="btn-primary" style="margin-bottom:12px;" onclick="showPage('P18')">开始复习</button>
+    <button class="btn-outline" onclick="goHome()">返回首页</button>
+  </div>
+</div>
+
+<!-- ========================================== -->
+<!-- P18 复习结束 -->
+<!-- ========================================== -->
+<div class="page" id="P18">
+  <div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
+  <div style="padding:60px 24px 40px;text-align:center;">
+    <div style="font-size:64px;margin-bottom:16px;">🏆</div>
+    <div style="font-size:22px;font-weight:700;color:var(--text-1);margin-bottom:8px;">复习完成！</div>
+    <div style="font-size:14px;color:var(--text-3);margin-bottom:40px;">今日复习任务已完成</div>
+    <!-- 统计 -->
+    <div style="display:flex;justify-content:space-around;margin-bottom:40px;">
+      <div>
+        <div style="font-size:36px;font-weight:700;color:var(--brand);">45</div>
+        <div style="font-size:12px;color:var(--text-3);margin-top:4px;">复习单词</div>
+      </div>
+      <div>
+        <div style="font-size:36px;font-weight:700;color:var(--warn);">87%</div>
+        <div style="font-size:12px;color:var(--text-3);margin-top:4px;">正确率</div>
+      </div>
+      <div>
+        <div style="font-size:36px;font-weight:700;color:var(--info);">6</div>
+        <div style="font-size:12px;color:var(--text-3);margin-top:4px;">待巩固</div>
+      </div>
+    </div>
+    <button class="btn-primary" style="margin-bottom:12px;" onclick="showPage('P19')">查看今日总结</button>
+    <button class="btn-outline" onclick="goHome()">返回首页</button>
+  </div>
+</div>
+
+<!-- ========================================== -->
+<!-- P19 今日学习结束 -->
+<!-- ========================================== -->
+<div class="page" id="P19">
+  <div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
+  <div style="padding:40px 24px 40px;text-align:center;">
+    <div style="font-size:64px;margin-bottom:16px;">🌟</div>
+    <div style="font-size:22px;font-weight:700;color:var(--text-1);margin-bottom:8px;">今日学习完成！</div>
+    <div style="font-size:14px;color:var(--text-3);margin-bottom:32px;">大白为你点赞，坚持就是胜利！</div>
+    <!-- 大白形象 -->
+    <div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#52C41A,#73D13D);display:flex;align-items:center;justify-content:center;margin:0 auto 32px;box-shadow:0 4px 16px rgba(82,196,26,.3);">
+      <svg width="60" height="60" viewBox="0 0 90 90">
+        <ellipse cx="45" cy="48" rx="38" ry="40" fill="#FFFFFF"/>
+        <ellipse cx="45" cy="28" rx="22" ry="20" fill="#FFFFFF"/>
+        <line x1="33" y1="27" x2="57" y2="27" stroke="#262626" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="36" cy="27" r="5" fill="#262626"/>
+        <circle cx="54" cy="27" r="5" fill="#262626"/>
+        <circle cx="45" cy="55" r="14" fill="#F5F5F5"/>
+        <path d="M45 50 C43 47, 38 47, 38 51 C38 54, 45 59, 45 59 C45 59, 52 54, 52 51 C52 47, 47 47, 45 50Z" fill="#FF4D4F" opacity="0.8"/>
+      </svg>
+    </div>
+    <!-- 统计 -->
+    <div style="background:var(--bg-page);border-radius:var(--r-lg);padding:24px;margin-bottom:32px;">
+      <div style="display:flex;justify-content:space-around;">
+        <div>
+          <div style="font-size:28px;font-weight:700;color:var(--brand);">65</div>
+          <div style="font-size:12px;color:var(--text-3);margin-top:4px;">学习单词</div>
+        </div>
+        <div>
+          <div style="font-size:28px;font-weight:700;color:var(--warn);">85%</div>
+          <div style="font-size:12px;color:var(--text-3);margin-top:4px;">正确率</div>
+        </div>
+        <div>
+          <div style="font-size:28px;font-weight:700;color:var(--info);">18m</div>
+          <div style="font-size:12px;color:var(--text-3);margin-top:4px;">学习时长</div>
+        </div>
+      </div>
+    </div>
+    <button class="btn-primary" style="margin-bottom:12px;" onclick="showPage('P04')">返回首页</button>
+    <div style="font-size:13px;color:var(--text-3);margin-top:16px;">明天继续加油哦！</div>
+  </div>
+</div>
+
+<!-- ========================================== -->
+<!-- P20 单词详情 -->
+<!-- ========================================== -->
+<div class="page" id="P20">
+  <div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
+  <div class="navbar">
+    <div class="back" onclick="goBack()">←</div>
+    <div class="title">单词详情</div>
+    <div class="right" style="cursor:pointer;font-size:18px;">☆</div>
+  </div>
+  <div style="padding:16px;">
+    <!-- 单词头部 -->
+    <div style="text-align:center;margin-bottom:24px;">
+      <div style="font-size:32px;font-weight:600;color:var(--text-1);margin-bottom:8px;">industrious</div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:16px;">
+        <span style="font-size:14px;color:var(--text-3);">英 [ɪnˈdʌstriəs]</span>
+        <span style="font-size:20px;cursor:pointer;">🔊</span>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:16px;margin-top:4px;">
+        <span style="font-size:14px;color:var(--text-3);">美 [ɪnˈdʌstriəs]</span>
+        <span style="font-size:20px;cursor:pointer;">🔊</span>
+      </div>
+    </div>
+    <!-- 释义 -->
+    <div style="background:var(--bg-page);border-radius:var(--r-lg);padding:16px;margin-bottom:16px;">
+      <div style="font-size:14px;font-weight:600;color:var(--text-1);margin-bottom:12px;">释义</div>
+      <div style="font-size:16px;color:var(--text-1);line-height:1.8;">
+        <span style="color:var(--brand);font-weight:500;">adj.</span> 勤奋的；勤劳的
+      </div>
+      <div style="font-size:13px;color:var(--text-3);margin-top:8px;line-height:1.6;">
+        指人勤奋努力、不怕辛苦的品质
+      </div>
+    </div>
+    <!-- 例句 -->
+    <div style="background:var(--bg-page);border-radius:var(--r-lg);padding:16px;margin-bottom:16px;">
+      <div style="font-size:14px;font-weight:600;color:var(--text-1);margin-bottom:12px;">例句</div>
+      <div style="font-size:15px;color:var(--text-1);line-height:1.8;margin-bottom:8px;">
+        The <span style="color:var(--brand);font-weight:600;">industrious</span> student always finished homework early.
+      </div>
+      <div style="font-size:13px;color:var(--text-3);line-height:1.6;">那个勤奋的学生总是早早完成作业。</div>
+    </div>
+    <!-- 扩展信息 -->
+    <div style="background:var(--bg-page);border-radius:var(--r-lg);padding:16px;">
+      <div style="font-size:14px;font-weight:600;color:var(--text-1);margin-bottom:12px;">扩展信息</div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+        <span style="font-size:14px;color:var(--text-3);">难度系数</span>
+        <span style="font-size:14px;color:var(--warn);font-weight:600;">★★★☆☆</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+        <span style="font-size:14px;color:var(--text-3);">记忆阶段</span>
+        <span style="font-size:14px;color:var(--brand);font-weight:600;">巩固期</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;">
+        <span style="font-size:14px;color:var(--text-3);">已复习次数</span>
+        <span style="font-size:14px;color:var(--text-1);font-weight:600;">7次</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========================================== -->
+<!-- P21 我的 -->
+<!-- ========================================== -->
+<div class="page" id="P21">
+  <div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
+  <div style="padding:16px;padding-bottom:80px;">
+    <!-- 用户信息 -->
+    <div style="display:flex;align-items:center;padding:16px 0;margin-bottom:8px;cursor:pointer;" onclick="showPage('P22')">
+      <div style="width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#52C41A,#73D13D);display:flex;align-items:center;justify-content:center;margin-right:12px;flex-shrink:0;">
+        <svg width="42" height="42" viewBox="0 0 90 90">
+          <ellipse cx="45" cy="48" rx="38" ry="40" fill="#FFFFFF"/>
+          <ellipse cx="45" cy="28" rx="22" ry="20" fill="#FFFFFF"/>
+          <line x1="33" y1="27" x2="57" y2="27" stroke="#262626" stroke-width="3" stroke-linecap="round"/>
+          <circle cx="36" cy="27" r="5" fill="#262626"/>
+          <circle cx="54" cy="27" r="5" fill="#262626"/>
+        </svg>
+      </div>
+      <div style="flex:1;">
+        <div style="font-size:18px;font-weight:600;color:var(--text-1);">大白同学</div>
+        <div style="font-size:13px;color:var(--text-3);margin-top:2px;">3年级 · 人教版</div>
+      </div>
+      <span style="color:var(--text-4);font-size:16px;">›</span>
+    </div>
+    <!-- 三列统计 -->
+    <div style="display:flex;background:var(--bg-page);border-radius:var(--r-lg);padding:16px 0;margin-bottom:16px;">
+      <div style="flex:1;text-align:center;border-right:.5px solid var(--divider);">
+        <div style="font-size:24px;font-weight:700;color:var(--brand);">32</div>
+        <div style="font-size:12px;color:var(--text-3);margin-top:4px;">连续打卡</div>
+      </div>
+      <div style="flex:1;text-align:center;border-right:.5px solid var(--divider);">
+        <div style="font-size:24px;font-weight:700;color:var(--brand);">186</div>
+        <div style="font-size:12px;color:var(--text-3);margin-top:4px;">累计学习(天)</div>
+      </div>
+      <div style="flex:1;text-align:center;">
+        <div style="font-size:24px;font-weight:700;color:var(--brand);">1280</div>
+        <div style="font-size:12px;color:var(--text-3);margin-top:4px;">掌握单词</div>
+      </div>
+    </div>
+    <!-- VIP横幅 -->
+    <div style="background:linear-gradient(135deg,#FFF7E6,#FFE7BA);border-radius:var(--r-lg);padding:14px 16px;display:flex;align-items:center;margin-bottom:16px;cursor:pointer;" onclick="showPage('P22')">
+      <span style="font-size:28px;margin-right:12px;">👑</span>
+      <div style="flex:1;">
+        <div style="font-size:15px;font-weight:600;color:#8B6914;">升级VIP，解锁全部词库</div>
+        <div style="font-size:12px;color:#B8860B;margin-top:2px;">限时优惠 低至3元/天</div>
+      </div>
+      <button style="background:#FA8C16;color:#fff;border:none;border-radius:var(--r-md);padding:6px 16px;font-size:13px;cursor:pointer;">开通</button>
+    </div>
+    <!-- 菜单列表 -->
+    <div style="background:var(--bg-card);border-radius:var(--r-lg);box-shadow:0 1px 4px rgba(0,0,0,.06);overflow:hidden;">
+      <div class="menu-item" onclick="showPage('P23')">
+        <div class="mi-icon" style="background:#E6F7FF;">📚</div>
+        <div class="mi-title">我的词库</div>
+        <div class="mi-value">3个</div>
+        <div class="mi-arrow">›</div>
+      </div>
+      <div class="menu-item" onclick="showPage('P06')">
+        <div class="mi-icon" style="background:var(--brand-light);">🎯</div>
+        <div class="mi-title">学习目标</div>
+        <div class="mi-value">20词/天</div>
+        <div class="mi-arrow">›</div>
+      </div>
+      <div class="menu-item" onclick="showPage('P05a')">
+        <div class="mi-icon" style="background:var(--warn-light);">📊</div>
+        <div class="mi-title">学习统计</div>
+        <div class="mi-value"></div>
+        <div class="mi-arrow">›</div>
+      </div>
+      <div class="menu-item">
+        <div class="mi-icon" style="background:#FFF1F0;">❤️</div>
+        <div class="mi-title">我的收藏</div>
+        <div class="mi-value">28个</div>
+        <div class="mi-arrow">›</div>
+      </div>
+      <div class="menu-item">
+        <div class="mi-icon" style="background:#F9F0FF;">📝</div>
+        <div class="mi-title">错题本</div>
+        <div class="mi-value">15个</div>
+        <div class="mi-arrow">›</div>
+      </div>
+      <div class="menu-item">
+        <div class="mi-icon" style="background:#E6FFFB;">🔔</div>
+        <div class="mi-title">学习提醒</div>
+        <div class="mi-value">20:00</div>
+        <div class="mi-arrow">›</div>
+      </div>
+      <div class="menu-item">
+        <div class="mi-icon" style="background:#FCFFE6;">⚙️</div>
+        <div class="mi-title">设置</div>
+        <div class="mi-value"></div>
+        <div class="mi-arrow">›</div>
+      </div>
+    </div>
+  </div>
+  <div class="tab-bar">
+    <div class="tab-item" onclick="showPage('P04')"><div class="icon">🏠</div><div class="label">首页</div></div>
+    <div class="tab-item" onclick="showPage('P05a')"><div class="icon">📊</div><div class="label">统计</div></div>
+    <div class="tab-item active" onclick="showPage('P21')"><div class="icon">👤</div><div class="label">我的</div></div>
+  </div>
+</div>
+
+<!-- ========================================== -->
+<!-- P22 会员中心 -->
+<!-- ========================================== -->
+<div class="page" id="P22">
+  <div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
+  <div class="navbar">
+    <div class="back" onclick="showPage('P21')">←</div>
+    <div class="title">会员中心</div>
+    <div class="right"></div>
+  </div>
+  <div style="padding:16px;">
+    <!-- VIP卡片 -->
+    <div style="background:linear-gradient(135deg,#2C2C2C,#434343);border-radius:var(--r-lg);padding:24px;color:#fff;margin-bottom:20px;">
+      <div style="display:flex;align-items:center;margin-bottom:16px;">
+        <span style="font-size:32px;margin-right:8px;">👑</span>
+        <div>
+          <div style="font-size:18px;font-weight:700;">VIP会员</div>
+          <div style="font-size:12px;color:#BFBFBF;">开通解锁全部权益</div>
+        </div>
+      </div>
+      <div style="font-size:13px;color:#BFBFBF;">当前：免费用户</div>
+    </div>
+    <!-- 套餐选择 -->
+    <div style="font-size:15px;font-weight:600;color:var(--text-1);margin-bottom:12px;">选择套餐</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:24px;">
+      <div class="mode-card active" onclick="selectVip(this)" style="text-align:center;">
+        <div style="font-size:12px;color:var(--text-3);margin-bottom:4px;">月度</div>
+        <div style="font-size:22px;font-weight:700;color:var(--text-1);">¥28</div>
+        <div style="font-size:11px;color:var(--text-3);">¥28/月</div>
+      </div>
+      <div class="mode-card" onclick="selectVip(this)" style="text-align:center;position:relative;">
+        <div style="font-size:12px;color:var(--text-3);margin-bottom:4px;">季度</div>
+        <div style="font-size:22px;font-weight:700;color:var(--text-1);">¥68</div>
+        <div style="font-size:11px;color:var(--text-3);">¥22.7/月</div>
+        <span class="rec-tag">热门</span>
+      </div>
+      <div class="mode-card" onclick="selectVip(this)" style="text-align:center;">
+        <div style="font-size:12px;color:var(--text-3);margin-bottom:4px;">年度</div>
+        <div style="font-size:22px;font-weight:700;color:var(--brand);">¥198</div>
+        <div style="font-size:11px;color:var(--text-3);">¥16.5/月</div>
+        <span class="rec-tag" style="background:var(--error);">最划算</span>
+      </div>
+    </div>
+    <!-- 权益列表 -->
+    <div style="font-size:15px;font-weight:600;color:var(--text-1);margin-bottom:12px;">VIP权益</div>
+    <div style="background:var(--bg-card);border-radius:var(--r-lg);box-shadow:0 1px 4px rgba(0,0,0,.06);overflow:hidden;">
+      <div class="menu-item">
+        <div class="mi-icon" style="background:var(--brand-light);">📖</div>
+        <div class="mi-title">全部词库</div>
+        <div style="font-size:12px;color:var(--brand);margin-left:auto;margin-right:8px;">20+词库</div>
+        <div class="mi-arrow">›</div>
+      </div>
+      <div class="menu-item">
+        <div class="mi-icon" style="background:#E6F7FF;">🤖</div>
+        <div class="mi-title">AI智能学习</div>
+        <div style="font-size:12px;color:var(--brand);margin-left:auto;margin-right:8px;">个性化推荐</div>
+        <div class="mi-arrow">›</div>
+      </div>
+      <div class="menu-item">
+        <div class="mi-icon" style="background:var(--warn-light);">📊</div>
+        <div class="mi-title">详细学习报告</div>
+        <div style="font-size:12px;color:var(--brand);margin-left:auto;margin-right:8px;">深度分析</div>
+        <div class="mi-arrow">›</div>
+      </div>
+      <div class="menu-item">
+        <div class="mi-icon" style="background:#FFF1F0;">🔇</div>
+        <div class="mi-title">去广告</div>
+        <div style="font-size:12px;color:var(--brand);margin-left:auto;margin-right:8px;">纯净体验</div>
+        <div class="mi-arrow">›</div>
+      </div>
+    </div>
+    <!-- 开通按钮 -->
+    <button class="btn-primary" style="margin-top:24px;">立即开通 ¥28/月</button>
+  </div>
+</div>
+
+<!-- ========================================== -->
+<!-- ========================================== -->
+<!-- P23 我的词库 -->
+<!-- ========================================== -->
+<div class="page" id="P23">
+  <div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
+  <div class="navbar">
+    <div style="font-size:15px;color:var(--brand);cursor:pointer;" onclick="goHome()">返回首页</div>
+    <div class="title">我的词库</div>
+    <div class="right"></div>
+  </div>
+
+  <!-- 有词库时的列表 -->
+  <div id="bankList" style="padding:16px;padding-bottom:80px;">
+    <div class="card" style="margin:0 0 10px 0;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+        <span style="font-size:20px;">📕</span>
+        <div style="flex:1;cursor:pointer;" onclick="showPage('P05')">
+          <div style="font-size:15px;font-weight:600;color:var(--text-1);">英语课本拍照</div>
+        </div>
+        <span style="font-size:20px;color:var(--text-4);cursor:pointer;padding:4px;" onclick="showPage('P23a')">⋯</span>
+      </div>
+      <div class="progress-bar" style="height:4px;margin-bottom:8px;"><div class="fill" style="width:35%;"></div></div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-3);">
+        <span>共23词<span style="padding:0 6px;color:var(--divider);">|</span>掌握8词</span>
+        <span>创建于06-16</span>
+      </div>
+    </div>
+    <div class="card" style="margin:0 0 10px 0;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+        <span style="font-size:20px;">📗</span>
+        <div style="flex:1;cursor:pointer;" onclick="showPage('P05')">
+          <div style="font-size:15px;font-weight:600;color:var(--text-1);">英语试卷生词</div>
+        </div>
+        <span style="font-size:20px;color:var(--text-4);cursor:pointer;padding:4px;" onclick="showPage('P23a')">⋯</span>
+      </div>
+      <div class="progress-bar" style="height:4px;margin-bottom:8px;"><div class="fill" style="width:60%;"></div></div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-3);">
+        <span>共15词<span style="padding:0 6px;color:var(--divider);">|</span>掌握9词</span>
+        <span>创建于06-15</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 空状态 -->
+  <div id="bankEmpty" style="display:none;padding:40px 24px;text-align:center;">
+    <div style="font-size:64px;margin-bottom:16px;opacity:.6;">📚</div>
+    <div style="font-size:17px;font-weight:600;color:var(--text-1);margin-bottom:6px;">还没有词库</div>
+    <div style="font-size:14px;color:var(--text-3);line-height:1.6;">拍照或上传文件<br/>创建你的第一个个人词库</div>
+  </div>
+
+  <!-- 底部固定按钮 -->
+  <div style="position:absolute;bottom:0;left:0;right:0;padding:12px 16px;background:var(--bg-card);z-index:10;border-top:.5px solid var(--divider);">
+    <button class="btn-primary" onclick="createBank()">创建词库</button>
+  </div>
+</div>
+
+<!-- ========================================== -->
+<!-- P23a 词库详情 -->
+<!-- ========================================== -->
+<div class="page" id="P23a">
+  <div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
+  <div class="navbar">
+    <div class="back" onclick="showPage('P23')">←</div>
+    <div class="title" id="bankTitle" style="cursor:pointer;" onclick="toggleRename()">英语课本拍照</div>
+    <div class="right"></div>
+  </div>
+  <!-- 改名条 -->
+  <div id="renameBar" style="display:none;padding:4px 16px 8px;border-bottom:.5px solid var(--divider);">
+    <div style="display:flex;gap:8px;">
+      <input id="renameInput" value="英语课本拍照" style="flex:1;height:34px;border:1px solid var(--brand);border-radius:6px;padding:0 10px;font-size:14px;outline:none;background:var(--brand-light);">
+      <button class="btn-sm green" onclick="saveRename()" style="min-width:52px;font-size:13px;">保存</button>
+    </div>
+  </div>
+
+  <!-- 内容区 -->
+  <div style="padding:16px;padding-bottom:100px;overflow-y:auto;">
+
+    <!-- ====== 空词库状态 ====== -->
+    <div id="bankEmptyState">
+      <div style="text-align:center;padding:40px 24px;">
+        <div style="font-size:64px;margin-bottom:16px;opacity:.6;">📂</div>
+        <div style="font-size:17px;font-weight:600;color:var(--text-1);margin-bottom:6px;">词库是空的</div>
+        <div style="font-size:14px;color:var(--text-3);line-height:1.6;margin-bottom:28px;">添加照片或文件素材<br/>然后生成词库开始学习</div>
+        <div style="display:flex;gap:12px;">
+          <button onclick="startRecognize('photo')" style="flex:1;height:48px;background:var(--brand);color:#fff;border:none;border-radius:var(--r-md);font-size:15px;font-weight:500;cursor:pointer;">📷 拍照</button>
+          <button onclick="startRecognize('file')" style="flex:1;height:48px;background:var(--info);color:#fff;border:none;border-radius:var(--r-md);font-size:15px;font-weight:500;cursor:pointer;">📁 上传文件</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== 有素材后的状态 ====== -->
+    <div id="bankFilledState" style="display:none;">
+
+      <!-- 学习概览 -->
+      <div class="card" style="margin:0 0 14px 0;padding:18px;">
+        <div style="font-size:15px;font-weight:600;color:var(--text-1);margin-bottom:14px;">📊 学习概览</div>
+        <div style="display:flex;margin-bottom:12px;">
+          <div style="flex:1;text-align:center;"><div style="font-size:22px;font-weight:700;color:var(--brand);">0</div><div style="font-size:11px;color:var(--text-3);">总词数</div></div>
+          <div style="flex:1;text-align:center;"><div style="font-size:22px;font-weight:700;color:var(--warn);">0</div><div style="font-size:11px;color:var(--text-3);">已掌握</div></div>
+          <div style="flex:1;text-align:center;"><div style="font-size:22px;font-weight:700;color:var(--info);">0</div><div style="font-size:11px;color:var(--text-3);">学习中</div></div>
+        </div>
+        <div class="progress-bar" style="height:6px;"><div class="fill" style="width:0%;"></div></div>
+      </div>
+
+      <!-- 素材库 -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <div style="font-size:15px;font-weight:600;color:var(--text-1);">
+          📎 素材库 (<span id="matCount">0</span>)
+        </div>
+        <button onclick="toggleAddOptions()" id="addMaterialBtn" style="background:none;border:1px solid var(--brand);color:var(--brand);border-radius:16px;padding:4px 14px;font-size:13px;cursor:pointer;font-weight:500;">+ 添加素材</button>
+      </div>
+
+      <!-- 素材列表 -->
+      <div id="materialList" style="background:var(--bg-card);border-radius:var(--r-lg);box-shadow:0 1px 4px rgba(0,0,0,.06);overflow:hidden;margin-bottom:16px;">
+      </div>
+
+      <!-- 生成词库 -->
+      <button class="btn-primary" id="genBankBtn" onclick="generateBank()" style="opacity:0.4;">尚未添加素材</button>
+
+      <!-- 删除 -->
+      <div style="text-align:center;padding:16px 0 4px;">
+        <button onclick="deleteBank()" style="background:none;border:none;color:var(--text-4);font-size:14px;cursor:pointer;">删除这个词库</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 识别进度卡片 -->
+  <div id="matLoading" style="display:none;position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:25;align-items:center;justify-content:center;">
+    <div style="width:280px;background:#fff;border-radius:16px;padding:32px 24px;text-align:center;box-shadow:0 16px 48px rgba(0,0,0,.2);">
+      <div style="font-size:48px;margin-bottom:12px;" id="matIcon">🖼️</div>
+      <div style="font-size:13px;color:var(--text-3);margin-bottom:8px;" id="matFile">IMG_001.jpg</div>
+      <div style="font-size:16px;font-weight:600;color:var(--text-1);margin-bottom:16px;">正在识别中...</div>
+      <div class="progress-bar" style="height:6px;margin-bottom:8px;"><div class="fill" id="matBar" style="width:0%;transition:width .4s;"></div></div>
+      <div style="font-size:13px;color:var(--text-3);margin-bottom:20px;" id="matStatus">已识别 0 个单词</div>
+      <button style="background:none;border:none;color:var(--text-4);font-size:14px;cursor:pointer;" onclick="cancelMatLoading()">取消</button>
+    </div>
+  </div>
+
+  <!-- 生成词库进度 -->
+  <div id="genLoading" style="display:none;position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:25;align-items:center;justify-content:center;">
+    <div style="width:290px;background:#fff;border-radius:16px;padding:32px 24px;text-align:center;box-shadow:0 16px 48px rgba(0,0,0,.2);">
+      <div style="width:56px;height:56px;border-radius:50%;background:var(--brand);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;animation:spin .8s linear infinite;">
+        <svg width="28" height="28" viewBox="0 0 28 28"><circle cx="14" cy="14" r="10" stroke="#fff" stroke-width="3" fill="none" stroke-dasharray="50" stroke-dashoffset="15"/></svg>
+      </div>
+      <div style="font-size:16px;font-weight:600;color:var(--text-1);margin-bottom:6px;">正在生成词库</div>
+      <div style="font-size:13px;color:var(--text-3);margin-bottom:16px;">AI正在分析全部素材...</div>
+      <div class="progress-bar" style="height:6px;margin-bottom:8px;"><div class="fill" id="genBar" style="width:0%;transition:width .5s;"></div></div>
+      <div style="font-size:13px;color:var(--text-3);" id="genStatus">正在汇总素材...</div>
+    </div>
+  </div>
+</div>
+
+</div><!-- phone-frame end -->
+
+</div><!-- phone-frame end -->
+
+<!-- ========== JavaScript ========== -->
+<script>
+// ========== 页面导航栈 ==========
+const pageStack = [];
+const TAB_PAGES = ['P04','P05a','P21']; // Tab页不需要滑动动画
+
+// ========== 页面切换（带滑动动画） ==========
+function showPage(id, isBack) {
+  const oldPage = document.querySelector('.page.active');
+  const newPage = document.getElementById(id);
+  if (!newPage || oldPage === newPage) return;
+
+  const isTabSwitch = TAB_PAGES.includes(id) && TAB_PAGES.includes(oldPage ? oldPage.id : '');
+
+  // 清理所有动画类
+  document.querySelectorAll('.page').forEach(p => {
+    p.classList.remove('slide-forward','slide-forward-out','slide-back','slide-back-out','tab-switch');
+  });
+
+  if (isTabSwitch) {
+    // Tab切换: 淡入
+    oldPage.classList.remove('active');
+    newPage.classList.add('active','tab-switch');
+  } else if (isBack) {
+    // 返回: 从左侧滑入
+    oldPage.classList.add('slide-back-out');
+    newPage.classList.add('active','slide-back');
+  } else {
+    // 前进: 从右侧滑入
+    if (oldPage) oldPage.classList.add('slide-forward-out');
+    newPage.classList.add('active','slide-forward');
+  }
+
+  // 管理导航栈（非Tab切换时）
+  if (!isTabSwitch) {
+    if (isBack) {
+      pageStack.pop();
+    } else if (oldPage && !TAB_PAGES.includes(oldPage.id)) {
+      pageStack.push(oldPage.id);
+    }
+  }
+
+  // 更新导航高亮
+  document.querySelectorAll('.nav-panel a').forEach(a => a.classList.remove('active'));
+  const navItem = document.getElementById('nav-' + id);
+  if (navItem) navItem.classList.add('active');
+
+  // 同步URL hash（不触发hashchange事件）
+  if (window.location.hash !== '#' + id) {
+    history.replaceState(null, '', '#' + id);
+  }
+
+  // 初始化拼单词页面
+  if (id === 'P09') initSpellPage();
+  // 初始化词库列表
+  if (id === 'P05') buildWordBanks();
+
+  // 滚动到顶部
+  setTimeout(() => { if (newPage) newPage.scrollTop = 0; }, 50);
+
+  // 动画结束后清理：隐藏旧页面
+  setTimeout(() => {
+    document.querySelectorAll('.page').forEach(p => {
+      p.classList.remove('slide-forward','slide-forward-out','slide-back','slide-back-out','tab-switch');
+    });
+    // 移除旧页的 active，确保 display:none
+    if (oldPage && !isTabSwitch) oldPage.classList.remove('active');
+  }, 350);
+}
+
+// 返回首页（清空栈）
+function goHome() {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active','slide-forward','slide-forward-out','slide-back','slide-back-out'));
+  const home = document.getElementById('P04');
+  if (home) home.classList.add('active','tab-switch');
+  pageStack.length = 0;
+  document.querySelectorAll('.nav-panel a').forEach(a => a.classList.remove('active'));
+  const navHome = document.getElementById('nav-P04');
+  if (navHome) navHome.classList.add('active');
+}
+
+// ========== 全局左滑返回手势 ==========
+{ // block scope for gesture vars
+let touchStartX = 0;
+let touchStartY = 0;
+let gestureActive = false;
+
+document.addEventListener('touchstart', e => {
+  if (e.touches.length === 1) {
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+    gestureActive = true;
+  } else {
+    gestureActive = false;
+  }
+}, { passive: true });
+
+document.addEventListener('touchmove', e => {
+  if (!gestureActive || pageStack.length === 0) return;
+  const dx = e.touches[0].clientX - touchStartX;
+  const dy = Math.abs(e.touches[0].clientY - touchStartY);
+  // 仅当从屏幕最左侧开始、右滑、水平方向为主时触发
+  if (touchStartX < 30 && dx > 60 && dy < dx * 0.6) {
+    e.preventDefault();
+    goBack();
+    gestureActive = false;
+  }
+}, { passive: false });
+}
+
+// ========== 登录协议勾选 ==========
+let agreed = false;
+function toggleAgree() {
+  agreed = !agreed;
+  const box = document.getElementById('agreeCheck');
+  const mark = document.getElementById('agreeMark');
+  if (agreed) {
+    box.style.background = 'var(--brand)';
+    box.style.borderColor = 'var(--brand)';
+    mark.style.display = 'inline';
+  } else {
+    box.style.background = 'transparent';
+    box.style.borderColor = 'var(--text-4)';
+    mark.style.display = 'none';
+  }
+}
+
+// ========== 词库列表构建 ==========
+const WORD_BANKS = {
+  primary: ['一年级','二年级','三年级','四年级','五年级','六年级','小升初'],
+  junior: ['初一','初二','初三','中考'],
+  senior: ['高一','高二','高三','高考'],
+  college: ['四级','六级','考研','专升本','专四专八'],
+  abroad: ['雅思','托福','GRE','GMAT']
+};
+
+function buildWordBanks() {
+  const currentTag = window.currentTag || '六年级';
+  window.selectedTbank = currentTag; // 默认选中当前词库
+  const groups = [
+    { id: 'tbank-primary', tags: WORD_BANKS.primary },
+    { id: 'tbank-junior', tags: WORD_BANKS.junior },
+    { id: 'tbank-senior', tags: WORD_BANKS.senior },
+    { id: 'tbank-college', tags: WORD_BANKS.college },
+    { id: 'tbank-abroad', tags: WORD_BANKS.abroad }
+  ];
+
+  groups.forEach(g => {
+    const container = document.getElementById(g.id);
+    if (!container || container.children.length > 0) return;
+    g.tags.forEach((tag, i) => {
+      const isCurrent = tag === currentTag;
+      const pct = isCurrent ? 42 : Math.floor(Math.random() * 30);
+      const totals = [300,800,1200,1500,2000,2500,3000,2000,2200,2500,3500,3000,3200,3500,500,600,400,300,800,700,400,300];
+      const total = totals[Math.floor(Math.random() * totals.length)];
+      const learned = Math.floor(total * pct / 100);
+
+      const row = document.createElement('div');
+      row.className = 'tbank-row' + (isCurrent ? ' selected' : '');
+      row.style.cssText = 'padding:14px 16px;border-bottom:.5px solid var(--divider);cursor:pointer;transition:background .15s;';
+      if (i === g.tags.length - 1) row.style.borderBottom = 'none';
+      row.onclick = () => selectWordBank(row, tag);
+
+      const tagHtml = isCurrent
+        ? '<span class="tag tag-yellow" style="font-size:10px;">当前在学</span>'
+        : '';
+      row.innerHTML =
+        '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">' +
+        '<span style="font-size:15px;font-weight:600;color:var(--text-1);">' + tag + '</span>' +
+        tagHtml +
+        '</div>' +
+        '<div class="progress-bar" style="margin-bottom:4px;"><div class="fill" style="width:' + pct + '%;"></div></div>' +
+        '<div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-3);">' +
+        '<span>已学' + learned + '词</span><span>' + total + '词</span></div>';
+      container.appendChild(row);
+    });
+  });
+
+  updateTbankConfirm();
+}
+
+function selectWordBank(row, tag) {
+  // 取消所有选中
+  document.querySelectorAll('.tbank-row').forEach(r => r.classList.remove('selected'));
+  // 选中当前
+  row.classList.add('selected');
+  window.selectedTbank = tag;
+  updateTbankConfirm();
+}
+
+function updateTbankConfirm() {
+  const btn = document.getElementById('tbankConfirm');
+  if (!btn) return;
+  if (window.selectedTbank) {
+    btn.style.opacity = '1';
+    btn.textContent = window.selectedTbank !== window.currentTag ? '确定切换词库' : '选择当前词库';
+  } else {
+    btn.style.opacity = '0.4';
+    btn.textContent = '请先选择词库';
+  }
+}
+
+function confirmWordBank() {
+  if (!window.selectedTbank) return;
+
+  // 显示loading
+  const loading = document.getElementById('tbankLoading');
+  if (loading) loading.style.display = 'flex';
+
+  const tag = window.selectedTbank;
+
+  // 模拟加载
+  setTimeout(() => {
+    if (tag !== window.currentTag) {
+      window.currentTag = tag;
+      const tagEl = document.getElementById('currentTag');
+      if (tagEl) tagEl.textContent = tag;
+    }
+
+    if (loading) loading.style.display = 'none';
+
+    // 提示
+    const toast = document.getElementById('toastMsg');
+    if (toast) {
+      toast.textContent = '词库已就绪';
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 1000);
+    }
+
+    // 返回首页
+    goHome();
+  }, 1200);
+}
+function selectGrade(el) {
+  // 取消同一页面所有选中
+  document.querySelectorAll('.grade-tag,.circle-select').forEach(c => c.classList.remove('active'));
+  // 选中当前
+  el.classList.add('active');
+  // 激活确认按钮
+  const confirmBtn = document.getElementById('gradeConfirm');
+  if (confirmBtn) {
+    confirmBtn.style.opacity = '1';
+    confirmBtn.textContent = '开始学习';
+  }
+}
+
+function confirmGrade() {
+  const selected = document.querySelector('.grade-tag.active,.circle-select.active');
+  if (!selected) {
+    const toast = document.getElementById('toastMsg');
+    if (toast) {
+      toast.textContent = '请先选择一个学习阶段';
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2000);
+    }
+    return;
+  }
+  // 更新当前学段标签
+  window.currentTag = selected.textContent;
+  const tagEl = document.getElementById('currentTag');
+  if (tagEl) tagEl.textContent = window.currentTag;
+  showPage('P04');
+}
+
+// ========== 选择每日数量 ==========
+function selectCount(el) {
+  el.parentElement.querySelectorAll('.circle-select').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  const card = document.getElementById('customCountCard');
+  if (card) card.style.display = 'none';
+}
+
+function selectCustomCount() {
+  document.querySelectorAll('.circle-select').forEach(c => c.classList.remove('active'));
+  document.getElementById('customBtn').classList.add('active');
+  const card = document.getElementById('customCountCard');
+  if (card) card.style.display = 'block';
+  document.getElementById('customCountInput').focus();
+}
+
+// ========== 选择学习模式 ==========
+function selectMode(el) {
+  el.parentElement.querySelectorAll('.mode-card').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// ========== 选择VIP套餐 ==========
+function selectVip(el) {
+  el.parentElement.querySelectorAll('.mode-card').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// ========== 卡片翻转 ==========
+function flipCard(card) {
+  const inner = card.querySelector('.flip-card-inner');
+  inner.classList.toggle('flipped');
+}
+
+// ========== 录音评测状态 ==========
+let recordState = 'init';
+function setRecordState(state) {
+  recordState = state;
+  const btn = document.getElementById('recordBtn');
+  const btnArea = document.getElementById('recordBtnArea');
+  const scoreArea = document.getElementById('scoreArea');
+  const waveArea = document.getElementById('waveArea');
+  const tip = document.getElementById('recordTip');
+  const slideTip = document.getElementById('recordSlideTip');
+  const toast = document.getElementById('toastMsg');
+
+  toast.classList.remove('show');
+  scoreArea.style.display = 'none';
+  btnArea.style.display = 'block';
+  waveArea.innerHTML = '';
+  btn.style.background = 'var(--brand)';
+  btn.textContent = '长按录音';
+  tip.textContent = '请朗读上边单词，保持发音标准';
+  slideTip.textContent = '上滑下一词';
+
+  switch(state) {
+    case 'init':
+      break;
+    case 'recording':
+      btn.style.background = 'var(--brand-dark)';
+      btn.textContent = '松开发送  上滑取消';
+      tip.textContent = '正在录音...';
+      waveArea.innerHTML = '<div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>';
+      break;
+    case 'short':
+      toast.textContent = '录音时间过短';
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2000);
+      break;
+    case 'analyzing':
+      btnArea.style.display = 'none';
+      tip.textContent = '正在分析录音...';
+      waveArea.innerHTML = '<div style="display:flex;align-items:center;gap:3px;"><div class="wave-bar" style="background:#ccc;"></div><div class="wave-bar" style="background:#ccc;"></div><div class="wave-bar" style="background:#ccc;"></div><div class="wave-bar" style="background:#ccc;"></div><div class="wave-bar" style="background:#ccc;"></div></div>';
+      break;
+    case 'timeout':
+      toast.textContent = '分析超时，请重新录音';
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2000);
+      break;
+    case 'high':
+      btnArea.style.display = 'none';
+      tip.textContent = '';
+      scoreArea.style.display = 'block';
+      document.getElementById('scoreNum').textContent = '91';
+      document.getElementById('scoreNum').style.color = '#FA8C16';
+      document.getElementById('scoreStars').innerHTML = '<span class="star-on">★</span>'.repeat(5);
+      document.getElementById('scoreText').textContent = '太棒了！';
+      document.getElementById('scoreText').style.color = 'var(--brand)';
+      document.getElementById('scoreActions').innerHTML = '<button class="btn-primary" style="width:200px;height:44px;font-size:15px;" onclick="showPage(\'P09\')">查看评价</button>';
+      break;
+    case 'low':
+      btnArea.style.display = 'none';
+      tip.textContent = '';
+      scoreArea.style.display = 'block';
+      document.getElementById('scoreNum').textContent = '55';
+      document.getElementById('scoreNum').style.color = 'var(--error)';
+      document.getElementById('scoreStars').innerHTML = '<span class="star-on">★</span><span class="star-off">★</span>'.repeat(1).slice(0,28) + '<span class="star-off">★</span>'.repeat(4);
+      document.getElementById('scoreStars').innerHTML = '<span class="star-on">★</span><span class="star-off">★</span><span class="star-off">★</span><span class="star-off">★</span><span class="star-off">★</span>';
+      document.getElementById('scoreText').textContent = '继续加油！';
+      document.getElementById('scoreText').style.color = 'var(--error)';
+      document.getElementById('scoreActions').innerHTML = '<div style="display:flex;gap:12px;justify-content:center;"><button class="btn-sm red" style="min-width:120px;height:44px;font-size:15px;">再试一次</button><button class="btn-sm gray" style="min-width:120px;height:44px;font-size:15px;" onclick="showPage(\'P09\')">继续</button></div>';
+      break;
+  }
+}
+
+function toggleRecord() {
+  if (recordState === 'init') {
+    setRecordState('recording');
+  } else if (recordState === 'recording') {
+    setRecordState('high');
+  }
+}
+
+// ========== 选择题交互 ==========
+function selectOption(el, result) {
+  const parent = el.parentElement;
+  // 防止重复点击
+  if (parent.dataset.answered) return;
+  parent.dataset.answered = 'true';
+
+  if (result === 'correct') {
+    el.classList.add('correct');
+  } else {
+    el.classList.add('wrong');
+    // 标出正确答案：查找data-correct属性的选项
+    const items = parent.querySelectorAll('.option-item');
+    items.forEach(item => {
+      if (item !== el && item.dataset.correct === 'true') {
+        item.classList.add('correct');
+      }
+    });
+  }
+  // 1.5秒后跳转下一页
+  setTimeout(() => {
+    const pageId = el.closest('.page').id;
+    const nextMap = { P11:'P12', P12:'P13', P15:'P16', P16:'P17' };
+    if (nextMap[pageId]) showPage(nextMap[pageId]);
+  }, 1500);
+}
+
+// ========== 拼单词交互 ==========
+const SPELL_WORD = 'industrious';
+const SPELL_LETTERS = SPELL_WORD.split('');
+let spellPos = 0;
+let spellSelected = [];
+
+function initSpellPage() {
+  spellPos = 0;
+  spellSelected = [];
+  // 清空占位
+  const slots = document.getElementById('letterSlots');
+  slots.querySelectorAll('.letter-slot').forEach(s => { s.textContent = ''; s.classList.remove('filled','wrong'); });
+  // 打乱字母生成选择区
+  const choices = document.getElementById('letterChoices');
+  const shuffled = [...SPELL_LETTERS].sort(() => Math.random() - 0.5);
+  choices.innerHTML = '';
+  shuffled.forEach((letter, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'letter-btn';
+    btn.textContent = letter;
+    btn.onclick = () => pickLetter(btn, letter);
+    choices.appendChild(btn);
+  });
+}
+
+function pickLetter(btn, letter) {
+  if (spellPos >= SPELL_LETTERS.length) return;
+  const slots = document.getElementById('letterSlots').querySelectorAll('.letter-slot');
+  slots[spellPos].textContent = letter;
+  btn.classList.add('placed');
+  btn.disabled = true;
+
+  if (letter !== SPELL_LETTERS[spellPos]) {
+    slots[spellPos].classList.add('wrong');
+  } else {
+    slots[spellPos].classList.add('filled');
+  }
+  spellPos++;
+  spellSelected.push({ btn, slot: slots[spellPos-1] });
+
+  // 全部拼完
+  if (spellPos >= SPELL_LETTERS.length) {
+    const allCorrect = SPELL_LETTERS.split('').every((l,i) => {
+      const s = slots[i];
+      return s.textContent === l;
+    });
+    if (allCorrect) {
+      slots.forEach(s => { s.classList.remove('wrong'); s.classList.add('filled'); });
+    }
+  }
+}
+
+// ========== 全拼输入检查 ==========
+function checkSpell() {
+  const input = document.getElementById('spellInput').value.trim().toLowerCase();
+  const btn = document.getElementById('spellSubmitBtn');
+  btn.disabled = input.length < 3;
+}
+
+function submitSpell() {
+  const input = document.getElementById('spellInput').value.trim().toLowerCase();
+  const hint = document.getElementById('spellHint');
+  if (input === SPELL_WORD) {
+    hint.textContent = '✓ 拼写正确！';
+    hint.style.color = 'var(--brand)';
+  } else {
+    hint.textContent = '✕ 拼写错误，正确答案是 industrious';
+    hint.style.color = 'var(--error)';
+  }
+}
+
+// ========== 词库管理 ==========
+let matCount = 0;
+const demoMats = [
+  { icon:'🖼️', name:'课本第3单元', file:'IMG_001.jpg', words:12 },
+  { icon:'📄', name:'单词表附录', file:'单词表.pdf', words:15 },
+  { icon:'🖼️', name:'老师板书', file:'IMG_003.jpg', words:5 },
+];
+
+function createBank() { showPage('P23a'); }
+
+function toggleRename() {
+  const bar = document.getElementById('renameBar');
+  bar.style.display = bar.style.display === 'none' ? 'block' : 'none';
+  if (bar.style.display === 'block') setTimeout(() => document.getElementById('renameInput').focus(), 100);
+}
+function saveRename() {
+  const val = document.getElementById('renameInput').value.trim();
+  if (val) { document.getElementById('bankTitle').textContent = val; document.getElementById('renameBar').style.display = 'none'; }
+}
+
+// 添加素材 - 展开/收起选项
+function toggleAddOptions() {
+  const list = document.getElementById('materialList');
+  const existing = document.getElementById('addMaterialRow');
+  if (existing) { existing.remove(); return; }
+
+  const row = document.createElement('div');
+  row.id = 'addMaterialRow';
+  row.style.cssText = 'padding:0 16px 14px;display:flex;gap:10px;';
+  row.innerHTML =
+    '<button onclick="startRecognize(\'photo\')" style="flex:1;height:42px;background:var(--brand);color:#fff;border:none;border-radius:var(--r-md);font-size:14px;cursor:pointer;">📷 拍照</button>' +
+    '<button onclick="startRecognize(\'file\')" style="flex:1;height:42px;background:var(--info);color:#fff;border:none;border-radius:var(--r-md);font-size:14px;cursor:pointer;">📁 上传文件</button>';
+  list.parentNode.insertBefore(row, list.nextSibling);
+}
+
+// 拍照/上传识别
+let matTimer = null;
+function startRecognize(type) {
+  // 收起添加选项面板
+  const row = document.getElementById('addMaterialRow'); if (row) row.remove();
+  const loading = document.getElementById('matLoading');
+  if (!loading) return;
+  document.getElementById('matIcon').textContent = type === 'file' ? '📄' : '🖼️';
+  document.getElementById('matFile').textContent = type === 'file' ? '单词表.pdf' : 'IMG_' + Date.now().toString(36) + '.jpg';
+  loading.style.display = 'flex';
+  const bar = document.getElementById('matBar');
+  const stat = document.getElementById('matStatus');
+  bar.style.width = '0%';
+  let pct = 0;
+  matTimer = setInterval(() => {
+    pct += 20 + Math.random() * 10;
+    if (pct >= 100) { pct = 100; clearInterval(matTimer);
+      stat.textContent = '识别完成！共 ' + Math.floor(5 + Math.random() * 15) + ' 个单词';
+      setTimeout(() => {
+        loading.style.display = 'none';
+        addMaterialToList(type);
+      }, 600);
+    } else {
+      bar.style.width = pct + '%';
+      stat.textContent = '已识别 ' + Math.floor(pct * 0.15) + ' 个单词';
+    }
+  }, 500);
+}
+function cancelMatLoading() {
+  clearInterval(matTimer);
+  document.getElementById('matLoading').style.display = 'none';
+}
+
+function addMaterialToList(type) {
+  matCount++;
+  // 显示有素材状态
+  document.getElementById('bankEmptyState').style.display = 'none';
+  document.getElementById('bankFilledState').style.display = 'block';
+
+  const list = document.getElementById('materialList');
+  const item = document.createElement('div');
+  const icon = type === 'file' ? '📄' : '🖼️';
+  const name = type === 'file' ? '单词表' : ('课本第' + matCount + '单元');
+  const fname = type === 'file' ? '单词表.pdf' : ('IMG_00' + matCount + '.jpg');
+  item.style.cssText = 'padding:14px 16px;border-bottom:.5px solid var(--divider);display:flex;align-items:center;gap:10px;';
+  item.innerHTML =
+    '<span style="font-size:24px;">' + icon + '</span>' +
+    '<div style="flex:1;"><div style="font-size:14px;font-weight:500;color:var(--text-1);">' + name + '</div>' +
+    '<div style="font-size:12px;color:var(--text-3);">' + fname + ' · 未分析</div></div>' +
+    '<span style="font-size:18px;color:var(--text-4);cursor:pointer;padding:4px;" onclick="deleteMaterial(this)">🗑</span>';
+  list.appendChild(item);
+
+  document.getElementById('matCount').textContent = matCount;
+  updateGenBtn();
+}
+
+function deleteMaterial(el) {
+  el.closest('div').remove();
+  matCount = Math.max(0, matCount - 1);
+  document.getElementById('matCount').textContent = matCount;
+  updateGenBtn();
+  if (matCount === 0) {
+    document.getElementById('bankEmptyState').style.display = 'block';
+    document.getElementById('bankFilledState').style.display = 'none';
+  }
+}
+
+function updateGenBtn() {
+  const btn = document.getElementById('genBankBtn');
+  if (!btn) return;
+  if (matCount === 0) { btn.style.opacity = '0.4'; btn.textContent = '尚未添加素材'; }
+  else { btn.style.opacity = '1'; btn.textContent = '⚡ 生成词库（' + matCount + '个素材）'; }
+}
+
+function generateBank() {
+  if (matCount === 0) return;
+  const loading = document.getElementById('genLoading');
+  loading.style.display = 'flex';
+  const bar = document.getElementById('genBar');
+  const stat = document.getElementById('genStatus');
+  bar.style.width = '0%';
+  const steps = ['正在汇总素材...', 'AI识别单词中...', '智能去重...', '生成词库...'];
+  let step = 0;
+  let pct = 0;
+  const timer = setInterval(() => {
+    pct += 12 + Math.random() * 8;
+    if (pct >= 100) { pct = 100; clearInterval(timer);
+      stat.textContent = '词库生成完成！共 23 个单词';
+      bar.style.width = '100%';
+      setTimeout(() => {
+        loading.style.display = 'none';
+        const toast = document.getElementById('toastMsg');
+        if (toast) { toast.textContent = '✅ 词库已生成，可以开始学习了'; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2000); }
+        document.getElementById('genBankBtn').textContent = '🔄 重新生成词库';
+      }, 800);
+    } else {
+      bar.style.width = pct + '%';
+      if (pct > 30 && step < 1) { step = 1; stat.textContent = steps[1]; }
+      else if (pct > 60 && step < 2) { step = 2; stat.textContent = steps[2]; }
+      else if (pct > 85 && step < 3) { step = 3; stat.textContent = steps[3]; }
+    }
+  }, 600);
+}
+
+function deleteBank() {
+  const toast = document.getElementById('toastMsg');
+  if (toast) { toast.textContent = '词库已删除'; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 1500); }
+  setTimeout(() => showPage('P23'), 500);
+}
+
+// ========== 初始化 ==========
+document.addEventListener('DOMContentLoaded', () => {
+  // 支持URL hash路由: #P03 直接跳到选年级
+  const hash = window.location.hash.slice(1);
+  const startPage = document.getElementById(hash) ? hash : 'P01';
+  showPage(startPage);
+  // hash变化时跳转
+  window.addEventListener('hashchange', () => {
+    const id = window.location.hash.slice(1);
+    if (document.getElementById(id)) showPage(id);
+  });
+});
+</script>
+
+</body>
+</html>

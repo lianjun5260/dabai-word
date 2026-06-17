@@ -2119,9 +2119,9 @@ function submitSpell() {
 const bankData = {
   '英语课本拍照': { icon:'📕', total:0, mastered:0, learning:0, date:'06-16', materials:[] },
   '英语试卷生词': { icon:'📗', total:15, mastered:9, learning:6, date:'06-15', materials:[
-    { id:1, icon:'🖼️', file:'IMG_001.jpg', status:'completed', progress:100, words:12, createdAt:Date.now()-3*86400000 },
-    { id:2, icon:'📄', file:'单词表.pdf', status:'completed', progress:100, words:8, createdAt:Date.now()-5*86400000 },
-    { id:3, icon:'🖼️', file:'IMG_002.jpg', status:'parsing', progress:45, words:0, createdAt:Date.now()-120000 }
+    { id:1, icon:'🖼️', file:'IMG_001.jpg', status:'completed', progress:100, words:12, size:'2.4MB', createdAt:Date.now()-3*86400000 },
+    { id:2, icon:'📄', file:'单词表.pdf', status:'completed', progress:100, words:8, size:'0.8MB', createdAt:Date.now()-5*86400000 },
+    { id:3, icon:'🖼️', file:'IMG_002.jpg', status:'parsing', progress:45, words:0, size:'3.1MB', createdAt:Date.now()-120000 }
   ]}
 };
 let currentBank = '';
@@ -2226,7 +2226,7 @@ function addMaterialAndParse(type) {
   const idx = bankData[currentBank].materials.length + 1;
   const fname = type === 'file' ? '单词表' + idx + '.pdf' : ('IMG_' + new Date().toISOString().slice(0,10).replace(/-/g,'') + '_' + (idx<10?'0':'') + idx + '.jpg');
   const id = matIdSeq++;
-  const mat = { id, icon, file:fname, status:'parsing', progress:0, words:0, createdAt:Date.now() };
+  const mat = { id, icon, file:fname, status:'parsing', progress:0, words:0, size:(type==='file'?'0.5':'3')+'.'+(Math.floor(Math.random()*9)+1)+'MB', createdAt:Date.now() };
   bankData[currentBank].materials.push(mat);
   matCount = bankData[currentBank].materials.length;
   document.getElementById('matCount').textContent = matCount;
@@ -2299,33 +2299,41 @@ function refreshMaterialItem(id) {
   const row = document.getElementById('mat-' + id); if (!row) return;
   const pct = mat.status === 'completed' ? 100 : Math.round(mat.progress);
   const isSel = selectedMatId === id;
-  const bg = isSel ? 'rgba(82,196,26,.06)' :
-    mat.status === 'parsing' ? 'linear-gradient(to right, rgba(82,196,26,.25) '+pct+'%, transparent '+pct+'%)' :
-    mat.status === 'paused' ? 'rgba(250,173,20,.12)' :
-    mat.status === 'failed' ? 'rgba(255,77,79,.12)' : 'transparent';
-  row.style.background = bg;
+  row.style.background = mat.status==='failed'?'rgba(255,77,79,.08)':mat.status==='paused'?'rgba(250,173,20,.08)':isSel?'rgba(82,196,26,.06)':'transparent';
   row.style.borderLeft = isSel ? '3px solid var(--brand)' : '3px solid transparent';
   const displayName = mat.file.replace(/\.[^.]+$/, '');
-  row.querySelector('.mat-time').textContent = formatRelativeTime(mat.createdAt || Date.now());
-  row.querySelector('.mat-pct').textContent = mat.status === 'completed' || mat.status === 'failed' ? '' : (pct + '%');
-
-  if (mat.status === 'completed') {
-    row.querySelector('.mat-name').textContent = mat.icon + ' ' + displayName;
+  const timeStr = formatRelativeTime(mat.createdAt || Date.now());
+  const sizeStr = mat.size || '';
+  // 更新进度条
+  const barFill = row.querySelector('.mat-bar-fill');
+  if (barFill) { barFill.style.width = pct+'%'; barFill.style.background = mat.status==='paused'?'var(--warn)':'var(--brand)'; }
+  row.querySelector('.mat-pct').textContent = mat.status==='completed'||mat.status==='failed'?'':(pct+'%');
+  row.querySelector('.mat-meta').textContent = timeStr+(sizeStr?' · '+sizeStr:'');
+  if (mat.status==='completed') {
+    row.querySelector('.mat-name').textContent = mat.icon+' '+displayName;
     row.querySelector('.mat-result').innerHTML = '<span style="color:var(--brand);font-size:13px;">'+mat.words+'词</span>';
     row.querySelector('.mat-action').innerHTML = '';
-  } else if (mat.status === 'paused') {
-    row.querySelector('.mat-name').textContent = mat.icon + ' ' + displayName;
+    updateBarVisibility(row, false);
+  } else if (mat.status==='paused') {
+    row.querySelector('.mat-name').textContent = mat.icon+' '+displayName;
     row.querySelector('.mat-result').textContent = '';
     row.querySelector('.mat-action').innerHTML = '<span onclick="resumeMaterial('+id+')" style="color:var(--brand);cursor:pointer;font-size:13px;">继续</span>';
-  } else if (mat.status === 'failed') {
-    row.querySelector('.mat-name').textContent = mat.icon + ' ' + displayName;
+    updateBarVisibility(row, true);
+  } else if (mat.status==='failed') {
+    row.querySelector('.mat-name').textContent = mat.icon+' '+displayName;
     row.querySelector('.mat-result').textContent = '';
     row.querySelector('.mat-action').innerHTML = '<span onclick="retryMaterial('+id+')" style="color:var(--info);cursor:pointer;font-size:13px;">重试</span>';
+    updateBarVisibility(row, false);
   } else {
-    row.querySelector('.mat-name').textContent = mat.icon + ' ' + displayName;
+    row.querySelector('.mat-name').textContent = mat.icon+' '+displayName;
     row.querySelector('.mat-result').textContent = '';
     row.querySelector('.mat-action').innerHTML = '<span onclick="pauseMaterial('+id+')" style="color:var(--warn);cursor:pointer;font-size:13px;">暂停</span>';
+    updateBarVisibility(row, true);
   }
+}
+function updateBarVisibility(row, show) {
+  const bar = row.querySelector(':scope > div:nth-child(2)');
+  if (bar && bar.firstElementChild && bar.firstElementChild.tagName === 'DIV') bar.style.display = show ? '' : 'none';
 }
 
 // 长按删除（素材）
@@ -2366,13 +2374,13 @@ function renderMaterialList() {
   empty.style.display = 'none';
   mats.forEach(m => {
     const pct = m.status === 'completed' ? 100 : Math.round(m.progress);
-    const bg = m.status === 'parsing' ? 'linear-gradient(to right, rgba(82,196,26,.25) '+pct+'%, transparent '+pct+'%)' :
-      m.status === 'paused' ? 'rgba(250,173,20,.12)' :
-      m.status === 'failed' ? 'rgba(255,77,79,.12)' : 'transparent';
     const displayName = m.file.replace(/\.[^.]+$/, '');
     const timeStr = formatRelativeTime(m.createdAt || Date.now());
+    const sizeStr = m.size || '';
     const resultHtml = m.status === 'completed' ? '<span style="color:var(--brand);font-size:13px;">'+m.words+'词</span>' : '';
     const pctHtml = m.status === 'completed' || m.status === 'failed' ? '' : (pct + '%');
+    const barHtml = (m.status === 'parsing' || m.status === 'paused') ?
+      '<div style="height:3px;border-radius:2px;background:var(--bg-gray);margin-bottom:4px;"><div style="height:100%;width:'+pct+'%;border-radius:2px;background:'+(m.status==='paused'?'var(--warn)':'var(--brand)')+';"></div></div>' : '';
     let actionHtml = '';
     if (m.status === 'parsing') actionHtml = '<span class="mat-action" onclick="event.stopPropagation();pauseMaterial('+m.id+')" style="color:var(--warn);cursor:pointer;font-size:13px;">暂停</span>';
     else if (m.status === 'paused') actionHtml = '<span class="mat-action" onclick="event.stopPropagation();resumeMaterial('+m.id+')" style="color:var(--brand);cursor:pointer;font-size:13px;">继续</span>';
@@ -2381,7 +2389,7 @@ function renderMaterialList() {
     const div = document.createElement('div');
     div.id = 'mat-' + m.id;
     div.className = 'mat-card' + (selectedMatId === m.id ? ' selected' : '');
-    div.style.cssText = 'padding:12px 16px;border-bottom:.5px solid var(--divider);background:'+bg+';transition:background .3s;cursor:pointer;'+(selectedMatId===m.id?'border-left:3px solid var(--brand);box-shadow:inset 0 0 0 1000px rgba(82,196,26,.06);':'border-left:3px solid transparent;');
+    div.style.cssText = 'padding:12px 16px;border-bottom:.5px solid var(--divider);background:'+(m.status==='failed'?'rgba(255,77,79,.08)':m.status==='paused'?'rgba(250,173,20,.08)':'transparent')+';transition:background .3s;cursor:pointer;'+(selectedMatId===m.id?'border-left:3px solid var(--brand);box-shadow:inset 0 0 0 1000px rgba(82,196,26,.06);':'border-left:3px solid transparent;');
     div.setAttribute('ontouchstart', 'startLongPress('+m.id+')');
     div.setAttribute('ontouchend', 'cancelLongPress()');
     div.setAttribute('ontouchmove', 'cancelLongPress()');
@@ -2395,8 +2403,9 @@ function renderMaterialList() {
           '<div class="mat-pct" style="font-size:12px;color:var(--text-3);">'+pctHtml+'</div>'+
         '</div>'+
       '</div>'+
+      barHtml +
       '<div style="display:flex;justify-content:space-between;align-items:center;">'+
-        '<div class="mat-time" style="font-size:12px;color:var(--text-3);">'+timeStr+'</div>'+
+        '<div class="mat-meta" style="font-size:12px;color:var(--text-3);">'+(timeStr||'')+(sizeStr?' · '+sizeStr:'')+'</div>'+
         '<div></div>'+
       '</div>';
     list.appendChild(div);

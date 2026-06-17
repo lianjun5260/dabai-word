@@ -2379,8 +2379,8 @@ function renderMaterialList() {
     const sizeStr = m.size || '';
     const resultHtml = m.status === 'completed' ? '<span style="color:var(--brand);font-size:13px;">'+m.words+'词</span>' : '';
     const pctHtml = m.status === 'completed' || m.status === 'failed' ? '' : (pct + '%');
-    const barHtml = (m.status === 'parsing' || m.status === 'paused') ?
-      '<div style="height:3px;border-radius:2px;background:var(--bg-gray);margin-bottom:4px;"><div style="height:100%;width:'+pct+'%;border-radius:2px;background:'+(m.status==='paused'?'var(--warn)':'var(--brand)')+';"></div></div>' : '';
+    const barHtml = '<div style="height:3px;border-radius:2px;background:var(--bg-gray);margin-bottom:4px;">' +
+      '<div class="mat-bar-fill" style="height:100%;width:'+pct+'%;border-radius:2px;background:'+(m.status==='parsing'?'var(--brand)':m.status==='paused'?'var(--warn)':'transparent')+';"></div></div>';
     let actionHtml = '';
     if (m.status === 'parsing') actionHtml = '<span class="mat-action" onclick="event.stopPropagation();pauseMaterial('+m.id+')" style="color:var(--warn);cursor:pointer;font-size:13px;">暂停</span>';
     else if (m.status === 'paused') actionHtml = '<span class="mat-action" onclick="event.stopPropagation();resumeMaterial('+m.id+')" style="color:var(--brand);cursor:pointer;font-size:13px;">继续</span>';

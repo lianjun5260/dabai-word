@@ -1707,10 +1707,18 @@ function showPage(id, isBack) {
     }
   }
 
-  // 更新导航高亮
+  // 更新导航高亮（桌面端）
   document.querySelectorAll('.nav-panel a').forEach(a => a.classList.remove('active'));
   const navItem = document.getElementById('nav-' + id);
   if (navItem) navItem.classList.add('active');
+
+  // 同步底部Tab栏状态：所有tab-item按当前页面ID统一设置active
+  const tabIdxMap = { 'P04': 0, 'P05a': 1, 'P21': 2 };
+  document.querySelectorAll('.tab-bar').forEach(bar => {
+    bar.querySelectorAll('.tab-item').forEach((item, i) => {
+      item.classList.toggle('active', tabIdxMap[id] === i);
+    });
+  });
 
   // 同步URL hash（不触发hashchange事件）
   if (window.location.hash !== '#' + id) {
@@ -1745,6 +1753,22 @@ function goHome() {
   document.querySelectorAll('.nav-panel a').forEach(a => a.classList.remove('active'));
   const navHome = document.getElementById('nav-P04');
   if (navHome) navHome.classList.add('active');
+  // 同步底部Tab栏
+  document.querySelectorAll('.tab-bar').forEach(bar => {
+    bar.querySelectorAll('.tab-item').forEach((item, i) => {
+      item.classList.toggle('active', i === 0);
+    });
+  });
+}
+
+// 返回上一页（通用）
+function goBack() {
+  if (pageStack.length === 0) {
+    goHome();
+    return;
+  }
+  const prev = pageStack[pageStack.length - 1];
+  showPage(prev, true);
 }
 
 // ========== 全局左滑返回手势 ==========

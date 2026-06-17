@@ -1493,39 +1493,39 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
 <div class="page" id="P23">
   <div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
   <div class="navbar">
-    <div class="back" onclick="goHome()"><</div>
+    <div style="font-size:15px;color:var(--brand);cursor:pointer;" onclick="goHome()">返回首页</div>
     <div class="title">我的词库</div>
     <div class="right"></div>
   </div>
 
   <!-- 有词库时的列表 -->
   <div id="bankList" style="padding:16px;padding-bottom:80px;">
-    <div class="card" style="margin:0 0 10px 0;">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+    <div class="card" style="margin:0 0 10px 0;cursor:pointer;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
         <span style="font-size:20px;">📕</span>
-        <div style="flex:1;cursor:pointer;" onclick="showPage('P05')">
+        <div style="flex:1;" onclick="showPage('P23a')">
           <div style="font-size:15px;font-weight:600;color:var(--text-1);">英语课本拍照</div>
+          <div style="font-size:12px;color:var(--text-3);">3个素材 · 23词 · 创建于 06-16</div>
         </div>
         <span style="font-size:20px;color:var(--text-4);cursor:pointer;padding:4px;" onclick="showPage('P23a')">⋯</span>
       </div>
-      <div class="progress-bar" style="height:4px;margin-bottom:8px;"><div class="fill" style="width:35%;"></div></div>
-      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-3);">
-        <span>共23词<span style="padding:0 6px;color:var(--divider);">|</span>掌握8词</span>
-        <span>创建于06-16</span>
+      <div class="progress-bar" style="height:4px;margin-bottom:6px;"><div class="fill" style="width:35%;"></div></div>
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-3);">
+        <span>掌握8词</span><span style="color:var(--brand);">开始学习 ›</span>
       </div>
     </div>
-    <div class="card" style="margin:0 0 10px 0;">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+    <div class="card" style="margin:0 0 10px 0;cursor:pointer;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
         <span style="font-size:20px;">📗</span>
-        <div style="flex:1;cursor:pointer;" onclick="showPage('P05')">
+        <div style="flex:1;" onclick="showPage('P23a')">
           <div style="font-size:15px;font-weight:600;color:var(--text-1);">英语试卷生词</div>
+          <div style="font-size:12px;color:var(--text-3);">2个素材 · 15词 · 创建于 06-15</div>
         </div>
         <span style="font-size:20px;color:var(--text-4);cursor:pointer;padding:4px;" onclick="showPage('P23a')">⋯</span>
       </div>
-      <div class="progress-bar" style="height:4px;margin-bottom:8px;"><div class="fill" style="width:60%;"></div></div>
-      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-3);">
-        <span>共15词<span style="padding:0 6px;color:var(--divider);">|</span>掌握9词</span>
-        <span>创建于06-15</span>
+      <div class="progress-bar" style="height:4px;margin-bottom:6px;"><div class="fill" style="width:60%;"></div></div>
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-3);">
+        <span>掌握9词</span><span style="color:var(--brand);">开始学习 ›</span>
       </div>
     </div>
   </div>
@@ -1539,7 +1539,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
 
   <!-- 底部固定按钮 -->
   <div style="position:absolute;bottom:0;left:0;right:0;padding:12px 16px;background:var(--bg-card);z-index:10;border-top:.5px solid var(--divider);">
-    <button class="btn-primary" onclick="createBank()">创建词库</button>
+    <button class="btn-primary" onclick="createBank()">➕ 创建词库</button>
   </div>
 </div>
 
@@ -1562,24 +1562,23 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
   </div>
 
   <!-- 内容区 -->
-  <div style="padding:16px;padding-bottom:100px;overflow-y:auto;">
+  <div id="bankDetailContent" style="padding:16px;padding-bottom:100px;">
 
     <!-- ====== 空词库状态 ====== -->
     <div id="bankEmptyState">
-      <div style="text-align:center;padding:40px 24px;">
-        <div style="font-size:64px;margin-bottom:16px;opacity:.6;">📂</div>
-        <div style="font-size:17px;font-weight:600;color:var(--text-1);margin-bottom:6px;">词库是空的</div>
-        <div style="font-size:14px;color:var(--text-3);line-height:1.6;margin-bottom:28px;">添加照片或文件素材<br/>然后生成词库开始学习</div>
+      <div style="text-align:center;padding:48px 24px;">
+        <div style="font-size:56px;margin-bottom:12px;opacity:.7;">📂</div>
+        <div style="font-size:16px;font-weight:600;color:var(--text-1);margin-bottom:6px;">词库是空的</div>
+        <div style="font-size:14px;color:var(--text-3);margin-bottom:24px;">添加照片或文件素材<br/>然后生成词库开始学习</div>
         <div style="display:flex;gap:12px;">
-          <button onclick="startRecognize('photo')" style="flex:1;height:48px;background:var(--brand);color:#fff;border:none;border-radius:var(--r-md);font-size:15px;font-weight:500;cursor:pointer;">📷 拍照</button>
-          <button onclick="startRecognize('file')" style="flex:1;height:48px;background:var(--info);color:#fff;border:none;border-radius:var(--r-md);font-size:15px;font-weight:500;cursor:pointer;">📁 上传文件</button>
+          <button style="flex:1;height:48px;background:var(--brand);color:#fff;border:none;border-radius:var(--r-md);font-size:15px;font-weight:500;cursor:pointer;" onclick="addMaterial('photo')">📷 拍照</button>
+          <button style="flex:1;height:48px;background:var(--info);color:#fff;border:none;border-radius:var(--r-md);font-size:15px;font-weight:500;cursor:pointer;" onclick="addMaterial('file')">📁 上传文件</button>
         </div>
       </div>
     </div>
 
     <!-- ====== 有素材后的状态 ====== -->
     <div id="bankFilledState" style="display:none;">
-
       <!-- 学习概览 -->
       <div class="card" style="margin:0 0 14px 0;padding:18px;">
         <div style="font-size:15px;font-weight:600;color:var(--text-1);margin-bottom:14px;">📊 学习概览</div>
@@ -1591,26 +1590,34 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
         <div class="progress-bar" style="height:6px;"><div class="fill" style="width:0%;"></div></div>
       </div>
 
-      <!-- 素材库 -->
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-        <div style="font-size:15px;font-weight:600;color:var(--text-1);">
-          📎 素材库 (<span id="matCount">0</span>)
-        </div>
-        <button onclick="toggleAddOptions()" id="addMaterialBtn" style="background:none;border:1px solid var(--brand);color:var(--brand);border-radius:16px;padding:4px 14px;font-size:13px;cursor:pointer;font-weight:500;">+ 添加素材</button>
-      </div>
-
       <!-- 素材列表 -->
+      <div style="font-size:15px;font-weight:600;color:var(--text-1);margin-bottom:10px;">
+        📎 素材库 (<span id="matCount">0</span>)
+      </div>
       <div id="materialList" style="background:var(--bg-card);border-radius:var(--r-lg);box-shadow:0 1px 4px rgba(0,0,0,.06);overflow:hidden;margin-bottom:16px;">
+        <!-- JS动态填充 -->
       </div>
 
-      <!-- 生成词库 -->
+      <!-- 添加素材按钮 -->
+      <div style="display:flex;gap:10px;margin-bottom:16px;">
+        <button style="flex:1;height:44px;background:var(--brand);color:#fff;border:none;border-radius:var(--r-md);font-size:14px;cursor:pointer;" onclick="addMaterial('photo')">📷 拍照添加</button>
+        <button style="flex:1;height:44px;background:var(--info);color:#fff;border:none;border-radius:var(--r-md);font-size:14px;cursor:pointer;" onclick="addMaterial('file')">📁 上传文件</button>
+      </div>
+
+      <!-- 生成词库按钮 -->
       <button class="btn-primary" id="genBankBtn" onclick="generateBank()" style="opacity:0.4;">尚未添加素材</button>
-
-      <!-- 删除 -->
-      <div style="text-align:center;padding:16px 0 4px;">
-        <button onclick="deleteBank()" style="background:none;border:none;color:var(--text-4);font-size:14px;cursor:pointer;">删除这个词库</button>
-      </div>
+      <button style="width:100%;height:44px;background:none;border:1px solid var(--error);color:var(--error);border-radius:var(--r-md);font-size:15px;cursor:pointer;margin-top:10px;" onclick="deleteBank()">🗑 删除这个词库</button>
     </div>
+  </div>
+
+  <!-- 添加素材动作选择浮层 -->
+  <div id="addMaterialSheet" style="display:none;position:absolute;bottom:0;left:0;right:0;background:var(--bg-card);border-radius:var(--r-lg) var(--r-lg) 0 0;z-index:20;padding:0 0 16px 0;box-shadow:0 -4px 20px rgba(0,0,0,.1);">
+    <div style="text-align:center;padding:14px;font-size:14px;color:var(--text-3);border-bottom:.5px solid var(--divider);">选择添加方式</div>
+    <div style="padding:16px 20px;display:flex;gap:12px;">
+      <button style="flex:1;height:52px;background:var(--brand);color:#fff;border:none;border-radius:var(--r-md);font-size:15px;font-weight:500;cursor:pointer;" onclick="startRecognize('photo');closeSheet()">📷 拍照</button>
+      <button style="flex:1;height:52px;background:var(--info);color:#fff;border:none;border-radius:var(--r-md);font-size:15px;font-weight:500;cursor:pointer;" onclick="startRecognize('file');closeSheet()">📁 上传文件</button>
+    </div>
+    <div style="text-align:center;padding:8px;color:var(--text-4);font-size:14px;cursor:pointer;" onclick="closeSheet()">取消</div>
   </div>
 
   <!-- 识别进度卡片 -->
@@ -2138,26 +2145,18 @@ function saveRename() {
   if (val) { document.getElementById('bankTitle').textContent = val; document.getElementById('renameBar').style.display = 'none'; }
 }
 
-// 添加素材 - 展开/收起选项
-function toggleAddOptions() {
-  const list = document.getElementById('materialList');
-  const existing = document.getElementById('addMaterialRow');
-  if (existing) { existing.remove(); return; }
-
-  const row = document.createElement('div');
-  row.id = 'addMaterialRow';
-  row.style.cssText = 'padding:0 16px 14px;display:flex;gap:10px;';
-  row.innerHTML =
-    '<button onclick="startRecognize(\'photo\')" style="flex:1;height:42px;background:var(--brand);color:#fff;border:none;border-radius:var(--r-md);font-size:14px;cursor:pointer;">📷 拍照</button>' +
-    '<button onclick="startRecognize(\'file\')" style="flex:1;height:42px;background:var(--info);color:#fff;border:none;border-radius:var(--r-md);font-size:14px;cursor:pointer;">📁 上传文件</button>';
-  list.parentNode.insertBefore(row, list.nextSibling);
+// 添加素材
+function addMaterial(type) {
+  document.getElementById('addMaterialSheet').style.display = 'block';
+}
+function closeSheet() {
+  document.getElementById('addMaterialSheet').style.display = 'none';
 }
 
 // 拍照/上传识别
 let matTimer = null;
 function startRecognize(type) {
-  // 收起添加选项面板
-  const row = document.getElementById('addMaterialRow'); if (row) row.remove();
+  closeSheet();
   const loading = document.getElementById('matLoading');
   if (!loading) return;
   document.getElementById('matIcon').textContent = type === 'file' ? '📄' : '🖼️';

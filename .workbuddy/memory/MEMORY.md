@@ -33,6 +33,13 @@ LC-05 汉译英-直选 | LC-06 汉译英-全拼 | LC-07 汉译英-拼读 | LC-08
 - AI积分用于按次计费的大模型调用（语音评测等）
 - 会员享积分消耗折扣
 
+## GitHub Pages 固定部署
+- 仓库：https://github.com/lianjun5260/dabai-word
+- Pages永久地址：https://lianjun5260.github.io/dabai-word/
+- 部署方式：prototype/ 文件同步到 docs/ → git push github main
+- 必须在 docs/ 保留 .nojekyll 文件
+- 改完代码后流程：修改 prototype/ → 同步到 docs/ → git push github → 用户手机刷新即更新
+
 ## 登录策略（v2.1新增）
 - 单点登录：同账号仅一设备在线
 - 新设备登录踢掉旧设备

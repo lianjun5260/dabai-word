@@ -1549,7 +1549,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
 <div class="page" id="P23a">
   <div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
   <div class="navbar">
-    <div class="back" onclick="showPage('P23')"><</div>
+    <div class="back" onclick="showPage('P23', true)"><</div>
     <div class="title" id="p23aTitle" style="cursor:pointer;" onclick="toggleRename()">词库详情</div>
     <div class="right"></div>
   </div>
@@ -2184,6 +2184,7 @@ function saveRename() {
 // ========== 素材管理 ==========
 let uploadTimer = null;
 let matIdSeq = 100;
+let selectedMatId = null;  // 当前选中的素材ID
 
 // 拍照/上传 - 预处理弹窗
 function startMaterialParse(type) {
@@ -2290,10 +2291,13 @@ function refreshMaterialItem(id) {
   const mat = findMat(id); if (!mat) return;
   const row = document.getElementById('mat-' + id); if (!row) return;
   const pct = mat.status === 'completed' ? 100 : Math.round(mat.progress);
-  const bg = mat.status === 'parsing' ? 'linear-gradient(to right, rgba(82,196,26,.25) '+pct+'%, transparent '+pct+'%)' :
+  const isSel = selectedMatId === id;
+  const bg = isSel ? 'rgba(82,196,26,.06)' :
+    mat.status === 'parsing' ? 'linear-gradient(to right, rgba(82,196,26,.25) '+pct+'%, transparent '+pct+'%)' :
     mat.status === 'paused' ? 'rgba(250,173,20,.12)' :
     mat.status === 'failed' ? 'rgba(255,77,79,.12)' : 'transparent';
   row.style.background = bg;
+  row.style.borderLeft = isSel ? '3px solid var(--brand)' : '3px solid transparent';
   const displayName = mat.file.replace(/\.[^.]+$/, '');
   row.querySelector('.mat-time').textContent = formatRelativeTime(mat.createdAt || Date.now());
   row.querySelector('.mat-pct').textContent = mat.status === 'completed' || mat.status === 'failed' ? '' : (pct + '%');
@@ -2332,6 +2336,14 @@ function doMatDelete() {
   hideMatDelete();
 }
 
+// 素材选中（不含长按冲突）
+function toggleMatSelect(id) {
+  if (document.getElementById('matDeleteOverlay').style.display === 'flex') return;
+  if (selectedMatId === id) { selectedMatId = null; }
+  else { selectedMatId = id; }
+  renderMaterialList();
+}
+
 // 全量重渲染素材列表（卡片即进度条）
 function renderMaterialList() {
   const list = document.getElementById('materialList');
@@ -2356,15 +2368,16 @@ function renderMaterialList() {
 
     const div = document.createElement('div');
     div.id = 'mat-' + m.id;
-    div.className = 'mat-card';
-    div.style.cssText = 'padding:12px 16px;border-bottom:.5px solid var(--divider);background:'+bg+';transition:background .3s;';
+    div.className = 'mat-card' + (selectedMatId === m.id ? ' selected' : '');
+    div.style.cssText = 'padding:12px 16px;border-bottom:.5px solid var(--divider);background:'+bg+';transition:background .3s;cursor:pointer;'+(selectedMatId===m.id?'border-left:3px solid var(--brand);box-shadow:inset 0 0 0 1000px rgba(82,196,26,.06);':'border-left:3px solid transparent;');
     div.setAttribute('ontouchstart', 'startLongPress('+m.id+')');
     div.setAttribute('ontouchend', 'cancelLongPress()');
     div.setAttribute('ontouchmove', 'cancelLongPress()');
+    div.setAttribute('onclick', 'toggleMatSelect('+m.id+')');
     div.innerHTML =
-      '<div style="display:flex;align-items:center;gap:6px;">'+
+      '<div style="display:flex;align-items:center;gap:4px;">'+
         '<div class="mat-name" style="flex:1;min-width:0;font-size:14px;color:var(--text-1);">'+m.icon+' '+displayName+'</div>'+
-        '<div class="mat-result" style="flex-shrink:0;">'+resultHtml+'</div>'+
+        '<div class="mat-result" style="flex-shrink:0;padding-right:0;">'+resultHtml+'</div>'+
         '<div style="text-align:right;flex-shrink:0;min-width:48px;">'+
           actionHtml +
           '<div class="mat-pct" style="font-size:12px;color:var(--text-3);">'+pctHtml+'</div>'+
@@ -2405,7 +2418,7 @@ function doDeleteBank() {
   hideDeleteConfirm();
   const toast = document.getElementById('toastMsg');
   if (toast) { toast.textContent = '词库已删除'; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 1500); }
-  setTimeout(() => showPage('P23'), 500);
+  setTimeout(() => showPage('P23', true), 500);
 }
 
 // ========== 初始化 ==========

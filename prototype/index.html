@@ -2356,9 +2356,16 @@ function renderMaterialList() {
   const list = document.getElementById('materialList');
   const empty = document.getElementById('materialEmpty');
   const mats = bankData[currentBank]?.materials || [];
-  if (mats.length === 0) { list.innerHTML = ''; list.appendChild(empty); empty.style.display = 'block'; return; }
+  console.log('renderMaterialList: currentBank=', currentBank, 'mats.length=', mats.length);
+  if (mats.length === 0) {
+    // 确保empty在DOM中
+    if (!list.contains(empty)) list.appendChild(empty);
+    empty.style.display = 'block';
+    return;
+  }
   empty.style.display = 'none';
-  list.innerHTML = '';
+  // 只清除非empty的子元素，保留empty节点
+  list.querySelectorAll(':scope > :not(#materialEmpty)').forEach(c => c.remove());
   mats.forEach(m => {
     const pct = m.status === 'completed' ? 100 : Math.round(m.progress);
     const bg = m.status === 'parsing' ? 'linear-gradient(to right, rgba(82,196,26,.25) '+pct+'%, transparent '+pct+'%)' :

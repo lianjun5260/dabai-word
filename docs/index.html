@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<!-- BUILD: 202606171740 -->
+<!-- BUILD: 202606171811 -->
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -379,6 +379,8 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
   <a onclick="showPage('P26')" id="nav-P26">P26 我的收藏</a>
   <a onclick="showPage('P27')" id="nav-P27">P27 错词本</a>
   <a onclick="showPage('P27a')" id="nav-P27a">P27a 错词列表</a>
+  <a onclick="showPage('P28')" id="nav-P28">P28 个人资料</a>
+  <a onclick="showPage('P29')" id="nav-P29">P29 设置</a>
 </div>
 
 <!-- ========================================== -->
@@ -1391,7 +1393,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
 <div class="page" id="P21">
   <div style="padding:16px;padding-bottom:80px;">
     <!-- 用户信息 -->
-    <div style="display:flex;align-items:center;padding:16px 0;margin-bottom:8px;cursor:pointer;" onclick="showPage('P22')">
+    <div style="display:flex;align-items:center;padding:16px 0;margin-bottom:8px;cursor:pointer;" onclick="showPage('P28')">
       <div style="width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#52C41A,#73D13D);display:flex;align-items:center;justify-content:center;margin-right:12px;flex-shrink:0;">
         <svg width="42" height="42" viewBox="0 0 90 90">
           <ellipse cx="45" cy="48" rx="38" ry="40" fill="#FFFFFF"/>
@@ -1457,7 +1459,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
         <div class="mi-value" id="errTotalCount">0个</div>
         <div class="mi-arrow">›</div>
       </div>
-      <div class="menu-item">
+      <div class="menu-item" onclick="showPage('P29')">
         <div class="mi-icon" style="background:#FCFFE6;">⚙️</div>
         <div class="mi-title">设置</div>
         <div class="mi-value"></div>
@@ -1766,6 +1768,94 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
   </div>
   <div style="position:absolute;bottom:0;left:0;right:0;padding:12px 16px;background:var(--bg-card);border-top:.5px solid var(--divider);z-index:10;">
     <button onclick="toastMsg('练习功能开发中，敬请期待')" class="btn-primary" style="width:100%;">📝 开始练习</button>
+  </div>
+</div>
+
+<!-- ========================================== -->
+<!-- P28 个人资料 -->
+<!-- ========================================== -->
+<div class="page" id="P28">
+  <div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
+  <div class="navbar">
+    <div class="back" onclick="showPage('P21', true)"><</div>
+    <div class="title">个人资料</div>
+    <div class="right"></div>
+  </div>
+  <div style="padding:16px;">
+    <!-- 头像 -->
+    <div style="display:flex;align-items:center;padding:16px 0;border-bottom:.5px solid var(--divider);margin-bottom:4px;">
+      <span style="font-size:15px;color:var(--text-1);flex:1;">头像</span>
+      <div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#52C41A,#73D13D);display:flex;align-items:center;justify-content:center;">
+        <svg width="34" height="34" viewBox="0 0 90 90">
+          <ellipse cx="45" cy="48" rx="38" ry="40" fill="#FFFFFF"/>
+          <ellipse cx="45" cy="28" rx="22" ry="20" fill="#FFFFFF"/>
+          <line x1="33" y1="27" x2="57" y2="27" stroke="#262626" stroke-width="3" stroke-linecap="round"/>
+          <circle cx="36" cy="27" r="5" fill="#262626"/>
+          <circle cx="54" cy="27" r="5" fill="#262626"/>
+        </svg>
+      </div>
+      <span style="color:var(--text-4);font-size:16px;margin-left:8px;">›</span>
+    </div>
+    <!-- 昵称 -->
+    <div style="display:flex;align-items:center;padding:14px 0;border-bottom:.5px solid var(--divider);cursor:pointer;" onclick="toastMsg('昵称修改开发中')">
+      <span style="font-size:15px;color:var(--text-1);flex:1;">昵称</span>
+      <span style="font-size:14px;color:var(--text-3);">大白同学</span>
+      <span style="color:var(--text-4);font-size:16px;margin-left:8px;">›</span>
+    </div>
+    <!-- 性别 -->
+    <div style="display:flex;align-items:center;padding:14px 0;border-bottom:.5px solid var(--divider);cursor:pointer;" onclick="toastMsg('性别修改开发中')">
+      <span style="font-size:15px;color:var(--text-1);flex:1;">性别</span>
+      <span style="font-size:14px;color:var(--text-3);">男</span>
+      <span style="color:var(--text-4);font-size:16px;margin-left:8px;">›</span>
+    </div>
+    <!-- 就读年级 -->
+    <div style="display:flex;align-items:center;padding:14px 0;border-bottom:.5px solid var(--divider);cursor:pointer;" onclick="showPage('P03')">
+      <span style="font-size:15px;color:var(--text-1);flex:1;">就读年级</span>
+      <div style="text-align:right;">
+        <span style="font-size:14px;color:var(--text-3);display:block;">三年级</span>
+        <span style="font-size:11px;color:var(--text-4);">人教版</span>
+      </div>
+      <span style="color:var(--text-4);font-size:16px;margin-left:8px;">›</span>
+    </div>
+    <!-- 教材版本 -->
+    <div style="display:flex;align-items:center;padding:14px 0;cursor:pointer;" onclick="toastMsg('教材版本修改开发中')">
+      <span style="font-size:15px;color:var(--text-1);flex:1;">教材版本</span>
+      <span style="font-size:14px;color:var(--text-3);">人教版</span>
+      <span style="color:var(--text-4);font-size:16px;margin-left:8px;">›</span>
+    </div>
+  </div>
+</div>
+
+<!-- ========================================== -->
+<!-- P29 设置 -->
+<!-- ========================================== -->
+<div class="page" id="P29">
+  <div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
+  <div class="navbar">
+    <div class="back" onclick="showPage('P21', true)"><</div>
+    <div class="title">设置</div>
+    <div class="right"></div>
+  </div>
+  <div style="padding:16px;">
+    <div style="display:flex;align-items:center;padding:14px 0;border-bottom:.5px solid var(--divider);cursor:pointer;" onclick="toastMsg('密码设置开发中')">
+      <span style="font-size:15px;color:var(--text-1);flex:1;">密码设置</span>
+      <span style="color:var(--text-4);font-size:16px;">›</span>
+    </div>
+    <div style="display:flex;align-items:center;padding:14px 0;border-bottom:.5px solid var(--divider);cursor:pointer;" onclick="toastMsg('关于我们开发中')">
+      <span style="font-size:15px;color:var(--text-1);flex:1;">关于我们</span>
+      <span style="color:var(--text-4);font-size:16px;">›</span>
+    </div>
+    <div style="display:flex;align-items:center;padding:14px 0;border-bottom:.5px solid var(--divider);cursor:pointer;" onclick="toastMsg('用户协议开发中')">
+      <span style="font-size:15px;color:var(--text-1);flex:1;">用户协议</span>
+      <span style="color:var(--text-4);font-size:16px;">›</span>
+    </div>
+    <div style="display:flex;align-items:center;padding:14px 0;border-bottom:.5px solid var(--divider);cursor:pointer;" onclick="toastMsg('隐私政策开发中')">
+      <span style="font-size:15px;color:var(--text-1);flex:1;">隐私政策</span>
+      <span style="color:var(--text-4);font-size:16px;">›</span>
+    </div>
+    <div style="padding-top:24px;">
+      <button onclick="confirmLogout()" style="width:100%;padding:12px;background:var(--bg-card);border:1px solid var(--error);border-radius:var(--r-lg);color:var(--error);font-size:15px;cursor:pointer;">退出登录</button>
+    </div>
   </div>
 </div>
 
@@ -2855,6 +2945,12 @@ function toastFav(msg) {
 function toastMsg(msg) {
   const toast = document.getElementById('toastMsg');
   if (toast) { toast.textContent = msg; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2000); }
+}
+function confirmLogout() {
+  if (confirm('确定要退出登录吗？')) {
+    toastMsg('已退出登录');
+    setTimeout(() => { showPage('P01'); }, 500);
+  }
 }
 function updateFavCount() {
   const el = document.getElementById('favCount');

@@ -38,7 +38,8 @@ LC-05 汉译英-直选 | LC-06 汉译英-全拼 | LC-07 汉译英-拼读 | LC-08
 - Pages永久地址：https://lianjun5260.github.io/dabai-word/
 - 部署方式：prototype/ 文件同步到 docs/ → git push github main
 - 必须在 docs/ 保留 .nojekyll 文件
-- 改完代码后流程：修改 prototype/ → 同步到 docs/ → git push github → 用户手机刷新即更新
+- 改完代码后流程：修改 prototype/ → 更新 manifest.json version → 同步到 docs/ → git push github → 用户手机刷新即更新
+- 每次部署前必须更新 `manifest.json` 中的 `version` 字段为当前时间戳（YYYYMMDDHHmm 格式）
 
 ## 登录策略（v2.1新增）
 - 单点登录：同账号仅一设备在线

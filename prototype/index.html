@@ -2251,32 +2251,49 @@ function deleteMaterial(id) {
 }
 function findMat(id) { return bankData[currentBank]?.materials.find(m => m.id === id); }
 
-// 刷新单个素材行UI
+// 刷新单个素材行UI（卡片即进度条）
 function refreshMaterialItem(id) {
   const mat = findMat(id); if (!mat) return;
   const row = document.getElementById('mat-' + id); if (!row) return;
-  const pct = mat.status === 'paused' ? Math.round(mat.progress) : Math.round(mat.progress);
-  const barColor = mat.status === 'failed' ? 'var(--error)' : mat.status === 'completed' ? 'var(--brand)' : mat.status === 'paused' ? 'var(--warn)' : 'var(--brand)';
-  const pctText = mat.status === 'completed' ? '识别出' + mat.words + '词' : mat.status === 'paused' ? '已暂停' : mat.status === 'failed' ? '识别失败' : '识别中';
-  const statLabel = mat.status === 'completed' ? '识别完成' : mat.status === 'paused' ? '已暂停' : mat.status === 'failed' ? '识别失败' : '识别中 ' + pct + '%';
-  row.querySelector('.mat-bar-fill').style.width = pct + '%';
-  row.querySelector('.mat-bar-fill').style.background = barColor;
-  row.querySelector('.mat-status-text').textContent = statLabel;
-  row.querySelector('.mat-pct-text').textContent = pctText;
-  // 操作按钮
-  const actions = row.querySelector('.mat-actions');
-  if (mat.status === 'parsing') {
-    actions.innerHTML = '<span onclick="pauseMaterial('+id+')" style="color:var(--warn);cursor:pointer;font-size:13px;">暂停</span><span style="padding:0 6px;color:var(--divider);">|</span><span onclick="deleteMaterial('+id+')" style="color:var(--text-3);cursor:pointer;font-size:13px;">删除</span>';
+  const pct = mat.status === 'completed' ? 100 : Math.round(mat.progress);
+  const bg = mat.status === 'failed' ? 'rgba(255,77,79,.12)' :
+    mat.status === 'paused' ? 'rgba(250,173,20,.12)' :
+    'linear-gradient(to right, rgba(82,196,26,.25) '+pct+'%, transparent '+pct+'%)';
+  row.style.background = bg;
+
+  if (mat.status === 'completed') {
+    row.querySelector('.mat-name').innerHTML = mat.name + ' <span style="font-size:13px;font-weight:400;color:var(--brand);">识别出'+mat.words+'词</span>';
+    row.querySelector('.mat-meta').textContent = mat.file;
+    row.querySelector('.mat-pct').textContent = '';
+    row.querySelector('.mat-action').innerHTML = '';
   } else if (mat.status === 'paused') {
-    actions.innerHTML = '<span onclick="resumeMaterial('+id+')" style="color:var(--brand);cursor:pointer;font-size:13px;">继续</span><span style="padding:0 6px;color:var(--divider);">|</span><span onclick="deleteMaterial('+id+')" style="color:var(--text-3);cursor:pointer;font-size:13px;">删除</span>';
+    row.querySelector('.mat-name').textContent = mat.name;
+    row.querySelector('.mat-meta').textContent = mat.file;
+    row.querySelector('.mat-pct').textContent = pct + '%';
+    row.querySelector('.mat-action').innerHTML = '<span onclick="resumeMaterial('+id+')" style="color:var(--brand);cursor:pointer;font-size:13px;">继续</span>';
   } else if (mat.status === 'failed') {
-    actions.innerHTML = '<span onclick="retryMaterial('+id+')" style="color:var(--info);cursor:pointer;font-size:13px;">重试</span><span style="padding:0 6px;color:var(--divider);">|</span><span onclick="deleteMaterial('+id+')" style="color:var(--text-3);cursor:pointer;font-size:13px;">删除</span>';
+    row.querySelector('.mat-name').textContent = mat.name;
+    row.querySelector('.mat-meta').textContent = '识别失败';
+    row.querySelector('.mat-pct').textContent = '';
+    row.querySelector('.mat-action').innerHTML = '<span onclick="retryMaterial('+id+')" style="color:var(--info);cursor:pointer;font-size:13px;">重试</span>';
   } else {
-    actions.innerHTML = '<span onclick="deleteMaterial('+id+')" style="color:var(--text-3);cursor:pointer;font-size:13px;">删除</span>';
+    row.querySelector('.mat-name').textContent = mat.name;
+    row.querySelector('.mat-meta').textContent = mat.file;
+    row.querySelector('.mat-pct').textContent = pct + '%';
+    row.querySelector('.mat-action').innerHTML = '<span onclick="pauseMaterial('+id+')" style="color:var(--warn);cursor:pointer;font-size:13px;">暂停</span>';
   }
 }
 
-// 全量重渲染素材列表
+// 长按删除
+let longPressTimer = null;
+function startLongPress(id) {
+  longPressTimer = setTimeout(() => {
+    if (confirm('确认删除该素材？')) deleteMaterial(id);
+  }, 800);
+}
+function cancelLongPress() { clearTimeout(longPressTimer); }
+
+// 全量重渲染素材列表（卡片即进度条）
 function renderMaterialList() {
   const list = document.getElementById('materialList');
   const empty = document.getElementById('materialEmpty');
@@ -2286,28 +2303,35 @@ function renderMaterialList() {
   list.innerHTML = '';
   mats.forEach(m => {
     const pct = m.status === 'completed' ? 100 : Math.round(m.progress);
-    const barColor = m.status === 'failed' ? 'var(--error)' : m.status === 'completed' ? 'var(--brand)' : m.status === 'paused' ? 'var(--warn)' : 'var(--brand)';
-    const statLabel = m.status === 'completed' ? '识别完成' : m.status === 'paused' ? '已暂停' : m.status === 'failed' ? '识别失败' : '识别中 ' + pct + '%';
-    const pctText = m.status === 'completed' ? '识别出' + m.words + '词' : m.status === 'paused' ? '已暂停' : m.status === 'failed' ? '识别失败' : '识别中';
-    let actions;
-    if (m.status === 'parsing') actions = '<span onclick="pauseMaterial('+m.id+')" style="color:var(--warn);cursor:pointer;font-size:13px;">暂停</span><span style="padding:0 6px;color:var(--divider);">|</span><span onclick="deleteMaterial('+m.id+')" style="color:var(--text-3);cursor:pointer;font-size:13px;">删除</span>';
-    else if (m.status === 'paused') actions = '<span onclick="resumeMaterial('+m.id+')" style="color:var(--brand);cursor:pointer;font-size:13px;">继续</span><span style="padding:0 6px;color:var(--divider);">|</span><span onclick="deleteMaterial('+m.id+')" style="color:var(--text-3);cursor:pointer;font-size:13px;">删除</span>';
-    else if (m.status === 'failed') actions = '<span onclick="retryMaterial('+m.id+')" style="color:var(--info);cursor:pointer;font-size:13px;">重试</span><span style="padding:0 6px;color:var(--divider);">|</span><span onclick="deleteMaterial('+m.id+')" style="color:var(--text-3);cursor:pointer;font-size:13px;">删除</span>';
-    else actions = '<span onclick="deleteMaterial('+m.id+')" style="color:var(--text-3);cursor:pointer;font-size:13px;">删除</span>';
+    const bg = m.status === 'failed' ? 'rgba(255,77,79,.12)' :
+      m.status === 'paused' ? 'rgba(250,173,20,.12)' :
+      'linear-gradient(to right, rgba(82,196,26,.25) '+pct+'%, transparent '+pct+'%)';
+    const nameHtml = m.status === 'completed' ? (m.name + ' <span style="font-size:13px;font-weight:400;color:var(--brand);">识别出'+m.words+'词</span>') : m.name;
+    const pctHtml = m.status === 'completed' || m.status === 'failed' ? '' : (pct + '%');
+    const meta = m.status === 'failed' ? '识别失败' : m.file;
+    let actionHtml = '';
+    if (m.status === 'parsing') actionHtml = '<span class="mat-action" onclick="event.stopPropagation();pauseMaterial('+m.id+')" style="color:var(--warn);cursor:pointer;font-size:13px;">暂停</span>';
+    else if (m.status === 'paused') actionHtml = '<span class="mat-action" onclick="event.stopPropagation();resumeMaterial('+m.id+')" style="color:var(--brand);cursor:pointer;font-size:13px;">继续</span>';
+    else if (m.status === 'failed') actionHtml = '<span class="mat-action" onclick="event.stopPropagation();retryMaterial('+m.id+')" style="color:var(--info);cursor:pointer;font-size:13px;">重试</span>';
+
     const div = document.createElement('div');
     div.id = 'mat-' + m.id;
-    div.style.cssText = 'padding:12px 16px;border-bottom:.5px solid var(--divider);';
+    div.className = 'mat-card';
+    div.style.cssText = 'padding:14px 16px;border-bottom:.5px solid var(--divider);background:'+bg+';transition:background .3s;';
+    div.setAttribute('ontouchstart', 'startLongPress('+m.id+')');
+    div.setAttribute('ontouchend', 'cancelLongPress()');
+    div.setAttribute('ontouchmove', 'cancelLongPress()');
     div.innerHTML =
-      '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">'+
+      '<div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">'+
         '<span style="font-size:22px;">'+m.icon+'</span>'+
-        '<div style="flex:1;"><div style="font-size:14px;font-weight:500;color:var(--text-1);">'+m.name+'</div>'+
-        '<div style="font-size:12px;color:var(--text-3);">'+m.file+'</div></div>'+
-        '<span class="mat-pct-text" style="font-size:12px;color:var(--text-3);">'+pctText+'</span>'+
-      '</div>'+
-      '<div class="progress-bar" style="height:4px;margin-bottom:4px;"><div class="fill mat-bar-fill" style="width:'+pct+'%;background:'+barColor+';"></div></div>'+
-      '<div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-3);">'+
-        '<span class="mat-status-text">'+statLabel+'</span>'+
-        '<span class="mat-actions">'+actions+'</span>'+
+        '<div style="flex:1;min-width:0;">'+
+          '<div class="mat-name" style="font-size:14px;font-weight:500;color:var(--text-1);">'+nameHtml+'</div>'+
+          '<div class="mat-meta" style="font-size:12px;color:var(--text-3);">'+meta+'</div>'+
+        '</div>'+
+        '<div style="text-align:right;flex-shrink:0;">'+
+          actionHtml +
+          '<div class="mat-pct" style="font-size:12px;color:var(--text-3);margin-top:2px;">'+pctHtml+'</div>'+
+        '</div>'+
       '</div>';
     list.appendChild(div);
   });

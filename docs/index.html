@@ -2309,22 +2309,23 @@ function refreshMaterialItem(id) {
   const sizeStr = mat.size || '';
   row.querySelector('.mat-pct').textContent = mat.status==='completed'||mat.status==='failed'?'':(pct+'%');
   row.querySelector('.mat-meta').textContent = timeStr+(sizeStr?' · '+sizeStr:'');
+  const actionEl = row.querySelector('.mat-action');
   if (mat.status==='completed') {
     row.querySelector('.mat-name').textContent = mat.icon+' '+displayName;
     row.querySelector('.mat-result').innerHTML = '<span style="color:var(--brand);font-size:13px;">'+mat.words+'词</span>';
-    row.querySelector('.mat-action').innerHTML = '';
+    actionEl.innerHTML = '';
   } else if (mat.status==='paused') {
     row.querySelector('.mat-name').textContent = mat.icon+' '+displayName;
     row.querySelector('.mat-result').textContent = '';
-    row.querySelector('.mat-action').innerHTML = '<span onclick="resumeMaterial('+id+')" style="color:var(--brand);cursor:pointer;font-size:13px;">继续</span>';
+    actionEl.innerHTML = '<span onclick="resumeMaterial('+id+')" style="color:var(--brand);cursor:pointer;">继续</span>';
   } else if (mat.status==='failed') {
     row.querySelector('.mat-name').textContent = mat.icon+' '+displayName;
     row.querySelector('.mat-result').textContent = '';
-    row.querySelector('.mat-action').innerHTML = '<span onclick="retryMaterial('+id+')" style="color:var(--info);cursor:pointer;font-size:13px;">重试</span>';
+    actionEl.innerHTML = '<span onclick="retryMaterial('+id+')" style="color:var(--info);cursor:pointer;">重试</span>';
   } else {
     row.querySelector('.mat-name').textContent = mat.icon+' '+displayName;
     row.querySelector('.mat-result').textContent = '';
-    row.querySelector('.mat-action').innerHTML = '<span onclick="pauseMaterial('+id+')" style="color:var(--warn);cursor:pointer;font-size:13px;">暂停</span>';
+    actionEl.innerHTML = '<span onclick="pauseMaterial('+id+')" style="color:var(--warn);cursor:pointer;">暂停</span>';
   }
 }
 
@@ -2391,9 +2392,9 @@ function renderMaterialList() {
       '<div style="display:flex;align-items:center;gap:4px;">'+
         '<div class="mat-name" style="flex:1;min-width:0;font-size:14px;color:var(--text-1);">'+m.icon+' '+displayName+'</div>'+
         '<div class="mat-result" style="flex-shrink:0;padding-right:0;">'+resultHtml+'</div>'+
-        '<div style="text-align:right;flex-shrink:0;min-width:48px;">'+
-          actionHtml +
-          '<div class="mat-pct" style="font-size:12px;color:var(--text-3);">'+pctHtml+'</div>'+
+        '<div style="text-align:right;flex-shrink:0;min-width:48px;min-height:32px;">'+
+          '<div class="mat-action" style="font-size:13px;">'+actionHtml+'</div>'+
+          '<div class="mat-pct" style="font-size:12px;color:var(--text-3);margin-top:2px;">'+pctHtml+'</div>'+
         '</div>'+
       '</div>'+
       '<div style="display:flex;justify-content:space-between;align-items:center;">'+

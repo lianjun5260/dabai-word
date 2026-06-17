@@ -1647,12 +1647,16 @@ const TAB_PAGES = ['P04','P05a','P21'];
 
 // ========== 页面切换（带滑动动画） ==========
 function showPage(id, isBack) {
-  // 强制清理上一次未完成的动画状态
-  if (navTimer) {
-    clearTimeout(navTimer); navTimer = null;
-    const lingering = document.querySelector('.page.slide-back-out, .page.slide-forward-out');
-    if (lingering) lingering.classList.remove('active');
-  }
+  console.log('showPage:', id, 'isBack:', isBack);
+  if (navTimer) { clearTimeout(navTimer); navTimer = null; }
+  // 清理所有动画类
+  document.querySelectorAll('.page').forEach(p => {
+    p.classList.remove('slide-forward','slide-forward-out','slide-back','slide-back-out','tab-switch');
+  });
+
+  const oldPage = document.querySelector('.page.active');
+  const newPage = document.getElementById(id);
+  if (!newPage || oldPage === newPage) return;
   document.querySelectorAll('.page').forEach(p => {
     p.classList.remove('slide-forward','slide-forward-out','slide-back','slide-back-out','tab-switch');
   });
@@ -1669,11 +1673,11 @@ function showPage(id, isBack) {
     newPage.classList.add('active','tab-switch');
   } else if (isBack) {
     // 返回: 从左侧滑入
-    oldPage.classList.add('slide-back-out');
+    document.querySelectorAll('.page').forEach(p => { if(p !== newPage) p.classList.remove('active'); });
     newPage.classList.add('active','slide-back');
   } else {
     // 前进: 从右侧滑入
-    if (oldPage) oldPage.classList.add('slide-forward-out');
+    document.querySelectorAll('.page').forEach(p => { if(p !== newPage) p.classList.remove('active'); });
     newPage.classList.add('active','slide-forward');
   }
 
@@ -1704,13 +1708,12 @@ function showPage(id, isBack) {
   // 滚动到顶部
   setTimeout(() => { if (newPage) newPage.scrollTop = 0; }, 50);
 
-  // 动画结束后清理：隐藏旧页面
+  // 动画结束后清理
   navTimer = setTimeout(() => {
     navTimer = null;
     document.querySelectorAll('.page').forEach(p => {
       p.classList.remove('slide-forward','slide-forward-out','slide-back','slide-back-out','tab-switch');
     });
-    if (oldPage && !isTabSwitch) oldPage.classList.remove('active');
   }, 350);
 }
 
@@ -2136,16 +2139,18 @@ const aiNames = ['随手整理词库','拍照识词本','今日收集词汇','�
 
 // ========== P23a 打开词库详情 ==========
 function openBankDetail(name) {
-  currentBank = name;
-  const data = bankData[name];
-  if (!data) { showPage('P23a'); return; }
-  document.getElementById('p23aTitle').textContent = name;
-  document.getElementById('renameInput').value = name;
-  updateOverviewStats(data);
-  matCount = data.materials.length;
-  document.getElementById('matCount').textContent = matCount;
-  renderMaterialList();
-  showPage('P23a');
+  try {
+    currentBank = name;
+    const data = bankData[name];
+    if (!data) { showPage('P23a'); return; }
+    document.getElementById('p23aTitle').textContent = name;
+    document.getElementById('renameInput').value = name;
+    updateOverviewStats(data);
+    matCount = data.materials.length;
+    document.getElementById('matCount').textContent = matCount;
+    renderMaterialList();
+    showPage('P23a');
+  } catch(e) { console.error('openBankDetail error:', e); showPage('P23a'); }
 }
 
 function updateOverviewStats(data) {

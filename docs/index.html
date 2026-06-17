@@ -1642,10 +1642,12 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
 <script>
 // ========== 页面导航栈 ==========
 const pageStack = [];
-const TAB_PAGES = ['P04','P05a','P21']; // Tab页不需要滑动动画
+let navTimer = null;  // 防止动画定时器重叠
+const TAB_PAGES = ['P04','P05a','P21'];
 
 // ========== 页面切换（带滑动动画） ==========
 function showPage(id, isBack) {
+  if (navTimer) { clearTimeout(navTimer); navTimer = null; }
   const oldPage = document.querySelector('.page.active');
   const newPage = document.getElementById(id);
   if (!newPage || oldPage === newPage) return;
@@ -1699,11 +1701,11 @@ function showPage(id, isBack) {
   setTimeout(() => { if (newPage) newPage.scrollTop = 0; }, 50);
 
   // 动画结束后清理：隐藏旧页面
-  setTimeout(() => {
+  navTimer = setTimeout(() => {
+    navTimer = null;
     document.querySelectorAll('.page').forEach(p => {
       p.classList.remove('slide-forward','slide-forward-out','slide-back','slide-back-out','tab-switch');
     });
-    // 移除旧页的 active，确保 display:none
     if (oldPage && !isTabSwitch) oldPage.classList.remove('active');
   }, 350);
 }

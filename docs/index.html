@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<!-- BUILD: 202606171627 -->
+<!-- BUILD: 202606171633 -->
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -162,6 +162,46 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
 }
 .fav-inner.fav-tapped::after {
   color:var(--brand);
+}
+
+/* ========== 错题本阶段卡片 ========== */
+.err-stage-card {
+  background:var(--bg-card); border-radius:var(--r-lg);
+  padding:16px; margin:8px 16px; cursor:pointer;
+  box-shadow:0 1px 3px rgba(0,0,0,.06);
+  transition:all .15s; position:relative;
+  -webkit-tap-highlight-color:transparent; user-select:none; -webkit-user-select:none;
+}
+.err-stage-card:active {
+  background:var(--brand-light); transform:scale(.98);
+}
+.err-stage-card::after {
+  content:'\203A'; position:absolute; right:16px; top:50%;
+  transform:translateY(-50%); color:var(--text-4); font-size:20px;
+}
+.err-stage-card .err-name {
+  font-size:16px; font-weight:600; color:var(--text-1); margin-bottom:4px;
+}
+.err-stage-card .err-meta {
+  font-size:12px; color:var(--text-3);
+}
+.err-stage-card .err-count {
+  display:inline-block; background:var(--error); color:#fff;
+  font-size:12px; font-weight:600; padding:2px 8px; border-radius:var(--r-pill);
+  margin-left:8px; vertical-align:middle;
+}
+.err-stage-card.empty {
+  opacity:.5; cursor:default;
+}
+.err-stage-card.empty:active {
+  background:var(--bg-card); transform:none;
+}
+.err-stage-card.empty::after {
+  content:none;
+}
+/* 错题分组标题 */
+.err-group-title {
+  font-size:13px; color:var(--text-3); margin:16px 16px 8px; font-weight:500;
 }
 /* 单词名称行 */
 .fav-word-click {
@@ -333,6 +373,9 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
   <a onclick="showPage('P22')" id="nav-P22">P22 会员中心</a>
   <a onclick="showPage('P23')" id="nav-P23">P23 我的词库</a>
   <a onclick="showPage('P23a')" id="nav-P23a">P23a 词库详情</a>
+  <a onclick="showPage('P26')" id="nav-P26">P26 我的收藏</a>
+  <a onclick="showPage('P27')" id="nav-P27">P27 错题本</a>
+  <a onclick="showPage('P27a')" id="nav-P27a">P27a 错题列表</a>
 </div>
 
 <!-- ========================================== -->
@@ -1405,10 +1448,10 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
         <div class="mi-value" id="favCount">0个</div>
         <div class="mi-arrow">›</div>
       </div>
-      <div class="menu-item">
+      <div class="menu-item" onclick="showPage('P27')">
         <div class="mi-icon" style="background:#F9F0FF;">📝</div>
         <div class="mi-title">错题本</div>
-        <div class="mi-value">15个</div>
+        <div class="mi-value" id="errTotalCount">0个</div>
         <div class="mi-arrow">›</div>
       </div>
       <div class="menu-item">
@@ -1684,6 +1727,39 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
   </div>
 </div>
 
+<!-- ========================================== -->
+<!-- P27 错题本首页 -->
+<!-- ========================================== -->
+<div class="page" id="P27">
+  <div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
+  <div class="navbar">
+    <div class="back" onclick="showPage('P21', true)"><</div>
+    <div class="title">错题本</div>
+    <div class="right"></div>
+  </div>
+  <div style="padding-bottom:20px;" id="errorBookList">
+    <!-- 动态渲染 -->
+  </div>
+</div>
+
+<!-- ========================================== -->
+<!-- P27a 阶段错题列表 -->
+<!-- ========================================== -->
+<div class="page" id="P27a">
+  <div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
+  <div class="navbar">
+    <div class="back" onclick="showPage('P27', true)"><</div>
+    <div class="title" id="errStageTitle">错题详情</div>
+    <div class="right"></div>
+  </div>
+  <div id="errWordList" style="padding-bottom:20px;"></div>
+  <div id="errEmpty" style="display:none;text-align:center;padding:80px 24px;">
+    <div style="font-size:56px;margin-bottom:16px;">📝</div>
+    <div style="font-size:15px;color:var(--text-2);margin-bottom:8px;">这个阶段还没有错题</div>
+    <div style="font-size:13px;color:var(--text-3);">多练习，错误会自动汇集到这里</div>
+  </div>
+</div>
+
 <!-- ========== JavaScript ========== -->
 <script>
 // ========== 页面导航栈 ==========
@@ -1753,6 +1829,7 @@ function showPage(id, isBack) {
   if (id === 'P05') buildWordBanks();
   // 初始化收藏页
   if (id === 'P26') { updateFavCount(); renderFavorites(); }
+  if (id === 'P27') { renderErrorBook(); }
 
   // 滚动到顶部
   setTimeout(() => { if (newPage) newPage.scrollTop = 0; }, 50);
@@ -2740,6 +2817,182 @@ function toastFav(msg) {
 function updateFavCount() {
   const el = document.getElementById('favCount');
   if (el) el.textContent = favData.length + '个';
+}
+
+// ========== 错题本 P27/P27a ==========
+const STAGES = [
+  // 📘 基础阶段 15
+  '一年级','二年级','三年级','四年级','五年级','六年级','小升初',
+  '初一','初二','初三','中考','高一','高二','高三','高考',
+  // 🎓 大学考试 5
+  '四级','六级','考研','专升本','专四专八',
+  // 🌍 留学考试 4
+  '雅思','托福','GRE','GMAT'
+];
+const STAGE_GROUPS = [
+  { title:'📘 基础阶段', stages:STAGES.slice(0,15) },
+  { title:'🎓 大学考试', stages:STAGES.slice(15,20) },
+  { title:'🌍 留学考试', stages:STAGES.slice(20,24) }
+];
+
+// 错题本数据：只有部分阶段有错题
+const errorBookData = {
+  '一年级': { words:['apple','banana','cat','dog','egg','fish'], lastErr:Date.now()-2*86400000 },
+  '三年级': { words:['beautiful','dangerous','elephant','furniture','geography'], lastErr:Date.now()-86400000 },
+  '五年级': { words:['independent','knowledge','literature','magnificent','necessary','opportunity','phenomenon'], lastErr:Date.now() },
+  '小升初': { words:['abandon','abstract','barrier','genuine'], lastErr:Date.now()-4*86400000 },
+  '初一': { words:['accomplish','ambiguous','comprehensive'], lastErr:Date.now()-6*86400000 },
+  '初三': { words:['dilemma','tremendous','meticulous','conspicuous','substantial'], lastErr:Date.now()-3*86400000 },
+  '中考': { words:['fluctuate','hypothesis','resilience','vulnerable'], lastErr:Date.now()-5*86400000 },
+  '高一': { words:['sophisticated','inevitable','elaborate'], lastErr:Date.now()-1*86400000 },
+  '高考': { words:['paradox','pervasive','imperative','nostalgia','clandestine','ubiquitous','rhetoric','profound'], lastErr:Date.now() },
+  '四级': { words:['contemporary','demonstrate','equivalent','fundamental'], lastErr:Date.now()-7*86400000 },
+  '六级': { words:['benevolent','spontaneous','magnitude','articulate'], lastErr:Date.now()-10*86400000 },
+  '雅思': { words:['infrastructure','jurisdiction','methodology','negotiation','procrastination','questionnaire','sustainability'], lastErr:Date.now()-2*86400000 }
+};
+
+function getErrTotal() {
+  let total = 0;
+  for (const s of STAGES) {
+    const d = errorBookData[s];
+    if (d && d.words) total += d.words.length;
+  }
+  return total;
+}
+
+function updateErrCount() {
+  const el = document.getElementById('errTotalCount');
+  if (el) el.textContent = getErrTotal() + '个';
+}
+
+// 阶段卡片最近错题时间格式化
+function errLastTime(ts) {
+  if (!ts) return '';
+  const d = new Date(ts);
+  const mm = ('0'+(d.getMonth()+1)).slice(-2);
+  const dd = ('0'+d.getDate()).slice(-2);
+  return mm+'-'+dd;
+}
+
+function renderErrorBook() {
+  const container = document.getElementById('errorBookList');
+  if (!container) return;
+  container.innerHTML = '';
+
+  STAGE_GROUPS.forEach(group => {
+    // 分组标题
+    const title = document.createElement('div');
+    title.className = 'err-group-title';
+    title.textContent = group.title;
+    container.appendChild(title);
+
+    group.stages.forEach(stage => {
+      const data = errorBookData[stage] || {};
+      const count = (data.words && data.words.length) || 0;
+      const isEmpty = count === 0;
+
+      const card = document.createElement('div');
+      card.className = 'err-stage-card' + (isEmpty ? ' empty' : '');
+      card.innerHTML =
+        '<div class="err-name">'+stage+(isEmpty?'':'<span class="err-count">'+count+'</span>')+'</div>'+
+        '<div class="err-meta">'+(isEmpty?'暂无错题':'最近错题：'+errLastTime(data.lastErr))+'</div>';
+      if (!isEmpty) {
+        card.setAttribute('onclick', 'openErrorStage(\''+stage+'\')');
+      }
+      container.appendChild(card);
+    });
+  });
+
+  updateErrCount();
+}
+
+let currentErrStage = '';
+let errTouchX = 0, errSwipedId = null;
+
+function openErrorStage(stage) {
+  currentErrStage = stage;
+  document.getElementById('errStageTitle').textContent = stage + '错题';
+  showPage('P27a');
+  renderErrorList(stage);
+}
+
+function renderErrorList(stage) {
+  const list = document.getElementById('errWordList');
+  const empty = document.getElementById('errEmpty');
+  const data = errorBookData[stage];
+  const words = (data && data.words) || [];
+
+  if (!words.length) {
+    list.style.display = 'none'; empty.style.display = 'block'; return;
+  }
+  list.style.display = 'block'; empty.style.display = 'none';
+  list.innerHTML = '';
+
+  words.forEach((word, idx) => {
+    const wd = wdDB[word] || {};
+    const phonetic = wd.en_phonetic || '/-/';
+    const meaning = wd.meaning || '';
+
+    const row = document.createElement('div');
+    row.className = 'fav-row';
+    row.id = 'errw-' + idx;
+    row.setAttribute('ontouchstart', 'errTouchStart(event,'+idx+')');
+    row.setAttribute('ontouchmove', 'errTouchMove(event,'+idx+')');
+    row.setAttribute('ontouchend', 'errTouchEnd(event,'+idx+')');
+    row.innerHTML =
+      '<div class="fav-inner" onclick="event.stopPropagation();tapErrCard(\''+word+'\',this)">'+
+        '<div class="fav-word-click">'+
+          '<span style="font-size:17px;font-weight:600;color:var(--text-1);">'+word+'</span>'+
+          '<span style="font-size:13px;color:var(--text-3);padding-right:18px;">'+phonetic+'</span>'+
+        '</div>'+
+        '<div style="font-size:14px;color:var(--text-2);margin-bottom:6px;">'+meaning+'</div>'+
+        '<div style="display:flex;gap:16px;font-size:12px;color:var(--text-3);">'+
+          '<span>错误次数：'+(Math.floor(Math.random()*5)+1)+'次</span>'+
+        '</div>'+
+      '</div>'+
+      '<div onclick="deleteErrWord(\''+stage+'\','+idx+')" style="position:absolute;right:0;top:0;bottom:0;width:80px;background:var(--error);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;">移除</div>';
+    list.appendChild(row);
+  });
+}
+
+function tapErrCard(word, el) {
+  el.classList.add('fav-tapped');
+  setTimeout(function() {
+    el.classList.remove('fav-tapped');
+    openWordDetail(word);
+  }, 150);
+}
+
+function deleteErrWord(stage, idx) {
+  const data = errorBookData[stage];
+  if (!data || !data.words) return;
+  data.words.splice(idx, 1);
+  if (!data.words.length) delete errorBookData[stage];
+  renderErrorList(stage);
+  updateErrCount();
+}
+
+function errTouchStart(e, idx) { errTouchX = e.touches[0].clientX; errSwipedId = idx; }
+function errTouchMove(e, idx) {
+  if (errSwipedId !== idx) return;
+  const dx = e.touches[0].clientX - errTouchX;
+  const row = document.getElementById('errw-'+idx);
+  if (!row) return;
+  const target = row.querySelector('.fav-inner');
+  if (!target) return;
+  if (dx < 0 && Math.abs(dx) < 100) target.style.transform = 'translateX('+dx+'px)';
+  e.preventDefault();
+}
+function errTouchEnd(e, idx) {
+  if (errSwipedId !== idx) return;
+  const row = document.getElementById('errw-'+idx);
+  if (!row) return;
+  const target = row.querySelector('.fav-inner');
+  if (!target) return;
+  const dx = (e.changedTouches[0] ? e.changedTouches[0].clientX : e.clientX) - errTouchX;
+  if (dx < -60) target.style.transform = 'translateX(-80px)';
+  else target.style.transform = 'translateX(0)';
+  errSwipedId = null;
 }
 
 </script>

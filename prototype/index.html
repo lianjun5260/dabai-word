@@ -2114,9 +2114,9 @@ function submitSpell() {
 const bankData = {
   '英语课本拍照': { icon:'📕', total:0, mastered:0, learning:0, date:'06-16', materials:[] },
   '英语试卷生词': { icon:'📗', total:15, mastered:9, learning:6, date:'06-15', materials:[
-    { id:1, icon:'🖼️', file:'IMG_001.jpg', status:'completed', progress:100, words:12 },
-    { id:2, icon:'📄', file:'单词表.pdf', status:'completed', progress:100, words:8 },
-    { id:3, icon:'🖼️', file:'IMG_002.jpg', status:'parsing', progress:45, words:0 }
+    { id:1, icon:'🖼️', file:'IMG_001.jpg', status:'completed', progress:100, words:12, createdAt:Date.now()-3*86400000 },
+    { id:2, icon:'📄', file:'单词表.pdf', status:'completed', progress:100, words:8, createdAt:Date.now()-5*86400000 },
+    { id:3, icon:'🖼️', file:'IMG_002.jpg', status:'parsing', progress:45, words:0, createdAt:Date.now()-120000 }
   ]}
 };
 let currentBank = '';
@@ -2218,12 +2218,33 @@ function addMaterialAndParse(type) {
   const idx = bankData[currentBank].materials.length + 1;
   const fname = type === 'file' ? '单词表' + idx + '.pdf' : ('IMG_' + new Date().toISOString().slice(0,10).replace(/-/g,'') + '_' + (idx<10?'0':'') + idx + '.jpg');
   const id = matIdSeq++;
-  const mat = { id, icon, file:fname, status:'parsing', progress:0, words:0 };
+  const mat = { id, icon, file:fname, status:'parsing', progress:0, words:0, createdAt:Date.now() };
   bankData[currentBank].materials.push(mat);
   matCount = bankData[currentBank].materials.length;
   document.getElementById('matCount').textContent = matCount;
   renderMaterialList();
   startParsing(mat);
+}
+
+// 相对时间格式化
+function formatRelativeTime(ts) {
+  const now = Date.now(), diff = now - ts;
+  const sec = Math.floor(diff/1000), min = Math.floor(sec/60), hr = Math.floor(min/60), day = Math.floor(hr/24);
+  const d = new Date(ts);
+  const HM = ('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2);
+  const MD = ('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);
+  const today = new Date(); today.setHours(0,0,0,0);
+  const yesterday = new Date(today); yesterday.setDate(yesterday.getDate()-1);
+  const dDay = new Date(ts); dDay.setHours(0,0,0,0);
+
+  if (sec < 60) return '刚刚';
+  if (min < 60) return min+'分钟前';
+  if (hr < 2) return hr+'小时前';
+  if (dDay.getTime() === today.getTime()) return '今天 '+HM;
+  if (dDay.getTime() === yesterday.getTime()) return '昨天 '+HM;
+  if (day < 7) return day+'天前';
+  if (d.getFullYear() === new Date().getFullYear()) return MD+' '+HM;
+  return d.getFullYear()+'-'+MD+' '+HM;
 }
 
 // 解析进度条动画
@@ -2274,26 +2295,24 @@ function refreshMaterialItem(id) {
     mat.status === 'failed' ? 'rgba(255,77,79,.12)' : 'transparent';
   row.style.background = bg;
   const displayName = mat.file.replace(/\.[^.]+$/, '');
+  row.querySelector('.mat-time').textContent = formatRelativeTime(mat.createdAt || Date.now());
+  row.querySelector('.mat-pct').textContent = mat.status === 'completed' || mat.status === 'failed' ? '' : (pct + '%');
 
   if (mat.status === 'completed') {
     row.querySelector('.mat-name').textContent = mat.icon + ' ' + displayName;
-    row.querySelector('.mat-result').innerHTML = '<span style="color:var(--brand);font-size:13px;">识别出'+mat.words+'词</span>';
-    row.querySelector('.mat-pct').textContent = '';
+    row.querySelector('.mat-result').innerHTML = '<span style="color:var(--brand);font-size:13px;">'+mat.words+'词</span>';
     row.querySelector('.mat-action').innerHTML = '';
   } else if (mat.status === 'paused') {
     row.querySelector('.mat-name').textContent = mat.icon + ' ' + displayName;
     row.querySelector('.mat-result').textContent = '';
-    row.querySelector('.mat-pct').textContent = pct + '%';
     row.querySelector('.mat-action').innerHTML = '<span onclick="resumeMaterial('+id+')" style="color:var(--brand);cursor:pointer;font-size:13px;">继续</span>';
   } else if (mat.status === 'failed') {
     row.querySelector('.mat-name').textContent = mat.icon + ' ' + displayName;
     row.querySelector('.mat-result').textContent = '';
-    row.querySelector('.mat-pct').textContent = '';
     row.querySelector('.mat-action').innerHTML = '<span onclick="retryMaterial('+id+')" style="color:var(--info);cursor:pointer;font-size:13px;">重试</span>';
   } else {
     row.querySelector('.mat-name').textContent = mat.icon + ' ' + displayName;
     row.querySelector('.mat-result').textContent = '';
-    row.querySelector('.mat-pct').textContent = pct + '%';
     row.querySelector('.mat-action').innerHTML = '<span onclick="pauseMaterial('+id+')" style="color:var(--warn);cursor:pointer;font-size:13px;">暂停</span>';
   }
 }
@@ -2327,7 +2346,8 @@ function renderMaterialList() {
       m.status === 'paused' ? 'rgba(250,173,20,.12)' :
       m.status === 'failed' ? 'rgba(255,77,79,.12)' : 'transparent';
     const displayName = m.file.replace(/\.[^.]+$/, '');
-    const resultHtml = m.status === 'completed' ? '<span style="color:var(--brand);font-size:13px;">识别出'+m.words+'词</span>' : '';
+    const timeStr = formatRelativeTime(m.createdAt || Date.now());
+    const resultHtml = m.status === 'completed' ? '<span style="color:var(--brand);font-size:13px;">'+m.words+'词</span>' : '';
     const pctHtml = m.status === 'completed' || m.status === 'failed' ? '' : (pct + '%');
     let actionHtml = '';
     if (m.status === 'parsing') actionHtml = '<span class="mat-action" onclick="event.stopPropagation();pauseMaterial('+m.id+')" style="color:var(--warn);cursor:pointer;font-size:13px;">暂停</span>';
@@ -2337,7 +2357,7 @@ function renderMaterialList() {
     const div = document.createElement('div');
     div.id = 'mat-' + m.id;
     div.className = 'mat-card';
-    div.style.cssText = 'padding:14px 16px;border-bottom:.5px solid var(--divider);background:'+bg+';transition:background .3s;';
+    div.style.cssText = 'padding:12px 16px;border-bottom:.5px solid var(--divider);background:'+bg+';transition:background .3s;';
     div.setAttribute('ontouchstart', 'startLongPress('+m.id+')');
     div.setAttribute('ontouchend', 'cancelLongPress()');
     div.setAttribute('ontouchmove', 'cancelLongPress()');
@@ -2349,6 +2369,10 @@ function renderMaterialList() {
           actionHtml +
           '<div class="mat-pct" style="font-size:12px;color:var(--text-3);">'+pctHtml+'</div>'+
         '</div>'+
+      '</div>'+
+      '<div style="display:flex;justify-content:space-between;align-items:center;">'+
+        '<div class="mat-time" style="font-size:12px;color:var(--text-3);">'+timeStr+'</div>'+
+        '<div></div>'+
       '</div>';
     list.appendChild(div);
   });

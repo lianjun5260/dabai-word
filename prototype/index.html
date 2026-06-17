@@ -139,6 +139,31 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
 /* 卡片 */
 .card { background:var(--bg-card); border-radius:var(--r-lg); padding:var(--sp-lg); box-shadow:0 1px 4px rgba(0,0,0,.06); margin:var(--sp-md) var(--sp-lg); }
 
+/* ========== 收藏页单词卡片 ========== */
+.fav-row { position:relative; overflow:hidden; border-bottom:.5px solid var(--divider); background:var(--bg-card); }
+.fav-inner { padding:14px 16px; background:var(--bg-card); position:relative; z-index:1; transition:transform .2s; }
+/* 单词名称区域 - 可点击进入详情 */
+.fav-word-click {
+  display:flex; align-items:baseline; gap:6px; margin-bottom:4px;
+  cursor:pointer; transition:all .12s; border-radius:var(--r-sm);
+  padding:5px 8px; margin:-5px -8px 2px;
+  position:relative; -webkit-tap-highlight-color:transparent;
+  user-select:none; -webkit-user-select:none;
+}
+.fav-word-click::after {
+  content:'\203A'; position:absolute; right:6px; top:50%;
+  transform:translateY(-50%); color:var(--text-4); font-size:16px;
+  transition:all .12s;
+}
+.fav-word-click:active {
+  background:var(--brand-light);
+  transform:scale(.97);
+}
+.fav-word-click:active::after {
+  color:var(--brand);
+}
+/* 已掌握Tab下卡片无复习时间，样式微调 */
+
 /* 底部Tab */
 .tab-bar { position:absolute; bottom:0; left:0; right:0; height:56px; background:var(--bg-card); border-top:0.5px solid var(--divider); display:flex; z-index:10; }
 .tab-item { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; cursor:pointer; transition:color .15s; }
@@ -2504,6 +2529,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 // ========== 我的收藏 P26 ==========
 const favData = [
+  // === 正在学习 (15) ===
   { id:1, word:'abandon', phonetic:'/əˈbændən/', meaning:'放弃；抛弃；遗弃', status:'learning', reviewDue: new Date(new Date().setHours(23,59,0,0)), collected: Date.now()-2*86400000 },
   { id:2, word:'abstract', phonetic:'/ˈæbstrækt/', meaning:'抽象的；摘要', status:'learning', reviewDue: new Date(Date.now()+86400000), collected: Date.now()-5*86400000 },
   { id:3, word:'barrier', phonetic:'/ˈbæriə(r)/', meaning:'障碍；屏障', status:'learning', reviewDue: new Date(Date.now()+3*86400000), collected: Date.now()-7*86400000 },
@@ -2512,10 +2538,32 @@ const favData = [
   { id:6, word:'genuine', phonetic:'/ˈdʒenjuɪn/', meaning:'真正的；真诚的', status:'learning', reviewDue: new Date(Date.now()+5*86400000), collected: Date.now()-3*86400000 },
   { id:7, word:'hypothesis', phonetic:'/haɪˈpɒθəsɪs/', meaning:'假设；假说', status:'learning', reviewDue: new Date(Date.now()+86400000), collected: Date.now()-4*86400000 },
   { id:8, word:'inevitable', phonetic:'/ɪnˈevɪtəbl/', meaning:'不可避免的', status:'learning', reviewDue: new Date(2026,5,30), collected: Date.now()-1*86400000 },
-  { id:9, word:'persistence', phonetic:'/pəˈsɪstəns/', meaning:'坚持；持续', status:'mastered', reviewDue: null, collected: Date.now()-20*86400000 },
-  { id:10, word:'sophisticated', phonetic:'/səˈfɪstɪkeɪtɪd/', meaning:'精密的；老练的', status:'mastered', reviewDue: null, collected: Date.now()-15*86400000 },
-  { id:11, word:'vulnerable', phonetic:'/ˈvʌlnərəbl/', meaning:'脆弱的；易受伤的', status:'mastered', reviewDue: null, collected: Date.now()-25*86400000 },
-  { id:12, word:'resilience', phonetic:'/rɪˈzɪliəns/', meaning:'韧性；适应力', status:'mastered', reviewDue: null, collected: Date.now()-30*86400000 }
+  { id:9, word:'tremendous', phonetic:'/trəˈmendəs/', meaning:'巨大的；惊人的', status:'learning', reviewDue: new Date(Date.now()+7*86400000), collected: Date.now()-8*86400000 },
+  { id:10, word:'accomplish', phonetic:'/əˈkʌmplɪʃ/', meaning:'完成；实现', status:'learning', reviewDue: new Date(Date.now()+2*86400000), collected: Date.now()-1*86400000 },
+  { id:11, word:'dilemma', phonetic:'/dɪˈlemə/', meaning:'困境；进退两难', status:'learning', reviewDue: new Date(Date.now()+4*86400000), collected: Date.now()-6*86400000 },
+  { id:12, word:'substantial', phonetic:'/səbˈstænʃl/', meaning:'大量的；实质的', status:'learning', reviewDue: new Date(2026,6,2), collected: Date.now()-9*86400000 },
+  { id:13, word:'ambiguous', phonetic:'/æmˈbɪɡjuəs/', meaning:'模糊的；模棱两可的', status:'learning', reviewDue: new Date(Date.now()+6*86400000), collected: Date.now()-3*86400000 },
+  { id:14, word:'conspicuous', phonetic:'/kənˈspɪkjuəs/', meaning:'显眼的；引人注目的', status:'learning', reviewDue: new Date(2026,5,28), collected: Date.now()-12*86400000 },
+  { id:15, word:'meticulous', phonetic:'/məˈtɪkjələs/', meaning:'一丝不苟的；细致的', status:'learning', reviewDue: new Date(Date.now()+8*86400000), collected: Date.now()-2*86400000 },
+  // === 已掌握 (18) ===
+  { id:16, word:'persistence', phonetic:'/pəˈsɪstəns/', meaning:'坚持；持续', status:'mastered', reviewDue: null, collected: Date.now()-20*86400000 },
+  { id:17, word:'sophisticated', phonetic:'/səˈfɪstɪkeɪtɪd/', meaning:'精密的；老练的', status:'mastered', reviewDue: null, collected: Date.now()-15*86400000 },
+  { id:18, word:'vulnerable', phonetic:'/ˈvʌlnərəbl/', meaning:'脆弱的；易受伤的', status:'mastered', reviewDue: null, collected: Date.now()-25*86400000 },
+  { id:19, word:'resilience', phonetic:'/rɪˈzɪliəns/', meaning:'韧性；适应力', status:'mastered', reviewDue: null, collected: Date.now()-30*86400000 },
+  { id:20, word:'phenomenon', phonetic:'/fəˈnɒmɪnən/', meaning:'现象；奇才', status:'mastered', reviewDue: null, collected: Date.now()-35*86400000 },
+  { id:21, word:'spontaneous', phonetic:'/spɒnˈteɪniəs/', meaning:'自发的；自然的', status:'mastered', reviewDue: null, collected: Date.now()-28*86400000 },
+  { id:22, word:'articulate', phonetic:'/ɑːˈtɪkjuleɪt/', meaning:'清晰表达的；口才好的', status:'mastered', reviewDue: null, collected: Date.now()-22*86400000 },
+  { id:23, word:'comprehensive', phonetic:'/ˌkɒmprɪˈhensɪv/', meaning:'全面的；综合的', status:'mastered', reviewDue: null, collected: Date.now()-18*86400000 },
+  { id:24, word:'benevolent', phonetic:'/bəˈnevələnt/', meaning:'慈善的；仁慈的', status:'mastered', reviewDue: null, collected: Date.now()-40*86400000 },
+  { id:25, word:'magnitude', phonetic:'/ˈmæɡnɪtjuːd/', meaning:'大小；规模；震级', status:'mastered', reviewDue: null, collected: Date.now()-33*86400000 },
+  { id:26, word:'paradox', phonetic:'/ˈpærədɒks/', meaning:'悖论；矛盾的人或事', status:'mastered', reviewDue: null, collected: Date.now()-45*86400000 },
+  { id:27, word:'pervasive', phonetic:'/pəˈveɪsɪv/', meaning:'普遍的；无处不在的', status:'mastered', reviewDue: null, collected: Date.now()-27*86400000 },
+  { id:28, word:'imperative', phonetic:'/ɪmˈperətɪv/', meaning:'必要的；紧急的', status:'mastered', reviewDue: null, collected: Date.now()-21*86400000 },
+  { id:29, word:'nostalgia', phonetic:'/nɒˈstældʒə/', meaning:'怀旧；乡愁', status:'mastered', reviewDue: null, collected: Date.now()-38*86400000 },
+  { id:30, word:'clandestine', phonetic:'/klænˈdestɪn/', meaning:'秘密的；暗中的', status:'mastered', reviewDue: null, collected: Date.now()-50*86400000 },
+  { id:31, word:'ubiquitous', phonetic:'/juːˈbɪkwɪtəs/', meaning:'无处不在的', status:'mastered', reviewDue: null, collected: Date.now()-32*86400000 },
+  { id:32, word:'rhetoric', phonetic:'/ˈretərɪk/', meaning:'修辞；花言巧语', status:'mastered', reviewDue: null, collected: Date.now()-24*86400000 },
+  { id:33, word:'profound', phonetic:'/prəˈfaʊnd/', meaning:'深刻的；意义深远的', status:'mastered', reviewDue: null, collected: Date.now()-16*86400000 }
 ];
 let favTab = 'learning';
 let favTouchX = 0, favSwipedId = null;
@@ -2533,7 +2581,28 @@ const wdDB = {
   persistence:{ en_phonetic:'/pəˈsɪstəns/',us_phonetic:'/pərˈsɪstəns/',part_speech:'n.',phrases:[{en:'persistence of vision',cn:'视觉暂留'},{en:'with persistence',cn:'坚持不懈地'}],sentences:[{en:'<b>Persistence</b> is the key to success.',cn:'坚持不懈是成功的关键。'}],transforms:'',stage_label:'四级,高考',total_frequency:14,difficulty:2,memory_skill:'per(贯穿)+sist(站立)+ence→一直站立→坚持',meaning:'坚持；持续'},
   sophisticated:{ en_phonetic:'/səˈfɪstɪkeɪtɪd/',us_phonetic:'/səˈfɪstɪkeɪtɪd/',part_speech:'adj.',phrases:[{en:'sophisticated technology',cn:'尖端技术'}],sentences:[{en:'The system is highly <b>sophisticated</b>.',cn:'这个系统非常精密。'}],transforms:'',stage_label:'六级,雅思',total_frequency:8,difficulty:5,memory_skill:'soph(智慧)+istic+ated→充满智慧的→精密的',meaning:'精密的；老练的'},
   vulnerable:{ en_phonetic:'/ˈvʌlnərəbl/',us_phonetic:'/ˈvʌlnərəbl/',part_speech:'adj.',phrases:[{en:'vulnerable to',cn:'易受...伤害'}],sentences:[{en:'Children are <b>vulnerable</b> to diseases.',cn:'儿童易受疾病侵袭。'}],transforms:'',stage_label:'六级,考研',total_frequency:10,difficulty:4,memory_skill:'vulner(伤口)+able→有伤口的→脆弱的',meaning:'脆弱的；易受伤的'},
-  resilience:{ en_phonetic:'/rɪˈzɪliəns/',us_phonetic:'/rɪˈzɪliəns/',part_speech:'n.',phrases:[{en:'build resilience',cn:'培养适应力'},{en:'show resilience',cn:'表现出韧性'}],sentences:[{en:'Her <b>resilience</b> helped her overcome hardship.',cn:'她的韧性帮她克服了困难。'}],transforms:'',stage_label:'考研,雅思',total_frequency:7,difficulty:5,memory_skill:'re(回)+sili(跳)+ence→跳回来的能力→韧性',meaning:'韧性；适应力'}
+  resilience:{ en_phonetic:'/rɪˈzɪliəns/',us_phonetic:'/rɪˈzɪliəns/',part_speech:'n.',phrases:[{en:'build resilience',cn:'培养适应力'},{en:'show resilience',cn:'表现出韧性'}],sentences:[{en:'Her <b>resilience</b> helped her overcome hardship.',cn:'她的韧性帮她克服了困难。'}],transforms:'',stage_label:'考研,雅思',total_frequency:7,difficulty:5,memory_skill:'re(回)+sili(跳)+ence→跳回来的能力→韧性',meaning:'韧性；适应力'},
+  tremendous:{ en_phonetic:'/trəˈmendəs/',us_phonetic:'/trəˈmendəs/',part_speech:'adj.',phrases:[{en:'a tremendous success',cn:'巨大的成功'},{en:'tremendous effort',cn:'巨大的努力'}],sentences:[{en:'The response has been <b>tremendous</b>.',cn:'反响非常热烈。'}],transforms:'',stage_label:'四级,高考',total_frequency:13,difficulty:2,memory_skill:'trem(颤抖)+endous→令人颤抖的→巨大的',meaning:'巨大的；惊人的'},
+  accomplish:{ en_phonetic:'/əˈkʌmplɪʃ/',us_phonetic:'/əˈkɑːmplɪʃ/',part_speech:'v.',phrases:[{en:'accomplish a task',cn:'完成任务'},{en:'accomplish a goal',cn:'实现目标'}],sentences:[{en:'She <b>accomplished</b> more than expected.',cn:'她完成了超出预期的工作。'}],transforms:'accomplishes / accomplishing / accomplished',stage_label:'四级,高考',total_frequency:14,difficulty:2,memory_skill:'ac(加强)+compl(完成)+ish→完成',meaning:'完成；实现'},
+  dilemma:{ en_phonetic:'/dɪˈlemə/',us_phonetic:'/dɪˈlemə/',part_speech:'n.',phrases:[{en:'in a dilemma',cn:'处于两难境地'},{en:'moral dilemma',cn:'道德困境'}],sentences:[{en:'She faced a <b>dilemma</b> between career and family.',cn:'她在事业和家庭之间面临两难。'}],transforms:'dilemmas',stage_label:'六级,考研',total_frequency:9,difficulty:4,memory_skill:'di(两)+lemma(前提)→两个前提→进退两难',meaning:'困境；进退两难'},
+  substantial:{ en_phonetic:'/səbˈstænʃl/',us_phonetic:'/səbˈstænʃl/',part_speech:'adj.',phrases:[{en:'substantial evidence',cn:'实质性证据'},{en:'substantial amount',cn:'大量'}],sentences:[{en:'There has been a <b>substantial</b> improvement.',cn:'有了实质性的改进。'}],transforms:'',stage_label:'六级,雅思',total_frequency:11,difficulty:3,memory_skill:'sub(下)+stant(站立)+ial→站得住脚的→实质的',meaning:'大量的；实质的'},
+  ambiguous:{ en_phonetic:'/æmˈbɪɡjuəs/',us_phonetic:'/æmˈbɪɡjuəs/',part_speech:'adj.',phrases:[{en:'ambiguous statement',cn:'模棱两可的陈述'}],sentences:[{en:'The contract terms were <b>ambiguous</b>.',cn:'合同条款含糊不清。'}],transforms:'',stage_label:'六级,托福',total_frequency:8,difficulty:4,memory_skill:'ambi(两边)+guous→两边都行→模棱两可的',meaning:'模糊的；模棱两可的'},
+  conspicuous:{ en_phonetic:'/kənˈspɪkjuəs/',us_phonetic:'/kənˈspɪkjuəs/',part_speech:'adj.',phrases:[{en:'conspicuous absence',cn:'明显的缺席'},{en:'conspicuous consumption',cn:'炫耀性消费'}],sentences:[{en:'His absence was <b>conspicuous</b>.',cn:'他的缺席非常显眼。'}],transforms:'',stage_label:'考研,雅思',total_frequency:7,difficulty:4,memory_skill:'con(共同)+spic(看)+uous→大家都看到的→显眼的',meaning:'显眼的；引人注目的'},
+  meticulous:{ en_phonetic:'/məˈtɪkjələs/',us_phonetic:'/məˈtɪkjələs/',part_speech:'adj.',phrases:[{en:'meticulous attention',cn:'一丝不苟的关注'},{en:'meticulous planning',cn:'周密的计划'}],sentences:[{en:'She is <b>meticulous</b> in her work.',cn:'她工作一丝不苟。'}],transforms:'',stage_label:'考研,托福',total_frequency:6,difficulty:4,memory_skill:'met(恐惧)+iculous→因恐惧而小心翼翼→细致的',meaning:'一丝不苟的；细致的'},
+  phenomenon:{ en_phonetic:'/fəˈnɒmɪnən/',us_phonetic:'/fəˈnɑːmɪnən/',part_speech:'n.',phrases:[{en:'natural phenomenon',cn:'自然现象'},{en:'social phenomenon',cn:'社会现象'}],sentences:[{en:'This is a common <b>phenomenon</b>.',cn:'这是一种常见现象。'}],transforms:'phenomena',stage_label:'四级,高考',total_frequency:15,difficulty:3,memory_skill:'phen(显示)+omenon→显示出来的东西→现象',meaning:'现象；奇才'},
+  spontaneous:{ en_phonetic:'/spɒnˈteɪniəs/',us_phonetic:'/spɑːnˈteɪniəs/',part_speech:'adj.',phrases:[{en:'spontaneous decision',cn:'自发的决定'},{en:'spontaneous applause',cn:'自发的掌声'}],sentences:[{en:'The audience burst into <b>spontaneous</b> applause.',cn:'观众自发地爆发出掌声。'}],transforms:'',stage_label:'六级,雅思',total_frequency:8,difficulty:4,memory_skill:'spont(自愿)+aneous→自愿的→自发的',meaning:'自发的；自然的'},
+  articulate:{ en_phonetic:'/ɑːˈtɪkjuleɪt/',us_phonetic:'/ɑːrˈtɪkjuleɪt/',part_speech:'adj.&v.',phrases:[{en:'articulate clearly',cn:'清晰地表达'},{en:'highly articulate',cn:'口才极好的'}],sentences:[{en:'She <b>articulated</b> her ideas clearly.',cn:'她清晰地表达了自己的想法。'}],transforms:'articulates / articulating / articulated',stage_label:'考研,托福',total_frequency:7,difficulty:4,memory_skill:'articul(关节)+ate→像关节一样灵活→清楚表达的',meaning:'清晰表达的；口才好的'},
+  comprehensive:{ en_phonetic:'/ˌkɒmprɪˈhensɪv/',us_phonetic:'/ˌkɑːmprɪˈhensɪv/',part_speech:'adj.',phrases:[{en:'comprehensive review',cn:'全面审查'},{en:'comprehensive insurance',cn:'综合保险'}],sentences:[{en:'We need a <b>comprehensive</b> approach.',cn:'我们需要一个全面的方法。'}],transforms:'',stage_label:'四级,考研',total_frequency:12,difficulty:3,memory_skill:'com(一起)+prehens(抓住)+ive→全部抓住的→全面的',meaning:'全面的；综合的'},
+  benevolent:{ en_phonetic:'/bəˈnevələnt/',us_phonetic:'/bəˈnevələnt/',part_speech:'adj.',phrases:[{en:'benevolent smile',cn:'慈祥的微笑'},{en:'benevolent leader',cn:'仁慈的领袖'}],sentences:[{en:'He was known for his <b>benevolent</b> nature.',cn:'他以仁慈的性格著称。'}],transforms:'',stage_label:'考研,雅思',total_frequency:6,difficulty:4,memory_skill:'bene(好)+volent(意愿)→好意→仁慈的',meaning:'慈善的；仁慈的'},
+  magnitude:{ en_phonetic:'/ˈmæɡnɪtjuːd/',us_phonetic:'/ˈmæɡnɪtuːd/',part_speech:'n.',phrases:[{en:'order of magnitude',cn:'数量级'},{en:'magnitude of the problem',cn:'问题的严重性'}],sentences:[{en:'The <b>magnitude</b> of the disaster was shocking.',cn:'灾难的规模令人震惊。'}],transforms:'',stage_label:'六级,考研',total_frequency:9,difficulty:3,memory_skill:'magn(大)+itude(状态)→大的状态→规模',meaning:'大小；规模；震级'},
+  paradox:{ en_phonetic:'/ˈpærədɒks/',us_phonetic:'/ˈperədɑːks/',part_speech:'n.',phrases:[{en:'apparent paradox',cn:'表面上的悖论'}],sentences:[{en:'It is a <b>paradox</b> that less is more.',cn:'少即是多，这是一个悖论。'}],transforms:'paradoxes',stage_label:'考研,雅思',total_frequency:7,difficulty:4,memory_skill:'para(相反)+dox(观点)→相反的观点→悖论',meaning:'悖论；矛盾的人或事'},
+  pervasive:{ en_phonetic:'/pəˈveɪsɪv/',us_phonetic:'/pərˈveɪsɪv/',part_speech:'adj.',phrases:[{en:'pervasive influence',cn:'广泛的影响'},{en:'pervasive problem',cn:'普遍存在的问题'}],sentences:[{en:'The <b>pervasive</b> smell of coffee filled the room.',cn:'咖啡的香气弥漫了整个房间。'}],transforms:'',stage_label:'考研,托福',total_frequency:7,difficulty:5,memory_skill:'per(贯穿)+vas(走)+ive→走遍各处的→无处不在的',meaning:'普遍的；无处不在的'},
+  imperative:{ en_phonetic:'/ɪmˈperətɪv/',us_phonetic:'/ɪmˈperətɪv/',part_speech:'adj.&n.',phrases:[{en:'moral imperative',cn:'道德义务'},{en:'it is imperative that',cn:'...是必要的'}],sentences:[{en:'It is <b>imperative</b> that we act now.',cn:'我们必须立即采取行动。'}],transforms:'',stage_label:'考研,雅思',total_frequency:8,difficulty:4,memory_skill:'imper(命令)+ative→命令式的→必要的',meaning:'必要的；紧急的'},
+  nostalgia:{ en_phonetic:'/nɒˈstældʒə/',us_phonetic:'/nɑːˈstældʒə/',part_speech:'n.',phrases:[{en:'feel nostalgia',cn:'感到怀旧'},{en:'nostalgia for the past',cn:'对过去的怀念'}],sentences:[{en:'The old song filled her with <b>nostalgia</b>.',cn:'那首老歌让她充满了怀旧之情。'}],transforms:'',stage_label:'考研,托福',total_frequency:6,difficulty:3,memory_skill:'nost(回家)+algia(疼痛)→想回家的痛→乡愁',meaning:'怀旧；乡愁'},
+  clandestine:{ en_phonetic:'/klænˈdestɪn/',us_phonetic:'/klænˈdestɪn/',part_speech:'adj.',phrases:[{en:'clandestine meeting',cn:'秘密会议'},{en:'clandestine operation',cn:'秘密行动'}],sentences:[{en:'They held a <b>clandestine</b> meeting at midnight.',cn:'他们在午夜举行了一次秘密会议。'}],transforms:'',stage_label:'GRE,托福',total_frequency:5,difficulty:5,memory_skill:'clandest(秘密)+ine→秘密的',meaning:'秘密的；暗中的'},
+  ubiquitous:{ en_phonetic:'/juːˈbɪkwɪtəs/',us_phonetic:'/juːˈbɪkwɪtəs/',part_speech:'adj.',phrases:[{en:'ubiquitous presence',cn:'无处不在的存在'}],sentences:[{en:'Smartphones are <b>ubiquitous</b> nowadays.',cn:'如今智能手机无处不在。'}],transforms:'',stage_label:'GRE,雅思',total_frequency:6,difficulty:5,memory_skill:'ubi(到处)+quitous→到处都有的→无处不在的',meaning:'无处不在的'},
+  rhetoric:{ en_phonetic:'/ˈretərɪk/',us_phonetic:'/ˈretərɪk/',part_speech:'n.',phrases:[{en:'political rhetoric',cn:'政治辞令'},{en:'empty rhetoric',cn:'空洞的花言巧语'}],sentences:[{en:'His speech was full of empty <b>rhetoric</b>.',cn:'他的演讲充满空洞的花言巧语。'}],transforms:'',stage_label:'考研,托福',total_frequency:6,difficulty:4,memory_skill:'rhetor(演说)+ic→演说的技巧→修辞',meaning:'修辞；花言巧语'},
+  profound:{ en_phonetic:'/prəˈfaʊnd/',us_phonetic:'/prəˈfaʊnd/',part_speech:'adj.',phrases:[{en:'profound impact',cn:'深远的影响'},{en:'profound knowledge',cn:'渊博的知识'}],sentences:[{en:'His words had a <b>profound</b> effect on me.',cn:'他的话对我产生了深远的影响。'}],transforms:'',stage_label:'四级,考研',total_frequency:10,difficulty:3,memory_skill:'pro(前)+found(底)→深到底→深刻的',meaning:'深刻的；意义深远的'}
 };
 let currentWord = null;
 
@@ -2603,20 +2672,18 @@ function renderFavorites() {
     list.style.display = 'block'; empty.style.display = 'none';
   }
   list.innerHTML = '';
-  list.innerHTML = '';
   filtered.forEach(f => {
     const row = document.createElement('div');
     row.className = 'fav-row';
     row.id = 'fav-' + f.id;
-    row.style.cssText = 'position:relative;overflow:hidden;border-bottom:.5px solid var(--divider);background:var(--bg-card);';
     row.setAttribute('ontouchstart', 'favTouchStart(event,'+f.id+')');
     row.setAttribute('ontouchmove', 'favTouchMove(event,'+f.id+')');
     row.setAttribute('ontouchend', 'favTouchEnd(event,'+f.id+')');
     row.innerHTML =
-      '<div class="fav-inner" style="padding:14px 16px;background:var(--bg-card);position:relative;z-index:1;transition:transform .2s;">'+
-        '<div style="display:flex;align-items:baseline;gap:6px;margin-bottom:4px;" onclick="event.stopPropagation();openWordDetail(\''+f.word+'\')">'+
+      '<div class="fav-inner">'+
+        '<div class="fav-word-click" onclick="event.stopPropagation();openWordDetail(\''+f.word+'\')">'+
           '<span style="font-size:17px;font-weight:600;color:var(--text-1);">'+f.word+'</span>'+
-          '<span style="font-size:13px;color:var(--text-3);">'+f.phonetic+'</span>'+
+          '<span style="font-size:13px;color:var(--text-3);padding-right:18px;">'+f.phonetic+'</span>'+
         '</div>'+
         '<div style="font-size:14px;color:var(--text-2);margin-bottom:6px;">'+f.meaning+'</div>'+
         '<div style="display:flex;gap:16px;font-size:12px;color:var(--text-3);">'+

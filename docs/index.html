@@ -2101,8 +2101,8 @@ function submitSpell() {
 const bankData = {
   '英语课本拍照': { icon:'📕', total:0, mastered:0, learning:0, date:'06-16', materials:[] },
   '英语试卷生词': { icon:'📗', total:15, mastered:9, learning:6, date:'06-15', materials:[
-    { id:1, icon:'🖼️', name:'课本第3单元', file:'IMG_001.jpg', status:'completed', progress:100, words:12 },
-    { id:2, icon:'📄', name:'单词表附录', file:'单词表.pdf', status:'completed', progress:100, words:8 }
+    { id:1, icon:'🖼️', file:'IMG_001.jpg', status:'completed', progress:100, words:12 },
+    { id:2, icon:'📄', file:'单词表.pdf', status:'completed', progress:100, words:8 }
   ]}
 };
 let currentBank = '';
@@ -2202,10 +2202,9 @@ function cancelUpload() { clearInterval(uploadTimer); document.getElementById('m
 function addMaterialAndParse(type) {
   const icon = type === 'file' ? '📄' : '🖼️';
   const idx = bankData[currentBank].materials.length + 1;
-  const name = type === 'file' ? '单词表' + idx : ('课本第' + idx + '单元');
-  const fname = type === 'file' ? '单词表' + idx + '.pdf' : ('IMG_00' + idx + '.jpg');
+  const fname = type === 'file' ? '单词表' + idx + '.pdf' : ('IMG_' + new Date().toISOString().slice(0,10).replace(/-/g,'') + '_' + (idx<10?'0':'') + idx + '.jpg');
   const id = matIdSeq++;
-  const mat = { id, icon, name, file:fname, status:'parsing', progress:0, words:0 };
+  const mat = { id, icon, file:fname, status:'parsing', progress:0, words:0 };
   bankData[currentBank].materials.push(mat);
   matCount = bankData[currentBank].materials.length;
   document.getElementById('matCount').textContent = matCount;
@@ -2256,29 +2255,25 @@ function refreshMaterialItem(id) {
   const mat = findMat(id); if (!mat) return;
   const row = document.getElementById('mat-' + id); if (!row) return;
   const pct = mat.status === 'completed' ? 100 : Math.round(mat.progress);
-  const bg = mat.status === 'failed' ? 'rgba(255,77,79,.12)' :
+  const bg = mat.status === 'parsing' ? 'linear-gradient(to right, rgba(82,196,26,.25) '+pct+'%, transparent '+pct+'%)' :
     mat.status === 'paused' ? 'rgba(250,173,20,.12)' :
-    'linear-gradient(to right, rgba(82,196,26,.25) '+pct+'%, transparent '+pct+'%)';
+    mat.status === 'failed' ? 'rgba(255,77,79,.12)' : 'transparent';
   row.style.background = bg;
 
   if (mat.status === 'completed') {
-    row.querySelector('.mat-name').innerHTML = mat.name + ' <span style="font-size:13px;font-weight:400;color:var(--brand);">识别出'+mat.words+'词</span>';
-    row.querySelector('.mat-meta').textContent = mat.file;
+    row.querySelector('.mat-name').innerHTML = mat.icon + ' ' + mat.file + ' <span style="font-size:13px;font-weight:400;color:var(--brand);">识别出'+mat.words+'词</span>';
     row.querySelector('.mat-pct').textContent = '';
     row.querySelector('.mat-action').innerHTML = '';
   } else if (mat.status === 'paused') {
-    row.querySelector('.mat-name').textContent = mat.name;
-    row.querySelector('.mat-meta').textContent = mat.file;
+    row.querySelector('.mat-name').textContent = mat.icon + ' ' + mat.file;
     row.querySelector('.mat-pct').textContent = pct + '%';
     row.querySelector('.mat-action').innerHTML = '<span onclick="resumeMaterial('+id+')" style="color:var(--brand);cursor:pointer;font-size:13px;">继续</span>';
   } else if (mat.status === 'failed') {
-    row.querySelector('.mat-name').textContent = mat.name;
-    row.querySelector('.mat-meta').textContent = '识别失败';
+    row.querySelector('.mat-name').textContent = mat.icon + ' ' + mat.file;
     row.querySelector('.mat-pct').textContent = '';
     row.querySelector('.mat-action').innerHTML = '<span onclick="retryMaterial('+id+')" style="color:var(--info);cursor:pointer;font-size:13px;">重试</span>';
   } else {
-    row.querySelector('.mat-name').textContent = mat.name;
-    row.querySelector('.mat-meta').textContent = mat.file;
+    row.querySelector('.mat-name').textContent = mat.icon + ' ' + mat.file;
     row.querySelector('.mat-pct').textContent = pct + '%';
     row.querySelector('.mat-action').innerHTML = '<span onclick="pauseMaterial('+id+')" style="color:var(--warn);cursor:pointer;font-size:13px;">暂停</span>';
   }
@@ -2303,12 +2298,11 @@ function renderMaterialList() {
   list.innerHTML = '';
   mats.forEach(m => {
     const pct = m.status === 'completed' ? 100 : Math.round(m.progress);
-    const bg = m.status === 'failed' ? 'rgba(255,77,79,.12)' :
+    const bg = m.status === 'parsing' ? 'linear-gradient(to right, rgba(82,196,26,.25) '+pct+'%, transparent '+pct+'%)' :
       m.status === 'paused' ? 'rgba(250,173,20,.12)' :
-      'linear-gradient(to right, rgba(82,196,26,.25) '+pct+'%, transparent '+pct+'%)';
-    const nameHtml = m.status === 'completed' ? (m.name + ' <span style="font-size:13px;font-weight:400;color:var(--brand);">识别出'+m.words+'词</span>') : m.name;
+      m.status === 'failed' ? 'rgba(255,77,79,.12)' : 'transparent';
+    const nameHtml = m.status === 'completed' ? (m.icon + ' ' + m.file + ' <span style="font-size:13px;font-weight:400;color:var(--brand);">识别出'+m.words+'词</span>') : (m.icon + ' ' + m.file);
     const pctHtml = m.status === 'completed' || m.status === 'failed' ? '' : (pct + '%');
-    const meta = m.status === 'failed' ? '识别失败' : m.file;
     let actionHtml = '';
     if (m.status === 'parsing') actionHtml = '<span class="mat-action" onclick="event.stopPropagation();pauseMaterial('+m.id+')" style="color:var(--warn);cursor:pointer;font-size:13px;">暂停</span>';
     else if (m.status === 'paused') actionHtml = '<span class="mat-action" onclick="event.stopPropagation();resumeMaterial('+m.id+')" style="color:var(--brand);cursor:pointer;font-size:13px;">继续</span>';
@@ -2322,15 +2316,11 @@ function renderMaterialList() {
     div.setAttribute('ontouchend', 'cancelLongPress()');
     div.setAttribute('ontouchmove', 'cancelLongPress()');
     div.innerHTML =
-      '<div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">'+
-        '<span style="font-size:22px;">'+m.icon+'</span>'+
-        '<div style="flex:1;min-width:0;">'+
-          '<div class="mat-name" style="font-size:14px;font-weight:500;color:var(--text-1);">'+nameHtml+'</div>'+
-          '<div class="mat-meta" style="font-size:12px;color:var(--text-3);">'+meta+'</div>'+
-        '</div>'+
-        '<div style="text-align:right;flex-shrink:0;">'+
+      '<div style="display:flex;align-items:center;gap:6px;">'+
+        '<div class="mat-name" style="flex:1;min-width:0;font-size:14px;color:var(--text-1);">'+nameHtml+'</div>'+
+        '<div style="text-align:right;flex-shrink:0;min-width:48px;">'+
           actionHtml +
-          '<div class="mat-pct" style="font-size:12px;color:var(--text-3);margin-top:2px;">'+pctHtml+'</div>'+
+          '<div class="mat-pct" style="font-size:12px;color:var(--text-3);">'+pctHtml+'</div>'+
         '</div>'+
       '</div>';
     list.appendChild(div);

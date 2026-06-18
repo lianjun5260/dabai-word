@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<!-- BUILD: 202606171811 -->
+<!-- BUILD: 202606180817 -->
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -344,6 +344,40 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
 
 /* 旋转动画（页内刷新用） */
 @keyframes spin { to{transform:rotate(360deg)} }
+
+/* ========== ActionSheet & 弹窗系统 ========== */
+.sheet-overlay { position:absolute; top:0;left:0;right:0;bottom:0; background:rgba(0,0,0,.45); z-index:200; display:none; }
+.sheet-overlay.show { display:block; }
+.sheet-panel { position:absolute; bottom:0;left:0;right:0; background:var(--bg-card); border-radius:12px 12px 0 0; padding:12px 0 env(safe-area-inset-bottom,12px); z-index:201; animation:slideUp .25s; }
+@keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
+.sheet-item { display:block; width:100%; padding:14px 20px; border:none; background:var(--bg-card); font-size:16px; color:var(--text-1); text-align:center; cursor:pointer; }
+.sheet-item:active { background:var(--divider); }
+.sheet-item.cancel { color:var(--text-3); font-size:15px; margin-top:8px; border-top:6px solid var(--bg-page); }
+.sheet-item.custom-opt { color:var(--brand); }
+.dialog-overlay { position:absolute; top:0;left:0;right:0;bottom:0; background:rgba(0,0,0,.45); z-index:200; display:none; align-items:center; justify-content:center; }
+.dialog-overlay.show { display:flex; }
+.dialog-box { background:var(--bg-card); border-radius:var(--r-lg); padding:20px 24px; width:300px; max-width:90%; }
+.dialog-box h3 { font-size:17px; font-weight:600; color:var(--text-1); margin-bottom:12px; text-align:center; }
+.dialog-box input { width:100%; padding:10px 12px; border:1px solid var(--border); border-radius:var(--r-md); font-size:15px; margin-bottom:10px; outline:none; box-sizing:border-box; }
+.dialog-box input:focus { border-color:var(--brand); }
+.dialog-box .btn-row { display:flex; gap:8px; margin-top:4px; }
+.dialog-box .btn-row button { flex:1; padding:10px; border-radius:var(--r-md); border:none; font-size:14px; cursor:pointer; }
+.dialog-box .btn-cancel { background:var(--bg-page); color:var(--text-2); }
+.dialog-box .btn-confirm { background:var(--brand); color:#fff; }
+.dialog-box .dialog-desc { font-size:13px; color:var(--text-3); text-align:center; margin:12px 0; }
+.about-content { text-align:center; padding:16px 0; }
+.about-content .about-icon { width:64px;height:64px; border-radius:50%; margin:0 auto 12px; background:linear-gradient(135deg,#52C41A,#73D13D); display:flex;align-items:center;justify-content:center; }
+.about-content .about-name { font-size:18px;font-weight:600;color:var(--text-1);margin-bottom:4px; }
+.about-content .about-ver { font-size:13px;color:var(--text-3);margin-bottom:12px; }
+.about-content .about-desc { font-size:14px;color:var(--text-2); }
+.scroll-text { max-height:320px;overflow-y:auto; font-size:14px;color:var(--text-2);line-height:1.8; padding-right:4px;margin:8px 0 12px; }
+.bind-step { display:none; }
+.bind-step.active { display:block; }
+.bind-phone-display { font-size:15px;color:var(--text-1);text-align:center;padding:8px 0;margin-bottom:8px;background:var(--bg-page);border-radius:var(--r-md); }
+.bind-code-row { display:flex;gap:8px; }
+.bind-code-row input { flex:1; }
+.bind-code-row button { flex-shrink:0; padding:10px 14px; background:var(--brand);color:#fff;border:none;border-radius:var(--r-md);font-size:14px;cursor:pointer;white-space:nowrap; }
+.bind-code-row button:disabled { background:var(--text-4); cursor:default; }
 </style>
 </head>
 <body>
@@ -1404,7 +1438,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
         </svg>
       </div>
       <div style="flex:1;">
-        <div style="font-size:18px;font-weight:600;color:var(--text-1);">大白同学</div>
+        <div style="font-size:18px;font-weight:600;color:var(--text-1);" id="p21Nickname">大白同学</div>
         <div style="font-size:13px;color:var(--text-3);margin-top:2px;">3年级 · 人教版</div>
       </div>
       <span style="color:var(--text-4);font-size:16px;">›</span>
@@ -1783,44 +1817,35 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
   </div>
   <div style="padding:16px;">
     <!-- 头像 -->
-    <div style="display:flex;align-items:center;padding:16px 0;border-bottom:.5px solid var(--divider);margin-bottom:4px;">
+    <div style="display:flex;align-items:center;padding:16px 0;border-bottom:.5px solid var(--divider);margin-bottom:4px;cursor:pointer;" onclick="editAvatar()">
       <span style="font-size:15px;color:var(--text-1);flex:1;">头像</span>
-      <div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#52C41A,#73D13D);display:flex;align-items:center;justify-content:center;">
-        <svg width="34" height="34" viewBox="0 0 90 90">
-          <ellipse cx="45" cy="48" rx="38" ry="40" fill="#FFFFFF"/>
-          <ellipse cx="45" cy="28" rx="22" ry="20" fill="#FFFFFF"/>
-          <line x1="33" y1="27" x2="57" y2="27" stroke="#262626" stroke-width="3" stroke-linecap="round"/>
-          <circle cx="36" cy="27" r="5" fill="#262626"/>
-          <circle cx="54" cy="27" r="5" fill="#262626"/>
-        </svg>
+      <div id="profAvatar" style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#52C41A,#73D13D);display:flex;align-items:center;justify-content:center;overflow:hidden;">
+        <svg width="34" height="34" viewBox="0 0 90 90"><ellipse cx="45" cy="48" rx="38" ry="40" fill="#FFFFFF"/><ellipse cx="45" cy="28" rx="22" ry="20" fill="#FFFFFF"/><line x1="33" y1="27" x2="57" y2="27" stroke="#262626" stroke-width="3" stroke-linecap="round"/><circle cx="36" cy="27" r="5" fill="#262626"/><circle cx="54" cy="27" r="5" fill="#262626"/></svg>
       </div>
       <span style="color:var(--text-4);font-size:16px;margin-left:8px;">›</span>
     </div>
     <!-- 昵称 -->
-    <div style="display:flex;align-items:center;padding:14px 0;border-bottom:.5px solid var(--divider);cursor:pointer;" onclick="toastMsg('昵称修改开发中')">
+    <div style="display:flex;align-items:center;padding:14px 0;border-bottom:.5px solid var(--divider);cursor:pointer;" onclick="editNickname()">
       <span style="font-size:15px;color:var(--text-1);flex:1;">昵称</span>
-      <span style="font-size:14px;color:var(--text-3);">大白同学</span>
+      <span style="font-size:14px;color:var(--text-3);" id="profNickname">大白同学</span>
       <span style="color:var(--text-4);font-size:16px;margin-left:8px;">›</span>
     </div>
     <!-- 性别 -->
-    <div style="display:flex;align-items:center;padding:14px 0;border-bottom:.5px solid var(--divider);cursor:pointer;" onclick="toastMsg('性别修改开发中')">
+    <div style="display:flex;align-items:center;padding:14px 0;border-bottom:.5px solid var(--divider);cursor:pointer;" onclick="editGender()">
       <span style="font-size:15px;color:var(--text-1);flex:1;">性别</span>
-      <span style="font-size:14px;color:var(--text-3);">男</span>
+      <span style="font-size:14px;color:var(--text-3);" id="profGender">男</span>
       <span style="color:var(--text-4);font-size:16px;margin-left:8px;">›</span>
     </div>
     <!-- 就读年级 -->
-    <div style="display:flex;align-items:center;padding:14px 0;border-bottom:.5px solid var(--divider);cursor:pointer;" onclick="showPage('P03')">
+    <div style="display:flex;align-items:center;padding:14px 0;border-bottom:.5px solid var(--divider);cursor:pointer;" onclick="editGrade()">
       <span style="font-size:15px;color:var(--text-1);flex:1;">就读年级</span>
-      <div style="text-align:right;">
-        <span style="font-size:14px;color:var(--text-3);display:block;">三年级</span>
-        <span style="font-size:11px;color:var(--text-4);">人教版</span>
-      </div>
+      <span style="font-size:14px;color:var(--text-3);" id="profGrade">三年级</span>
       <span style="color:var(--text-4);font-size:16px;margin-left:8px;">›</span>
     </div>
     <!-- 教材版本 -->
-    <div style="display:flex;align-items:center;padding:14px 0;cursor:pointer;" onclick="toastMsg('教材版本修改开发中')">
+    <div style="display:flex;align-items:center;padding:14px 0;cursor:pointer;" onclick="editTextbook()">
       <span style="font-size:15px;color:var(--text-1);flex:1;">教材版本</span>
-      <span style="font-size:14px;color:var(--text-3);">人教版</span>
+      <span style="font-size:14px;color:var(--text-3);" id="profTextbook">人教版</span>
       <span style="color:var(--text-4);font-size:16px;margin-left:8px;">›</span>
     </div>
   </div>
@@ -1837,19 +1862,29 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
     <div class="right"></div>
   </div>
   <div style="padding:16px;">
-    <div style="display:flex;align-items:center;padding:14px 0;border-bottom:.5px solid var(--divider);cursor:pointer;" onclick="toastMsg('密码设置开发中')">
+    <!-- 绑定手机 -->
+    <div style="display:flex;align-items:center;padding:14px 0;border-bottom:.5px solid var(--divider);cursor:pointer;" onclick="bindPhone()">
+      <span style="font-size:15px;color:var(--text-1);flex:1;">绑定手机</span>
+      <span style="font-size:14px;color:var(--text-3);" id="setPhone">138****5678</span>
+      <span style="color:var(--text-4);font-size:16px;margin-left:8px;">›</span>
+    </div>
+    <!-- 密码设置 -->
+    <div style="display:flex;align-items:center;padding:14px 0;border-bottom:.5px solid var(--divider);cursor:pointer;" onclick="changePassword()">
       <span style="font-size:15px;color:var(--text-1);flex:1;">密码设置</span>
       <span style="color:var(--text-4);font-size:16px;">›</span>
     </div>
-    <div style="display:flex;align-items:center;padding:14px 0;border-bottom:.5px solid var(--divider);cursor:pointer;" onclick="toastMsg('关于我们开发中')">
+    <!-- 关于我们 -->
+    <div style="display:flex;align-items:center;padding:14px 0;border-bottom:.5px solid var(--divider);cursor:pointer;" onclick="showAbout()">
       <span style="font-size:15px;color:var(--text-1);flex:1;">关于我们</span>
       <span style="color:var(--text-4);font-size:16px;">›</span>
     </div>
-    <div style="display:flex;align-items:center;padding:14px 0;border-bottom:.5px solid var(--divider);cursor:pointer;" onclick="toastMsg('用户协议开发中')">
+    <!-- 用户协议 -->
+    <div style="display:flex;align-items:center;padding:14px 0;border-bottom:.5px solid var(--divider);cursor:pointer;" onclick="showAgreement()">
       <span style="font-size:15px;color:var(--text-1);flex:1;">用户协议</span>
       <span style="color:var(--text-4);font-size:16px;">›</span>
     </div>
-    <div style="display:flex;align-items:center;padding:14px 0;border-bottom:.5px solid var(--divider);cursor:pointer;" onclick="toastMsg('隐私政策开发中')">
+    <!-- 隐私政策 -->
+    <div style="display:flex;align-items:center;padding:14px 0;border-bottom:.5px solid var(--divider);cursor:pointer;" onclick="showPrivacy()">
       <span style="font-size:15px;color:var(--text-1);flex:1;">隐私政策</span>
       <span style="color:var(--text-4);font-size:16px;">›</span>
     </div>
@@ -1857,6 +1892,19 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
       <button onclick="confirmLogout()" style="width:100%;padding:12px;background:var(--bg-card);border:1px solid var(--error);border-radius:var(--r-lg);color:var(--error);font-size:15px;cursor:pointer;">退出登录</button>
     </div>
   </div>
+</div>
+
+<!-- ========== 全局弹窗组件 ========== -->
+
+<!-- ActionSheet -->
+<div class="sheet-overlay" id="sheetOverlay" onclick="closeSheet()">
+  <div class="sheet-panel" id="sheetPanel" onclick="event.stopPropagation()">
+  </div>
+</div>
+
+<!-- 通用弹窗 -->
+<div class="dialog-overlay" id="dialogOverlay">
+  <div class="dialog-box" id="dialogBox"></div>
 </div>
 
 <!-- ========== JavaScript ========== -->
@@ -2952,6 +3000,244 @@ function confirmLogout() {
     setTimeout(() => { showPage('P01'); }, 500);
   }
 }
+
+// ========== 个人资料 & 设置 ==========
+window.profile = {
+  avatar: '',
+  nickname: '大白同学',
+  gender: 'male',
+  grade: '三年级',
+  textbook: '人教版',
+  phone: '13812345678'
+};
+
+const GENDER_MAP = { male:'男', female:'女', secret:'保密' };
+const GRADE_OPTS = ['一年级','二年级','三年级','四年级','五年级','六年级','初一','初二','初三','高一','高二','高三','大学及以上'];
+const TEXTBOOK_OPTS = ['人教版','苏教版','北师大版','外研版','鲁教版'];
+
+function refreshProfile() {
+  const p = window.profile;
+  const elN = document.getElementById('profNickname'); if(elN) elN.textContent = p.nickname;
+  const elG = document.getElementById('profGender'); if(elG) elG.textContent = GENDER_MAP[p.gender] || '男';
+  const elGr = document.getElementById('profGrade'); if(elGr) elGr.textContent = p.grade;
+  const elT = document.getElementById('profTextbook'); if(elT) elT.textContent = p.textbook;
+  const elP = document.getElementById('setPhone');
+  if(elP) {
+    if(p.phone) elP.textContent = p.phone.slice(0,3)+'****'+p.phone.slice(7);
+    else elP.textContent = '未绑定';
+  }
+  updateP21Profile();
+}
+
+function updateP21Profile() {
+  const p = window.profile;
+  const nn = document.getElementById('p21Nickname');
+  if(nn) nn.textContent = p.nickname;
+}
+
+// ========== 通用 ActionSheet ==========
+function openSheet(items) {
+  const overlay = document.getElementById('sheetOverlay');
+  const panel = document.getElementById('sheetPanel');
+  panel.innerHTML = '';
+  items.forEach(it => {
+    const btn = document.createElement('button');
+    btn.className = 'sheet-item' + (it.cls ? ' '+it.cls : '');
+    btn.textContent = it.label;
+    btn.onclick = function() { closeSheet(); if(it.cb) it.cb(); };
+    panel.appendChild(btn);
+  });
+  overlay.classList.add('show');
+}
+function closeSheet() { document.getElementById('sheetOverlay').classList.remove('show'); }
+
+// ========== 通用弹窗 ==========
+function openDialog(title, bodyHTML, btnCancel, btnConfirm, onConfirm) {
+  const overlay = document.getElementById('dialogOverlay');
+  const box = document.getElementById('dialogBox');
+  box.innerHTML = '<h3>'+title+'</h3>'+bodyHTML+
+    '<div class="btn-row"><button class="btn-cancel" onclick="closeDialog()">'+btnCancel+'</button><button class="btn-confirm" id="dialogConfirm">'+btnConfirm+'</button></div>';
+  overlay.classList.add('show');
+  if(onConfirm) document.getElementById('dialogConfirm').onclick = function() { onConfirm(); closeDialog(); };
+  else document.getElementById('dialogConfirm').onclick = closeDialog;
+}
+function closeDialog() { document.getElementById('dialogOverlay').classList.remove('show'); }
+
+// ========== 头像 ==========
+function editAvatar() {
+  openSheet([
+    {label:'📷 拍照', cb:function(){ toastMsg('头像更换开发中'); }},
+    {label:'🖼️ 从相册选择', cb:function(){ toastMsg('头像更换开发中'); }},
+    {label:'取消', cls:'cancel', cb:function(){}}
+  ]);
+}
+
+// ========== 昵称 ==========
+function editNickname() {
+  const body = '<input id="nicknameInput" value="'+window.profile.nickname+'" placeholder="请输入昵称（2-12字）" maxlength="12">';
+  openDialog('修改昵称', body, '取消', '确认', function() {
+    const v = document.getElementById('nicknameInput').value.trim();
+    if (!v || v.length < 2) { toastMsg('昵称至少2个字'); return; }
+    window.profile.nickname = v;
+    refreshProfile();
+    toastMsg('昵称已更新');
+  });
+}
+
+// ========== 性别 ==========
+function editGender() {
+  openSheet([
+    {label:'👨 男', cb:function(){ window.profile.gender='male'; refreshProfile(); }},
+    {label:'👩 女', cb:function(){ window.profile.gender='female'; refreshProfile(); }},
+    {label:'🔒 保密', cb:function(){ window.profile.gender='secret'; refreshProfile(); }},
+    {label:'取消', cls:'cancel', cb:function(){}}
+  ]);
+}
+
+// ========== 就读年级 ==========
+function editGrade() {
+  const items = GRADE_OPTS.map(g => ({label:g, cb:function(){ window.profile.grade=g; refreshProfile(); }}));
+  items.push({label:'✏️ 其他（自定义）', cls:'custom-opt', cb:function(){
+    var body = '<input id="gradeCustom" placeholder="请输入年级">';
+    openDialog('自定义年级', body, '取消', '确认', function(){
+      var v = document.getElementById('gradeCustom').value.trim();
+      if (!v) { toastMsg('请输入年级'); return; }
+      window.profile.grade = v; refreshProfile();
+    });
+  }});
+  items.push({label:'取消', cls:'cancel', cb:function(){}});
+  openSheet(items);
+}
+
+// ========== 教材版本 ==========
+function editTextbook() {
+  const items = TEXTBOOK_OPTS.map(t => ({label:t, cb:function(){ window.profile.textbook=t; refreshProfile(); }}));
+  items.push({label:'✏️ 其他（自定义）', cls:'custom-opt', cb:function(){
+    var body = '<input id="tbCustom" placeholder="请输入教材版本">';
+    openDialog('自定义教材版本', body, '取消', '确认', function(){
+      var v = document.getElementById('tbCustom').value.trim();
+      if (!v) { toastMsg('请输入教材版本'); return; }
+      window.profile.textbook = v; refreshProfile();
+    });
+  }});
+  items.push({label:'取消', cls:'cancel', cb:function(){}});
+  openSheet(items);
+}
+
+// ========== 绑定手机 ==========
+function bindPhone() {
+  const phone = window.profile.phone;
+  var overlay = document.getElementById('dialogOverlay');
+  var box = document.getElementById('dialogBox');
+
+  if (!phone) {
+    // 首次绑定
+    box.innerHTML =
+      '<h3>绑定手机</h3>'+
+      '<input id="bindNewPhone" placeholder="请输入手机号" type="tel" maxlength="11">'+
+      '<div class="bind-code-row"><input id="bindNewCode" placeholder="验证码" maxlength="6"><button id="bindNewSendBtn" onclick="startSendCode(\'bindNewSendBtn\')">获取验证码</button></div>'+
+      '<div class="btn-row"><button class="btn-cancel" onclick="closeDialog()">取消</button><button class="btn-confirm" onclick="confirmBindPhone()">确认绑定</button></div>';
+    overlay.classList.add('show');
+  } else {
+    // 更换绑定 - 先在box中显示旧手机验证
+    box.innerHTML =
+      '<h3>更换绑定手机</h3>'+
+      '<div class="bind-phone-display">当前手机 '+phone.slice(0,3)+'****'+phone.slice(7)+'</div>'+
+      '<div class="bind-code-row"><input id="bindOldCode" placeholder="验证码" maxlength="6"><button id="bindOldSendBtn" onclick="startSendCode(\'bindOldSendBtn\')">获取验证码</button></div>'+
+      '<div class="btn-row"><button class="btn-cancel" onclick="closeDialog()">取消</button><button class="btn-confirm" onclick="verifyOldPhone()">下一步</button></div>';
+    overlay.classList.add('show');
+  }
+}
+
+var sendTimer = null;
+function startSendCode(btnId) {
+  var btn = document.getElementById(btnId);
+  if (!btn || btn.disabled) return;
+  btn.disabled = true;
+  var sec = 60;
+  btn.textContent = sec+'s';
+  sendTimer = setInterval(function() {
+    sec--;
+    if (sec <= 0) { clearInterval(sendTimer); btn.disabled = false; btn.textContent = '获取验证码'; }
+    else btn.textContent = sec+'s';
+  }, 1000);
+}
+
+function confirmBindPhone() {
+  var phone = document.getElementById('bindNewPhone').value.trim();
+  if (!/^1\d{10}$/.test(phone)) { toastMsg('请输入正确的手机号'); return; }
+  window.profile.phone = phone;
+  closeDialog();
+  refreshProfile();
+  toastMsg('绑定成功');
+}
+
+function verifyOldPhone() {
+  closeDialog();
+  // 验证通过，输入新手机
+  var overlay = document.getElementById('dialogOverlay');
+  var box = document.getElementById('dialogBox');
+  box.innerHTML =
+    '<h3>输入新手机号</h3>'+
+    '<input id="bindNewPhone2" placeholder="请输入新手机号" type="tel" maxlength="11">'+
+    '<div class="bind-code-row"><input id="bindNewCode2" placeholder="验证码" maxlength="6"><button id="bindNewSendBtn2" onclick="startSendCode(\'bindNewSendBtn2\')">获取验证码</button></div>'+
+    '<div class="btn-row"><button class="btn-cancel" onclick="closeDialog()">取消</button><button class="btn-confirm" onclick="confirmChangePhone()">更换绑定</button></div>';
+  overlay.classList.add('show');
+}
+
+function confirmChangePhone() {
+  var phone = document.getElementById('bindNewPhone2').value.trim();
+  if (!/^1\d{10}$/.test(phone)) { toastMsg('请输入正确的手机号'); return; }
+  window.profile.phone = phone;
+  closeDialog();
+  refreshProfile();
+  toastMsg('换绑成功');
+}
+
+// ========== 密码设置 ==========
+function changePassword() {
+  var body =
+    '<input id="oldPwd" type="password" placeholder="旧密码">'+
+    '<input id="newPwd" type="password" placeholder="新密码（6-20位）">'+
+    '<input id="newPwd2" type="password" placeholder="确认新密码">';
+  openDialog('修改密码', body, '取消', '确认修改', function() {
+    var o = document.getElementById('oldPwd').value;
+    var n = document.getElementById('newPwd').value;
+    var n2 = document.getElementById('newPwd2').value;
+    if (!o) { toastMsg('请输入旧密码'); return; }
+    if (n.length < 6) { toastMsg('新密码至少6位'); return; }
+    if (n !== n2) { toastMsg('两次密码不一致'); return; }
+    toastMsg('密码修改成功');
+  });
+}
+
+// ========== 关于我们 ==========
+function showAbout() {
+  var body =
+    '<div class="about-content">'+
+      '<div class="about-icon"><svg width="42" height="42" viewBox="0 0 90 90"><ellipse cx="45" cy="48" rx="38" ry="40" fill="#FFFFFF"/><ellipse cx="45" cy="28" rx="22" ry="20" fill="#FFFFFF"/><line x1="33" y1="27" x2="57" y2="27" stroke="#262626" stroke-width="3" stroke-linecap="round"/><circle cx="36" cy="27" r="5" fill="#262626"/><circle cx="54" cy="27" r="5" fill="#262626"/></svg></div>'+
+      '<div class="about-name">大白陪你背单词</div>'+
+      '<div class="about-ver">版本 1.0.0</div>'+
+      '<div class="about-desc">AI 智能英语学习助手<br>让背单词更轻松</div>'+
+    '</div>';
+  openDialog('关于我们', body, '', '知道了', null);
+}
+
+// ========== 用户协议 & 隐私政策 ==========
+var MOCK_AGREEMENT = '欢迎使用「大白陪你背单词」！\n\n一、服务条款\n1.1 本软件由大白团队开发运营，用户下载安装即视为同意本协议全部条款。\n1.2 用户应遵守中华人民共和国相关法律法规，不得利用本软件从事违法活动。\n\n二、账号管理\n2.1 用户需通过手机号注册账号，账号仅限本人使用，不得转借他人。\n2.2 用户应妥善保管账号密码，因密码泄露导致的损失由用户自行承担。\n\n三、隐私保护\n3.1 我们重视用户隐私，承诺未经用户授权不向第三方提供个人信息。\n3.2 学习数据仅用于优化学习体验，不会用于其他商业用途。\n\n四、免责声明\n4.1 本软件提供的学习内容仅供参考，不构成任何考试承诺。\n4.2 因网络故障、设备问题导致的服务中断，我们不承担赔偿责任。\n\n五、其他\n5.1 本协议的解释权归大白团队所有。\n5.2 如有疑问请联系客服：dabai@example.com';
+
+var MOCK_PRIVACY = '隐私政策\n\n一、信息收集\n1.1 我们收集的信息包括：手机号、学习记录、错题数据、设备型号。\n1.2 学习记录包括学习时长、掌握单词数、答题正确率等。\n\n二、信息使用\n2.1 手机号用于账号绑定和登录验证。\n2.2 学习记录用于生成个性化学习计划和统计报告。\n2.3 错题数据用于错词本功能，帮助用户针对性复习。\n\n三、信息存储\n3.1 用户数据存储在境内服务器，采用加密传输和存储。\n3.2 用户可随时申请删除账号及全部数据。\n\n四、信息共享\n4.1 未经用户明确授权，不向任何第三方共享个人信息。\n4.2 法律法规要求披露的除外。\n\n五、用户权利\n5.1 用户有权查阅、更正、删除个人信息。\n5.2 用户有权撤回同意、注销账号。\n\n如有隐私相关问题，请联系：dabai@example.com';
+
+function showAgreement() {
+  var body = '<div class="scroll-text">'+MOCK_AGREEMENT.replace(/\n/g,'<br>')+'</div>';
+  openDialog('用户协议', body, '', '关闭', null);
+}
+
+function showPrivacy() {
+  var body = '<div class="scroll-text">'+MOCK_PRIVACY.replace(/\n/g,'<br>')+'</div>';
+  openDialog('隐私政策', body, '', '关闭', null);
+}
+
 function updateFavCount() {
   const el = document.getElementById('favCount');
   if (el) el.textContent = favData.length + '个';

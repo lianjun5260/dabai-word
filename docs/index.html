@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<!-- BUILD: 202606181013 -->
+<!-- BUILD: 202606181026 -->
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -402,6 +402,12 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
 .cal-day.hlv4 { background:#237804;color:#fff; }
 .cal-day.future { background:#fff;color:var(--text-4); }
 .cal-header { display:inline-flex;width:32px;justify-content:center;font-size:10px;color:var(--text-4);margin:2px; }
+
+/* ========== LC-05 选项卡片 ========== */
+.lc05-opt:active { background:var(--bg-page) !important; }
+.lc05-correct { background:#F6FFED !important; border-color:#52C41A !important; }
+.lc05-wrong { background:#FFF1F0 !important; border-color:#FF4D4F !important; }
+.btn-outline { background:var(--bg-card); color:var(--text-3); border:1px solid var(--border); }
 </style>
 </head>
 <body>
@@ -417,7 +423,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
   <a onclick="showPage('P05')" id="nav-P05">P05 词库练习</a>
   <a onclick="showPage('P06')" id="nav-P06">P06 设置学习目标</a>
   <a onclick="showPage('P07')" id="nav-P07">P07 今日学习预览</a>
-  <a onclick="showPage('P08')" id="nav-P08">P08 LC-01读单词</a>
+  <a onclick="showPage('P08')" id="nav-P08">P08 LC-05汉译英直选</a>
   <a onclick="showPage('P09')" id="nav-P09">P09 LC-02拼单词</a>
   <a onclick="showPage('P10')" id="nav-P10">P10 LC-03读例句</a>
   <a onclick="showPage('P11')" id="nav-P11">P11 LC-04英译汉</a>
@@ -857,65 +863,39 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
 </div>
 
 <!-- ========================================== -->
-<!-- P08 LC-01 读单词 -->
+<!-- P08 LC-05 汉译英-直选 -->
 <!-- ========================================== -->
 <div class="page" id="P08">
   <div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
-  <!-- 演示状态切换按钮 -->
-  <div style="display:flex;gap:4px;padding:4px 8px;background:#f0f0f0;font-size:10px;flex-wrap:wrap;position:sticky;top:0;z-index:20;">
-    <button onclick="setRecordState('init')" style="padding:2px 6px;border:1px solid #ccc;border-radius:4px;font-size:10px;cursor:pointer;">初始</button>
-    <button onclick="setRecordState('recording')" style="padding:2px 6px;border:1px solid #ccc;border-radius:4px;font-size:10px;cursor:pointer;">录音中</button>
-    <button onclick="setRecordState('short')" style="padding:2px 6px;border:1px solid #ccc;border-radius:4px;font-size:10px;cursor:pointer;">过短</button>
-    <button onclick="setRecordState('analyzing')" style="padding:2px 6px;border:1px solid #ccc;border-radius:4px;font-size:10px;cursor:pointer;">分析中</button>
-    <button onclick="setRecordState('timeout')" style="padding:2px 6px;border:1px solid #ccc;border-radius:4px;font-size:10px;cursor:pointer;">超时</button>
-    <button onclick="setRecordState('high')" style="padding:2px 6px;border:1px solid #ccc;border-radius:4px;font-size:10px;cursor:pointer;">高分</button>
-    <button onclick="setRecordState('low')" style="padding:2px 6px;border:1px solid #ccc;border-radius:4px;font-size:10px;cursor:pointer;">低分</button>
-  </div>
   <div class="navbar">
-    <div class="back" onclick="goBack()"><</div>
-    <div class="title">今日进度 1/10</div>
-    <div class="right" style="cursor:pointer;">⋯</div>
+    <div class="back" onclick="exitLearning()"><</div>
+    <div class="title" id="lc05Progress">今日进度 1/60</div>
+    <div class="right"></div>
   </div>
-  <div style="padding:16px;position:relative;" id="recordPage">
-    <!-- 绿色徽章 -->
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
-      <span class="tag tag-green">词·读</span>
-      <div style="display:flex;gap:12px;align-items:center;">
-        <span style="font-size:20px;cursor:pointer;">🔊</span>
-        <span style="cursor:pointer;">⋯</span>
-      </div>
-    </div>
-    <!-- 单词 -->
-    <div style="text-align:center;margin-bottom:8px;">
-      <div style="font-size:30px;font-weight:500;color:var(--text-1);margin-bottom:8px;">industrious</div>
-      <div style="font-size:14px;color:var(--text-3);margin-bottom:16px;">英 ⊙ [ɪnˈdʌstriəs]</div>
-      <div style="font-size:15px;color:var(--text-1);margin-bottom:24px;">adj. 勤奋的；勤劳的</div>
-    </div>
-    <!-- 提示 -->
-    <div style="text-align:center;font-size:13px;color:var(--text-3);margin-bottom:24px;" id="recordTip">请朗读上边单词，保持发音标准</div>
-    <!-- 波形区 -->
-    <div style="text-align:center;margin-bottom:24px;min-height:30px;display:flex;align-items:center;justify-content:center;" id="waveArea">
-    </div>
-    <!-- 工具栏 -->
-    <div style="display:flex;justify-content:space-around;margin-bottom:32px;">
-      <div style="text-align:center;cursor:pointer;"><div style="font-size:22px;">🔊</div><div style="font-size:11px;color:var(--text-3);margin-top:2px;">原声</div></div>
-      <div style="text-align:center;cursor:pointer;"><div style="font-size:22px;">☆</div><div style="font-size:11px;color:var(--text-3);margin-top:2px;">收藏</div></div>
-      <div style="text-align:center;cursor:pointer;"><div style="font-size:22px;">🎤</div><div style="font-size:11px;color:var(--text-3);margin-top:2px;">发音</div></div>
-    </div>
-    <!-- 录音按钮 -->
-    <div id="recordBtnArea">
-      <button class="btn-primary" style="font-size:16px;" id="recordBtn" onclick="toggleRecord()">长按录音</button>
-      <div style="text-align:center;font-size:12px;color:var(--text-4);margin-top:12px;" id="recordSlideTip">上滑下一词</div>
-    </div>
-    <!-- 评测结果区(默认隐藏) -->
-    <div id="scoreArea" style="display:none;text-align:center;">
-      <div id="scoreNum" style="font-size:64px;font-weight:700;margin-bottom:8px;">91</div>
-      <div id="scoreStars" class="stars" style="margin-bottom:8px;"></div>
-      <div id="scoreText" style="font-size:18px;font-weight:600;margin-bottom:24px;">太棒了！</div>
-      <div id="scoreActions"></div>
-    </div>
+
+  <!-- 题目区域 -->
+  <div style="text-align:center;padding:20px 16px 12px;">
+    <span class="tag" style="font-size:12px;color:var(--text-3);background:var(--bg-page);display:inline-block;padding:4px 10px;border-radius:4px;margin-bottom:8px;" id="lc05Pos">adj.</span>
+    <div style="font-size:24px;font-weight:700;color:var(--text-1);" id="lc05Meaning">勤劳的</div>
   </div>
-  <!-- Toast -->
+
+  <!-- 例句卡片（初始隐藏） -->
+  <div id="lc05Example" style="display:none;background:#F6FFED;border-radius:var(--r-md);padding:12px 16px;margin:0 16px 16px;">
+    <div style="font-size:14px;color:var(--text-1);line-height:1.6;margin-bottom:6px;" id="lc05ExEn">Apart from his intelligence, he was tirelessly industrious.</div>
+    <div style="font-size:13px;color:var(--text-3);margin-bottom:6px;" id="lc05ExCn">除了很聪颖之外，他还是一个孜孜不倦的勤奋的人。</div>
+    <span style="font-size:16px;cursor:pointer;color:var(--text-4);" onclick="event.stopPropagation();toastMsg('发音功能开发中')">🔊</span>
+  </div>
+
+  <!-- 选项区域 -->
+  <div style="padding:0 16px;" id="lc05Options"></div>
+
+  <!-- 底部固定 -->
+  <div style="position:sticky;bottom:0;padding:12px 16px 16px;background:var(--bg-card);border-top:.5px solid var(--divider);z-index:10;">
+    <div style="height:3px;background:var(--divider);border-radius:2px;margin-bottom:10px;overflow:hidden;">
+      <div id="lc05Bar" style="height:100%;background:var(--brand);border-radius:2px;width:0%;transition:width .3s;"></div>
+    </div>
+    <button class="btn-primary" id="lc05Btn" style="width:100%;" onclick="handleLc05Btn()">查看答案</button>
+  </div>
   <div class="toast" id="toastMsg"></div>
 </div>
 
@@ -2020,6 +2000,7 @@ function showPage(id, isBack) {
   if (id === 'P27') { renderErrorBook(); }
   if (id === 'P05a') { renderStats(); }
   if (id === 'P04') { refreshTodayPlan(); }
+  if (id === 'P08') { loadLc05(); }
 
   // 滚动到顶部
   setTimeout(() => { if (newPage) newPage.scrollTop = 0; }, 50);
@@ -3648,6 +3629,135 @@ function refreshTodayWords() {
   shuffle(newList);
   window.todayWordList = newList;
   renderTodayPreview();
+}
+
+// ========== LC-05 汉译英-直选 ==========
+var lc05State = { status:'idle', word:'', pos:'', meaning:'', options:[], example:{en:'',cn:''}, selectedId:-1 };
+
+function loadLc05() {
+  var idx = window.todayTask.currentIndex || 0;
+  var units = window.todayTask.units || [];
+  var total = units.length || 60;
+  document.getElementById('lc05Progress').textContent = '今日进度 '+(idx+1)+'/'+total;
+  var pct = Math.round(((idx+1)/total)*100);
+  document.getElementById('lc05Bar').style.width = pct + '%';
+
+  var word = 'industrious';
+  if (units.length > 0 && idx < units.length) word = units[idx].word;
+
+  var wd = wdDB[word] || {};
+  lc05State.word = word;
+  lc05State.pos = wd.part_speech || 'n.';
+  lc05State.meaning = wd.meaning || word;
+  lc05State.status = 'idle';
+  lc05State.selectedId = -1;
+
+  document.getElementById('lc05Pos').textContent = lc05State.pos;
+  document.getElementById('lc05Meaning').textContent = lc05State.meaning;
+
+  // 例句
+  var ex = (wd.sentences && wd.sentences.length) ? wd.sentences[0] : {en:'Example sentence.',cn:'示例句子。'};
+  lc05State.example = ex;
+  document.getElementById('lc05ExEn').innerHTML = ex.en;
+  document.getElementById('lc05ExCn').textContent = ex.cn;
+  document.getElementById('lc05Example').style.display = 'none';
+
+  // 生成选项
+  var allWords = Object.keys(wdDB);
+  var distractors = [];
+  allWords.forEach(function(w) {
+    if (w === word) return;
+    var dw = wdDB[w] || {};
+    if (dw.part_speech === wd.part_speech) distractors.push(w);
+  });
+  shuffle(distractors);
+  distractors = distractors.slice(0, 3);
+  if (distractors.length < 3) {
+    var extra = allWords.filter(function(w){return w!==word && distractors.indexOf(w)<0;});
+    shuffle(extra);
+    while(distractors.length<3 && extra.length) distractors.push(extra.shift());
+  }
+
+  var correctOpt = { id:0, word:word, phonetic:wd.en_phonetic||'/-/', meaning:wd.meaning||'', correct:true };
+  var opts = [correctOpt];
+  distractors.forEach(function(dw, i) {
+    var d = wdDB[dw] || {};
+    opts.push({ id:i+1, word:dw, phonetic:d.en_phonetic||'/-/', meaning:d.meaning||'', correct:false });
+  });
+  shuffle(opts);
+  lc05State.options = opts;
+
+  renderLc05Options();
+  document.getElementById('lc05Btn').textContent = '查看答案';
+  document.getElementById('lc05Btn').className = 'btn-outline';
+}
+
+function renderLc05Options() {
+  var container = document.getElementById('lc05Options');
+  var s = lc05State;
+  container.innerHTML = s.options.map(function(o) {
+    var cls = 'lc05-opt';
+    if (s.status === 'correct' && o.correct) cls += ' lc05-correct';
+    if (s.status === 'wrong') {
+      if (o.correct) cls += ' lc05-correct';
+      if (o.id === s.selectedId && !o.correct) cls += ' lc05-wrong';
+    }
+    if (s.status === 'showAnswer' && o.correct) cls += ' lc05-correct';
+    var expanded = (s.status !== 'idle') && (o.correct || o.id === s.selectedId);
+    var icon = '';
+    if (s.status !== 'idle') {
+      if (o.correct) icon = '<span style="color:#52C41A;font-size:20px;">✓</span>';
+      else if (o.id === s.selectedId) icon = '<span style="color:#FF4D4F;font-size:20px;">✗</span>';
+    }
+    return '<div class="'+cls+'" onclick="selectOpt('+o.id+')" style="padding:14px 16px;border:1px solid var(--border);border-radius:var(--r-md);margin-bottom:10px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:all .2s;background:var(--bg-card);">'
+      +'<div><div style="font-size:17px;font-weight:500;color:var(--text-1);">'+o.word+'</div>'
+      +(expanded?'<div style="font-size:12px;color:var(--text-3);margin-top:4px;">'+o.phonetic+'</div><div style="font-size:13px;color:var(--text-2);">'+o.meaning+'</div>':'')
+      +'</div>'+icon+'</div>';
+  }).join('');
+}
+
+function selectOpt(id) {
+  if (lc05State.status !== 'idle') return;
+  var opt = lc05State.options.find(function(o){return o.id===id;});
+  if (!opt) return;
+  lc05State.selectedId = id;
+  if (opt.correct) {
+    lc05State.status = 'correct';
+  } else {
+    lc05State.status = 'wrong';
+  }
+  renderLc05Options();
+  document.getElementById('lc05Btn').textContent = '📖 单词详情';
+  document.getElementById('lc05Btn').className = 'btn-primary';
+  setTimeout(function() {
+    document.getElementById('lc05Example').style.display = 'block';
+  }, 500);
+}
+
+function showLc05Answer() {
+  if (lc05State.status !== 'idle') return;
+  lc05State.status = 'showAnswer';
+  lc05State.selectedId = -1;
+  renderLc05Options();
+  document.getElementById('lc05Btn').textContent = '📖 单词详情';
+  document.getElementById('lc05Btn').className = 'btn-primary';
+  setTimeout(function() {
+    document.getElementById('lc05Example').style.display = 'block';
+  }, 300);
+}
+
+function handleLc05Btn() {
+  if (lc05State.status === 'idle') {
+    showLc05Answer();
+  } else {
+    openWordDetail(lc05State.word);
+  }
+}
+
+function exitLearning() {
+  if(confirm('确定退出学习？当前进度将保留。')) {
+    showPage('P04');
+  }
 }
 
 // ========== 学习单元系统 P30 ==========

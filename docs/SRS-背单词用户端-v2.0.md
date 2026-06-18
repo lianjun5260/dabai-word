@@ -1600,3 +1600,130 @@ P04 首页 ──开始学习──→ P07 今日预览 ──开始学习──
 | OPEN-12 | 极端数据防御（超大词库、超长学习记录等） | 系统稳定性 | 技术方案 | 待确认 |
 
 > **工作方式**：通过基础交互原型逐项确认 P0 项目，P1/P2 项目在对应开发阶段前完成确认。
+
+---
+
+## 12. 学习组件 LC-05：汉译英-直选（v3.1 新增）
+
+### 12.1 基础信息
+
+| 字段 | 值 |
+|------|-----|
+| 组件编号 | LC-05 |
+| 组件名称 | 汉译英-直选 |
+| 所属页面 | P08 |
+| 题型 | 看中文释义+词性 → 从4个英文选项中选正确单词 |
+| 关联单词数 | 1词/题 |
+| 单题耗时(设计) | 8~15秒 |
+
+### 12.2 状态机
+
+```
+       ┌─────────┐
+       │  idle   │ 初始：显示题目+4选项
+       └────┬────┘
+            │
+   ┌────────┼────────┐
+   ▼        ▼        ▼
+┌──────┐ ┌──────┐ ┌──────────┐
+│correct│ │wrong │ │showAnswer│
+│ 答对  │ │ 答错 │ │ 查看答案  │
+└──┬───┘ └──┬───┘ └────┬─────┘
+   │        │          │
+   └────────┼──────────┘
+            ▼
+      ┌──────────┐
+      │ 单词详情  │ → openWordDetail() → P20 → 下一词
+      └──────────┘
+```
+
+状态触发：
+- **idle→correct**：用户点击正确选项
+- **idle→wrong**：用户点击错误选项
+- **idle→showAnswer**：用户点击底部「查看答案」
+- **任意→下一词**：调用 nextUnit() 进入下一个学习单元
+
+### 12.3 页面布局
+
+**顶部导航栏**：
+- 左侧 `<` 返回（exitLearning，退出学习回 P04）
+- 中间「今日进度 N/60」
+- 右侧空白
+
+**题目区**（居中）：
+- 词性标签（圆角浅灰）+ 中文释义，字号 22px 粗体
+- 答对/答错/查看答案后，下方展开例句卡片
+
+**例句卡片**（初始隐藏）：
+- 英文例句 + 中文翻译 + 🔊 发音按钮
+- 背景色淡绿底（跟卡品牌色呼应）
+
+**选项区**（4列竖排）：
+- 每个选项一个圆角卡片，初始仅显示英文单词
+- 选中后展开音标+释义
+- 正确：绿色背景+边框+✓
+- 错误：红色背景+边框+✗（同时正确答案自动变绿）
+
+**底部固定栏**：
+- 进度条（当前 N/总数）
+- 按钮：「查看答案」(idle) → 「📖 单词详情」(答题后)
+
+### 12.4 数据结构
+
+```javascript
+// LC-05 组件状态
+lc05State = {
+  status: 'idle',        // idle|correct|wrong|showAnswer
+  word: 'industrious',
+  pos: 'adj.',           // 词性
+  meaning: '勤劳的',
+  options: [
+    { id:0, word:'industrious', phonetic:'/ɪnˈdʌstriəs/', meaning:'adj.勤奋的', correct:true },
+    { id:1, word:'assiduous', phonetic:'/əˈsɪdʒuəs/', meaning:'adj.刻苦的', correct:false },
+    { id:2, word:'diligent', phonetic:'/ˈdɪlɪdʒənt/', meaning:'adj.勤勉的', correct:false },
+    { id:3, word:'tireless', phonetic:'/ˈtaɪələs/', meaning:'adj.不知疲倦的', correct:false }
+  ],
+  example: { en:'...', cn:'...' },
+  selectedId: -1          // 用户选择的选项ID
+};
+```
+
+### 12.5 交互细节
+
+| 操作 | UI反馈 | 延迟 | 连带动作 |
+|------|--------|------|---------|
+| 点击选项(idle) | 判断对错→锁定所有选项 | 0ms | 更新 lc05State.selectedId |
+| 答对 | 绿色背景+✓，展开音标释义 | 300ms | 500ms后显示例句+底部按钮切换 |
+| 答错 | 红色背景+✗，正确答案自动绿 | 300ms | 500ms后显示例句+底部按钮切换 |
+| 点击查看答案 | 正确答案绿+✓，展开音标释义 | 0ms | 300ms显示例句 |
+| 点击单词详情 | 唤起 openWordDetail(word) | 0ms | 传入 wdDB 完整数据 |
+| P20点下一词 | 调用 nextUnit()→加载下一题 | 0ms | 重置 lc05State |
+| 🔊 发音 | toast 占位 | 0ms | — |
+| 快速双击选项 | idle锁定后忽略 | — | — |
+
+### 12.6 干扰词生成
+
+1. 从 wdDB 中优先选取同词性的单词
+2. 排除当前正确答案
+3. 按长度相近（±3字符）排序
+4. 随机取前3个
+5. 若不足3个，放宽词性限制
+6. 若仍不够，返回 toast「词库数据不足」
+
+### 12.7 后台 API
+
+```
+POST /api/learn/next-unit
+请求: { taskId, currentIndex, mode }
+响应: { unitIndex, word, pos, meaning, options[], example, wordDetail }
+
+POST /api/learn/answer
+请求: { taskId, unitIndex, word, component:"LC-05", selectedOption, isCorrect, timeSpent }
+响应: { code:0 }
+```
+
+### 12.8 与学习单元系统联动
+
+- 进入 P08 时从 `todayTask.units[currentIndex]` 读取当前单词
+- 答题对错不影响当前 unit（仅记录），单词完成取决于该词关联的所有组件全部 done
+- 点击下一词 → todayTask.currentIndex++ → 加载下一 unit

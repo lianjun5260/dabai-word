@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<!-- BUILD: 202606181040 -->
+<!-- BUILD: 202606181043 -->
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -873,6 +873,11 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
     <div class="right"></div>
   </div>
 
+  <!-- 进度条 -->
+  <div style="height:3px;background:var(--divider);">
+    <div id="lc05Bar" style="height:100%;background:var(--brand);width:0%;transition:width .3s;"></div>
+  </div>
+
   <!-- 题目区域 -->
   <div style="text-align:center;padding:24px 16px;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;">
     <span class="tag" style="font-size:13px;color:var(--text-3);background:var(--bg-page);display:inline-block;padding:4px 12px;border-radius:4px;margin-bottom:10px;" id="lc05Pos">adj.</span>
@@ -887,9 +892,6 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
 
   <!-- 底部：进度条 + 选项 + 按钮 -->
   <div style="position:sticky;bottom:0;padding:0 16px 16px;background:var(--bg-card);z-index:10;">
-    <div style="height:3px;background:var(--divider);border-radius:2px;margin-bottom:12px;overflow:hidden;">
-      <div id="lc05Bar" style="height:100%;background:var(--brand);border-radius:2px;width:0%;transition:width .3s;"></div>
-    </div>
     <div id="lc05Options" style="margin-bottom:10px;"></div>
     <button id="lc05Btn" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--r-md);background:var(--bg-card);color:var(--text-3);font-size:14px;cursor:pointer;" onclick="handleLc05Btn()">查看答案</button>
   </div>

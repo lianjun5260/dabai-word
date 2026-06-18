@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<!-- BUILD: 202606180948 -->
+<!-- BUILD: 202606181053 -->
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -3680,11 +3680,11 @@ function loadLc05() {
     while(distractors.length<3 && extra.length) distractors.push(extra.shift());
   }
 
-  var correctOpt = { id:0, word:word, phonetic:wd.en_phonetic||'/-/', meaning:wd.meaning||'', correct:true };
+  var correctOpt = { id:0, word:word, phonetic:wd.en_phonetic||'/-/', meaning:wd.meaning||'', pos:lc05State.pos, correct:true };
   var opts = [correctOpt];
   distractors.forEach(function(dw, i) {
     var d = wdDB[dw] || {};
-    opts.push({ id:i+1, word:dw, phonetic:d.en_phonetic||'/-/', meaning:d.meaning||'', correct:false });
+    opts.push({ id:i+1, word:dw, phonetic:d.en_phonetic||'/-/', meaning:d.meaning||'', pos:d.part_speech||'n.', correct:false });
   });
   shuffle(opts);
   lc05State.options = opts;
@@ -3716,9 +3716,9 @@ function renderLc05Options() {
     }
     return '<div class="'+cls+'" onclick="selectOpt('+o.id+')" style="padding:12px 16px;border:1px solid var(--border);border-radius:var(--r-md);margin-bottom:10px;cursor:pointer;display:flex;align-items:flex-start;justify-content:space-between;transition:all .2s;background:var(--bg-card);min-height:64px;">'
       +'<div style="flex:1;min-width:0;">'
-        +'<div style="font-size:17px;font-weight:500;color:var(--text-1);line-height:24px;">'+o.word+'</div>'
+        +'<div style="font-size:17px;font-weight:500;color:var(--text-1);line-height:24px;">'+o.word+(expanded?' <span style="font-size:13px;color:var(--text-3);font-weight:400;">'+o.phonetic+'</span>':'')+'</div>'
         +'<div style="height:32px;overflow:hidden;">'
-          +(expanded?'<div style="font-size:12px;color:var(--text-3);margin-top:2px;">'+o.phonetic+'</div><div style="font-size:13px;color:var(--text-2);line-height:18px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">'+o.meaning+'</div>':'')
+          +(expanded?'<div style="font-size:13px;color:var(--text-2);line-height:32px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;"><span style="color:var(--text-3);">'+o.pos+'</span> '+o.meaning+'</div>':'')
         +'</div>'
       +'</div>'+icon+'</div>';
   }).join('');

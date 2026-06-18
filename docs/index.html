@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<!-- BUILD: 202606180817 -->
+<!-- BUILD: 202606180836 -->
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -378,6 +378,30 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
 .bind-code-row input { flex:1; }
 .bind-code-row button { flex-shrink:0; padding:10px 14px; background:var(--brand);color:#fff;border:none;border-radius:var(--r-md);font-size:14px;cursor:pointer;white-space:nowrap; }
 .bind-code-row button:disabled { background:var(--text-4); cursor:default; }
+
+/* ========== 统计页 ========== */
+.stab { padding:6px 16px; border-radius:var(--r-pill); border:none; background:var(--bg-page); color:var(--text-3); font-size:13px; cursor:pointer; transition:all .15s; }
+.stab.active { background:var(--brand); color:#fff; }
+.stab.sm { padding:4px 10px; font-size:12px; background:var(--border); }
+.stat-cell { background:var(--bg-page); border-radius:var(--r-lg); padding:14px; text-align:center; }
+.stat-cell-icon { font-size:20px; margin-bottom:6px; }
+.stat-cell-val { font-size:22px; font-weight:700; color:var(--text-1); }
+.stat-cell-val.green { color:var(--brand); }
+.stat-cell-label { font-size:11px; color:var(--text-3); margin-top:2px; }
+.stat-bar-row { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+.stat-bar-label { font-size:12px; color:var(--text-3); width:36px; text-align:right; flex-shrink:0; }
+.stat-bar-track { flex:1; height:20px; background:var(--divider); border-radius:4px; overflow:hidden; position:relative; }
+.stat-bar-fill { height:100%; border-radius:4px; transition:width .3s; min-width:4px; }
+.stat-bar-num { font-size:12px; color:var(--text-2); width:32px; flex-shrink:0; text-align:right; }
+.stat-bar-today { color:var(--brand); font-weight:600; }
+.cal-day { width:32px;height:32px;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;color:var(--text-3);margin:2px;cursor:default; }
+.cal-day.hlv0 { background:#F5F5F5; }
+.cal-day.hlv1 { background:#D9F7BE;color:var(--text-2); }
+.cal-day.hlv2 { background:#95DE64;color:#fff; }
+.cal-day.hlv3 { background:#52C41A;color:#fff; }
+.cal-day.hlv4 { background:#237804;color:#fff; }
+.cal-day.future { background:#fff;color:var(--text-4); }
+.cal-header { display:inline-flex;width:32px;justify-content:center;font-size:10px;color:var(--text-4);margin:2px; }
 </style>
 </head>
 <body>
@@ -623,79 +647,85 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
     <div class="title">学习统计</div>
     <div class="right"></div>
   </div>
-  <div style="padding:16px;">
-    <!-- 概览卡片 -->
-    <div style="background:linear-gradient(135deg,#52C41A,#73D13D);border-radius:var(--r-lg);padding:24px;color:#fff;margin-bottom:16px;">
-      <div style="display:flex;justify-content:space-around;">
-        <div style="text-align:center;">
-          <div style="font-size:28px;font-weight:700;">32</div>
-          <div style="font-size:12px;opacity:.8;margin-top:4px;">连续打卡(天)</div>
-        </div>
-        <div style="text-align:center;">
-          <div style="font-size:28px;font-weight:700;">186</div>
-          <div style="font-size:12px;opacity:.8;margin-top:4px;">累计学习(天)</div>
-        </div>
-        <div style="text-align:center;">
-          <div style="font-size:28px;font-weight:700;">1280</div>
-          <div style="font-size:12px;opacity:.8;margin-top:4px;">掌握单词</div>
-        </div>
+
+  <!-- 时间切换Tab -->
+  <div style="display:flex;padding:8px 16px;gap:8px;background:var(--bg-card);border-bottom:.5px solid var(--divider);">
+    <button id="stabWeek" class="stab active" onclick="switchStatTab('week')">本周</button>
+    <button id="stabMonth" class="stab" onclick="switchStatTab('month')">本月</button>
+    <button id="stabYear" class="stab" onclick="switchStatTab('year')">本年</button>
+  </div>
+
+  <div style="overflow-y:auto;padding-bottom:70px;" id="statContent">
+    <!-- 模块1: 打卡天数 -->
+    <div style="background:linear-gradient(135deg,#52C41A,#73D13D);border-radius:var(--r-lg);padding:20px;margin:16px;display:flex;align-items:center;gap:16px;color:#fff;">
+      <div style="font-size:48px;line-height:1;">🔥</div>
+      <div style="flex:1;">
+        <div style="font-size:36px;font-weight:700;" id="statStreak">32</div>
+        <div style="font-size:14px;opacity:.85;margin-top:2px;">连续打卡 · 天</div>
+        <div style="font-size:12px;opacity:.6;margin-top:4px;" id="statStreakNext">距里程碑还差 18 天</div>
       </div>
     </div>
-    <!-- 本周学习 -->
-    <div class="card">
-      <div style="font-size:15px;font-weight:600;color:var(--text-1);margin-bottom:16px;">本周学习</div>
-      <div style="display:flex;align-items:flex-end;justify-content:space-around;height:120px;padding-bottom:8px;">
-        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
-          <div style="width:24px;background:var(--brand-light);border-radius:4px 4px 0 0;height:40px;"></div>
-          <span style="font-size:10px;color:var(--text-3);">周一</span>
-        </div>
-        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
-          <div style="width:24px;background:var(--brand-light);border-radius:4px 4px 0 0;height:60px;"></div>
-          <span style="font-size:10px;color:var(--text-3);">周二</span>
-        </div>
-        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
-          <div style="width:24px;background:var(--brand-light);border-radius:4px 4px 0 0;height:80px;"></div>
-          <span style="font-size:10px;color:var(--text-3);">周三</span>
-        </div>
-        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
-          <div style="width:24px;background:var(--brand);border-radius:4px 4px 0 0;height:90px;"></div>
-          <span style="font-size:10px;color:var(--text-3);">周四</span>
-        </div>
-        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
-          <div style="width:24px;background:var(--brand-light);border-radius:4px 4px 0 0;height:70px;"></div>
-          <span style="font-size:10px;color:var(--text-3);">周五</span>
-        </div>
-        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
-          <div style="width:24px;background:var(--brand-light);border-radius:4px 4px 0 0;height:50px;"></div>
-          <span style="font-size:10px;color:var(--text-3);">周六</span>
-        </div>
-        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
-          <div style="width:24px;background:#E8E8E8;border-radius:4px 4px 0 0;height:20px;"></div>
-          <span style="font-size:10px;color:var(--brand);font-weight:600;">周日</span>
-        </div>
+
+    <!-- 模块2: 四宫格指标 -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 16px;margin-bottom:16px;">
+      <div class="stat-cell">
+        <div class="stat-cell-icon">📅</div>
+        <div class="stat-cell-val" id="statTotalDays">186</div>
+        <div class="stat-cell-label">累计学习 · 天</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-cell-icon">📚</div>
+        <div class="stat-cell-val" id="statMastered">1280</div>
+        <div class="stat-cell-label">掌握单词 · 词</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-cell-icon">✅</div>
+        <div class="stat-cell-val green" id="statAccuracy">87%</div>
+        <div class="stat-cell-label">平均正确率</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-cell-icon">📝</div>
+        <div class="stat-cell-val" id="statToday">20+45</div>
+        <div class="stat-cell-label">今日 · 新学+复习</div>
       </div>
     </div>
-    <!-- 学习详情 -->
-    <div class="card">
-      <div style="font-size:15px;font-weight:600;color:var(--text-1);margin-bottom:16px;">学习详情</div>
-      <div style="display:flex;justify-content:space-between;margin-bottom:12px;">
-        <span style="font-size:14px;color:var(--text-2);">今日新学</span>
-        <span style="font-size:14px;color:var(--text-1);font-weight:600;">20词</span>
+
+    <!-- 模块3: 学习趋势 -->
+    <div class="card" style="margin-bottom:12px;">
+      <div style="font-size:15px;font-weight:600;color:var(--text-1);margin-bottom:12px;">📊 学习趋势</div>
+      <div id="statChart"></div>
+    </div>
+
+    <!-- 模块4: 日历热力图 -->
+    <div class="card" style="margin-bottom:12px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <button class="stab sm" onclick="prevCalMonth()"><</button>
+        <span style="font-size:15px;font-weight:600;color:var(--text-1);" id="calTitle">2026年6月</span>
+        <button class="stab sm" onclick="nextCalMonth()">></button>
       </div>
-      <div style="display:flex;justify-content:space-between;margin-bottom:12px;">
-        <span style="font-size:14px;color:var(--text-2);">今日复习</span>
-        <span style="font-size:14px;color:var(--text-1);font-weight:600;">45词</span>
+      <div id="calGrid"></div>
+      <div style="display:flex;align-items:center;gap:4px;justify-content:flex-end;margin-top:8px;font-size:11px;color:var(--text-3);">
+        少 <span style="width:12px;height:12px;border-radius:2px;background:#F5F5F5;"></span>
+        <span style="width:12px;height:12px;border-radius:2px;background:#D9F7BE;"></span>
+        <span style="width:12px;height:12px;border-radius:2px;background:#95DE64;"></span>
+        <span style="width:12px;height:12px;border-radius:2px;background:#52C41A;"></span>
+        <span style="width:12px;height:12px;border-radius:2px;background:#237804;"></span> 多
       </div>
-      <div style="display:flex;justify-content:space-between;margin-bottom:12px;">
-        <span style="font-size:14px;color:var(--text-2);">平均正确率</span>
-        <span style="font-size:14px;color:var(--brand);font-weight:600;">87%</span>
-      </div>
-      <div style="display:flex;justify-content:space-between;">
-        <span style="font-size:14px;color:var(--text-2);">平均用时</span>
-        <span style="font-size:14px;color:var(--text-1);font-weight:600;">12秒/词</span>
-      </div>
+    </div>
+
+    <!-- 模块5: 掌握分布 -->
+    <div class="card" style="margin-bottom:12px;">
+      <div style="font-size:15px;font-weight:600;color:var(--text-1);margin-bottom:12px;">📈 掌握分布</div>
+      <div id="statDist"></div>
+    </div>
+
+    <!-- 模块6: 学习时段 -->
+    <div class="card" style="margin-bottom:16px;">
+      <div style="font-size:15px;font-weight:600;color:var(--text-1);margin-bottom:12px;">⏰ 学习时段</div>
+      <div id="statTime"></div>
     </div>
   </div>
+
   <div class="tab-bar">
     <div class="tab-item" onclick="showPage('P04')"><div class="icon">🏠</div><div class="label">首页</div></div>
     <div class="tab-item active" onclick="showPage('P05a')"><div class="icon">📊</div><div class="label">统计</div></div>
@@ -1977,6 +2007,7 @@ function showPage(id, isBack) {
   // 初始化收藏页
   if (id === 'P26') { updateFavCount(); renderFavorites(); }
   if (id === 'P27') { renderErrorBook(); }
+  if (id === 'P05a') { renderStats(); }
 
   // 滚动到顶部
   setTimeout(() => { if (newPage) newPage.scrollTop = 0; }, 50);
@@ -3424,6 +3455,85 @@ function errTouchEnd(e, idx) {
   if (dx < -60) target.style.transform = 'translateX(-80px)';
   else target.style.transform = 'translateX(0)';
   errSwipedId = null;
+}
+
+// ========== 学习统计 P05a ==========
+const statsData = {
+  streak:32, totalDays:186, totalMastered:1280, totalLearning:1200, totalNew:420,
+  avgAccuracy:87, todayNew:20, todayReview:45,
+  dailyLog:{}, timeDist:{morning:35,afternoon:28,evening:37}
+};
+(function(){ var d=new Date(); for(var i=0;i<90;i++){ var ds=new Date(d);ds.setDate(d.getDate()-i);var k=ds.toISOString().slice(0,10);statsData.dailyLog[k]=Math.floor(Math.random()*30);} })();
+var statTab='week';
+var calYear, calMonth;
+
+function renderStats() {
+  document.getElementById('statStreak').textContent=statsData.streak;
+  document.getElementById('statStreakNext').textContent='距里程碑还差 '+(50-statsData.streak)+' 天';
+  document.getElementById('statTotalDays').textContent=statsData.totalDays;
+  document.getElementById('statMastered').textContent=statsData.totalMastered;
+  document.getElementById('statAccuracy').textContent=statsData.avgAccuracy+'%';
+  document.getElementById('statToday').textContent=statsData.todayNew+'+'+statsData.todayReview;
+  renderChart(); renderDist(); renderTimeDist();
+  if(!calYear){ var now=new Date();calYear=now.getFullYear();calMonth=now.getMonth()+1; }
+  renderCalendar();
+}
+
+function renderChart() {
+  var container=document.getElementById('statChart'), now=new Date(), items=[], labels=[];
+  if(statTab==='week'){
+    var dow=now.getDay()||7; var mon=new Date(now); mon.setDate(now.getDate()-dow+1);
+    var dayNames=['周一','周二','周三','周四','周五','周六','周日'];
+    for(var i=0;i<7;i++){ var d=new Date(mon);d.setDate(mon.getDate()+i);var k=d.toISOString().slice(0,10);items.push(statsData.dailyLog[k]||0);labels.push(dayNames[i]); }
+  } else if(statTab==='month'){
+    for(var i=1;i<=now.getDate();i++){ var kk=now.getFullYear()+'-'+('0'+(now.getMonth()+1)).slice(-2)+'-'+('0'+i).slice(-2);items.push(statsData.dailyLog[kk]||0);labels.push(i); }
+  } else {
+    for(var i=0;i<12;i++){ var sum=0; for(var j=1;j<=31;j++){ var kk=now.getFullYear()+'-'+('0'+(i+1)).slice(-2)+'-'+('0'+j).slice(-2);sum+=statsData.dailyLog[kk]||0; } items.push(sum);labels.push((i+1)+'月'); }
+  }
+  var max=Math.max.apply(null,items)||1;
+  container.innerHTML=items.map(function(v,i){ var w=Math.round(v/max*100);return '<div class="stat-bar-row"><span class="stat-bar-label'+(i===items.length-1?' stat-bar-today':'')+'">'+labels[i]+'</span><div class="stat-bar-track"><div class="stat-bar-fill" style="width:'+w+'%;background:'+(w>0?'var(--brand)':'var(--divider)')+';"></div></div><span class="stat-bar-num">'+(v||'—')+'</span></div>'; }).join('');
+}
+
+function renderDist() {
+  var total=statsData.totalMastered+statsData.totalLearning+statsData.totalNew||1;
+  var items=[{label:'已掌握',v:statsData.totalMastered,color:'var(--brand)'},{label:'学习中',v:statsData.totalLearning,color:'var(--warn)'},{label:'新词',v:statsData.totalNew,color:'var(--info)'}];
+  document.getElementById('statDist').innerHTML=items.map(function(it){ var p=Math.round(it.v/total*100);return '<div class="stat-bar-row"><span style="font-size:13px;color:var(--text-2);width:48px;">'+it.label+'</span><div class="stat-bar-track"><div class="stat-bar-fill" style="width:'+p+'%;background:'+it.color+';"></div></div><span style="font-size:12px;color:var(--text-3);width:60px;text-align:right;">'+it.v+'词 ('+p+'%)</span></div>'; }).join('');
+}
+
+function renderTimeDist() {
+  var td=statsData.timeDist;
+  var items=[{label:'上午(6-12)',v:td.morning,color:'var(--warn)'},{label:'下午(12-18)',v:td.afternoon,color:'var(--brand)'},{label:'晚上(18-24)',v:td.evening,color:'var(--info)'}];
+  document.getElementById('statTime').innerHTML=items.map(function(it){ return '<div class="stat-bar-row"><span style="font-size:13px;color:var(--text-2);width:80px;">'+it.label+'</span><div class="stat-bar-track"><div class="stat-bar-fill" style="width:'+it.v+'%;background:'+it.color+';"></div></div><span style="font-size:12px;color:var(--text-3);width:36px;text-align:right;">'+it.v+'%</span></div>'; }).join('');
+}
+
+function renderCalendar() {
+  document.getElementById('calTitle').textContent=calYear+'年'+calMonth+'月';
+  var now=new Date(), today=now.toISOString().slice(0,10);
+  var firstDay=new Date(calYear,calMonth-1,1), lastDay=new Date(calYear,calMonth,0);
+  var startDow=firstDay.getDay()||7;
+  var grid=document.getElementById('calGrid');
+  var html='<div style="display:flex;">';
+  ['一','二','三','四','五','六','日'].forEach(function(h){html+='<span class="cal-header">'+h+'</span>';});
+  html+='</div><div>';
+  for(var i=1;i<startDow;i++) html+='<span class="cal-day" style="visibility:hidden;"></span>';
+  for(var d=1;d<=lastDay.getDate();d++){
+    var dateStr=calYear+'-'+('0'+calMonth).slice(-2)+'-'+('0'+d).slice(-2);
+    var val=statsData.dailyLog[dateStr]||0, cls='hlv0';
+    if(dateStr>today) cls='future';
+    else if(val>=30) cls='hlv4'; else if(val>=20) cls='hlv3'; else if(val>=10) cls='hlv2'; else if(val>=1) cls='hlv1';
+    html+='<span class="cal-day '+cls+'" title="'+(dateStr>today?'':dateStr+' · '+val+'词')+'">'+d+'</span>';
+  }
+  html+='</div>'; grid.innerHTML=html;
+}
+function prevCalMonth(){ calMonth--; if(calMonth<1){calMonth=12;calYear--;} renderCalendar(); }
+function nextCalMonth(){ calMonth++; if(calMonth>12){calMonth=1;calYear++;} var now=new Date(); if(calYear>now.getFullYear()||(calYear===now.getFullYear()&&calMonth>now.getMonth()+1)){ calMonth=now.getMonth()+1;calYear=now.getFullYear(); } renderCalendar(); }
+
+function switchStatTab(tab) {
+  statTab=tab;
+  document.getElementById('stabWeek').classList.toggle('active',tab==='week');
+  document.getElementById('stabMonth').classList.toggle('active',tab==='month');
+  document.getElementById('stabYear').classList.toggle('active',tab==='year');
+  renderChart();
 }
 
 </script>

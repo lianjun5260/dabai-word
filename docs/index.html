@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<!-- BUILD: 202606181043 -->
+<!-- BUILD: 202606181044 -->
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -408,6 +408,9 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
 .lc05-correct { background:#F6FFED !important; border-color:#52C41A !important; }
 .lc05-wrong { background:#FFF1F0 !important; border-color:#FF4D4F !important; }
 .btn-outline { background:var(--bg-card); color:var(--text-3); border:1px solid var(--border); }
+
+/* ========== P08 学习组件布局 ========== */
+#P08.page.active { display:flex; flex-direction:column; overflow:hidden; height:100%; }
 </style>
 </head>
 <body>
@@ -879,7 +882,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
   </div>
 
   <!-- 题目区域 -->
-  <div style="text-align:center;padding:24px 16px;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+  <div style="text-align:center;padding:24px 16px;flex:1;overflow-y:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;">
     <span class="tag" style="font-size:13px;color:var(--text-3);background:var(--bg-page);display:inline-block;padding:4px 12px;border-radius:4px;margin-bottom:10px;" id="lc05Pos">adj.</span>
     <div style="font-size:26px;font-weight:700;color:var(--text-1);" id="lc05Meaning">勤劳的</div>
     <!-- 例句卡片（初始隐藏） -->
@@ -890,8 +893,8 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
     </div>
   </div>
 
-  <!-- 底部：进度条 + 选项 + 按钮 -->
-  <div style="position:sticky;bottom:0;padding:0 16px 16px;background:var(--bg-card);z-index:10;">
+  <!-- 底部：选项 + 按钮 -->
+  <div style="padding:0 16px 16px;background:var(--bg-card);z-index:10;">
     <div id="lc05Options" style="margin-bottom:10px;"></div>
     <button id="lc05Btn" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--r-md);background:var(--bg-card);color:var(--text-3);font-size:14px;cursor:pointer;" onclick="handleLc05Btn()">查看答案</button>
   </div>

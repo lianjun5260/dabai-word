@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<!-- BUILD: 202606180931 -->
+<!-- BUILD: 202606180943 -->
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -416,7 +416,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
   <a onclick="showPage('P05a')" id="nav-P05a">P05a 学习统计</a>
   <a onclick="showPage('P05')" id="nav-P05">P05 词库练习</a>
   <a onclick="showPage('P06')" id="nav-P06">P06 设置学习目标</a>
-  <a onclick="showPage('P07')" id="nav-P07">P07 新学(卡片翻转)</a>
+  <a onclick="showPage('P07')" id="nav-P07">P07 今日学习预览</a>
   <a onclick="showPage('P08')" id="nav-P08">P08 LC-01读单词</a>
   <a onclick="showPage('P09')" id="nav-P09">P09 LC-02拼单词</a>
   <a onclick="showPage('P10')" id="nav-P10">P10 LC-03读例句</a>
@@ -830,51 +830,28 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
 </div>
 
 <!-- ========================================== -->
-<!-- P07 新学(卡片翻转) -->
+<!-- P07 今日学习预览 -->
 <!-- ========================================== -->
 <div class="page" id="P07">
   <div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
   <div class="navbar">
     <div class="back" onclick="goBack()"><</div>
-    <div class="title">今日进度 1/20</div>
-    <div class="right" style="cursor:pointer;">⋯</div>
+    <div class="title">今日学习预览</div>
+    <div class="right" style="cursor:pointer;font-size:14px;color:var(--brand);" onclick="refreshTodayWords()">换一批</div>
   </div>
-  <div style="padding:24px 16px;display:flex;flex-direction:column;align-items:center;">
-    <!-- 进度指示 -->
-    <div style="display:flex;gap:4px;margin-bottom:20px;width:100%;">
-      <div style="flex:1;height:4px;border-radius:2px;background:var(--brand);"></div>
-      <div style="flex:1;height:4px;border-radius:2px;background:var(--brand-lighter);"></div>
-      <div style="flex:1;height:4px;border-radius:2px;background:#F0F0F0;"></div>
-      <div style="flex:1;height:4px;border-radius:2px;background:#F0F0F0;"></div>
-    </div>
-    <!-- 翻转卡片 -->
-    <div class="flip-card" style="width:100%;" onclick="flipCard(this)">
-      <div class="flip-card-inner" id="flipInner">
-        <!-- 正面 -->
-        <div class="flip-card-front">
-          <div style="font-size:32px;font-weight:600;color:var(--text-1);margin-bottom:8px;">industrious</div>
-          <div style="font-size:14px;color:var(--text-3);margin-bottom:16px;">英 [ɪnˈdʌstriəs] 美 [ɪnˈdʌstriəs]</div>
-          <div style="width:40px;height:40px;border-radius:50%;background:var(--brand-light);display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;position:absolute;right:20px;top:20px;">🔊</div>
-          <button class="btn-outline" style="margin-top:24px;width:200px;height:40px;font-size:14px;">点击查看词义</button>
-        </div>
-        <!-- 背面 -->
-        <div class="flip-card-back">
-          <div style="font-size:28px;font-weight:600;color:var(--text-1);margin-bottom:4px;">industrious</div>
-          <div style="font-size:14px;color:var(--text-3);margin-bottom:16px;">英 [ɪnˈdʌstriəs]</div>
-          <div style="font-size:18px;color:var(--text-1);margin-bottom:16px;text-align:center;">adj. 勤奋的；勤劳的</div>
-          <div style="font-size:14px;color:var(--text-2);line-height:1.6;text-align:center;background:var(--bg-page);border-radius:8px;padding:12px;width:100%;">
-            The <span style="color:var(--brand);font-weight:600;">industrious</span> student always finished homework early.<br/>
-            <span style="color:var(--text-3);">那个勤奋的学生总是早早完成作业。</span>
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- 底部按钮 -->
-    <div style="display:flex;gap:16px;width:100%;margin-top:24px;" id="flipButtons">
-      <button class="btn-outline" style="flex:1;height:48px;color:var(--text-3);border-color:var(--border);" onclick="showPage('P07')">不认识</button>
-      <button class="btn-primary" style="flex:1;height:48px;" onclick="showPage('P08')">认识</button>
-    </div>
-    <div style="font-size:12px;color:var(--text-4);margin-top:12px;">点击卡片翻转查看释义</div>
+
+  <!-- 统计条 -->
+  <div style="padding:8px 16px;background:var(--bg-page);font-size:13px;color:var(--text-3);text-align:center;border-bottom:.5px solid var(--divider);" id="previewSummary">
+    共 20 词 · 🆕 新词 8 · 📖 复习 12
+  </div>
+
+  <!-- 单词列表 -->
+  <div style="overflow-y:auto;padding-bottom:80px;" id="previewList"></div>
+
+  <!-- 底部按钮 -->
+  <div style="position:absolute;bottom:0;left:0;right:0;padding:12px 16px;background:var(--bg-card);border-top:.5px solid var(--divider);z-index:10;">
+    <div style="font-size:11px;color:var(--text-4);text-align:center;margin-bottom:8px;">💡 点击任意单词可展开释义，准备就绪后开始学习</div>
+    <button class="btn-primary" style="width:100%;" onclick="toastMsg('学习流程开发中')">📚 开始学习</button>
   </div>
 </div>
 
@@ -3528,18 +3505,106 @@ function startLearning() {
     toastMsg('今日目标已完成，明天继续加油！');
     return;
   }
-  // MOCK: 模拟学习一个词
-  window.todayLearned++;
-  refreshTodayPlan();
-  var stre = document.getElementById('statStreak');
-  if(stre) stre.textContent = statsData.streak;
-  document.getElementById('statTotalDays').textContent = statsData.totalDays + 1;
-  var now = new Date(); var kk = now.toISOString().slice(0,10);
-  statsData.dailyLog[kk] = (statsData.dailyLog[kk]||0) + 1;
-  toastMsg('已学习 ' + window.todayLearned + ' 个词');
-  if (window.todayLearned >= (window.profile.dailyGoal||20)) {
-    setTimeout(function(){ toastMsg('🎉 今日目标达成！太棒了！'); }, 1500);
+  generateTodayWords();
+  showPage('P07');
+}
+
+// ========== 今日学习预览 P07 ==========
+window.todayWordList = [];
+
+function generateTodayWords() {
+  var goal = window.profile.dailyGoal || 20;
+  var reviewMax = Math.round(goal * 0.6);  // 复习上限60%
+  var newMax = goal - reviewMax;
+
+  // 从 wdDB 随机抽取新词
+  var allWords = Object.keys(wdDB);
+  var reviewPool = ['abandon','abstract','barrier','genuine','persistence','sophisticated','vulnerable','resilience','dilemma','tremendous','paradox','comprehensive'];
+  // 从 wdDB 过滤掉复习词
+  var newPool = allWords.filter(function(w) { return reviewPool.indexOf(w) < 0 && w.length >= 4 && w.length <= 12; });
+  shuffle(newPool); shuffle(reviewPool);
+
+  var reviewCount = Math.min(reviewMax, reviewPool.length);
+  var newCount = Math.min(newMax + (reviewMax - reviewCount), newPool.length);
+
+  var list = [];
+  for (var i = 0; i < reviewCount; i++) {
+    var w = reviewPool[i];
+    var wd = wdDB[w] || {};
+    list.push({ word: w, phonetic: wd.en_phonetic || '/-/', meaning: wd.meaning || '', type: 'review', stageLabel: wd.stage_label || '' });
   }
+  for (var j = 0; j < newCount; j++) {
+    var w2 = newPool[j];
+    var wd2 = wdDB[w2] || {};
+    list.push({ word: w2, phonetic: wd2.en_phonetic || '/-/', meaning: wd2.meaning || '', type: 'new', stageLabel: wd2.stage_label || '' });
+  }
+  window.todayWordList = list;
+  renderTodayPreview();
+}
+
+function shuffle(arr) {
+  for (var i = arr.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+  }
+}
+
+function renderTodayPreview() {
+  var list = window.todayWordList;
+  var newCount = list.filter(function(w) { return w.type === 'new'; }).length;
+  var reviewCount = list.length - newCount;
+  var summary = document.getElementById('previewSummary');
+  if (summary) summary.textContent = '共 ' + list.length + ' 词 · 🆕 新词 ' + newCount + ' · 📖 复习 ' + reviewCount;
+
+  var container = document.getElementById('previewList');
+  if (!container) return;
+  container.innerHTML = '';
+
+  list.forEach(function(w, idx) {
+    var tag = w.type === 'new' ? '<span style="display:inline-block;padding:2px 6px;border-radius:4px;background:var(--brand-light);color:var(--brand);font-size:11px;margin-right:6px;">🆕</span>'
+      : '<span style="display:inline-block;padding:2px 6px;border-radius:4px;background:var(--warn-light);color:var(--warn);font-size:11px;margin-right:6px;">📖</span>';
+    var div = document.createElement('div');
+    div.style.cssText = 'background:var(--bg-card);border-bottom:.5px solid var(--divider);padding:12px 16px;cursor:pointer;';
+    div.id = 'pw_' + idx;
+    div.onclick = function() {
+      var body = document.getElementById('pw_body_' + idx);
+      if (body) body.style.display = (body.style.display === 'none' ? 'block' : 'none');
+    };
+    div.innerHTML =
+      '<div style="display:flex;align-items:center;justify-content:space-between;">'+
+        '<div style="display:flex;align-items:baseline;gap:6px;flex:1;">'+
+          tag+
+          '<span style="font-size:17px;font-weight:600;color:var(--text-1);">'+w.word+'</span>'+
+          '<span style="font-size:13px;color:var(--text-3);">'+w.phonetic+'</span>'+
+        '</div>'+
+        '<span style="font-size:18px;cursor:pointer;color:var(--text-4);flex-shrink:0;margin-left:8px;" onclick="event.stopPropagation();toastMsg(\'发音功能开发中\')">🔊</span>'+
+      '</div>'+
+      '<div id="pw_body_'+idx+'" style="display:'+(idx<3?'block':'none')+';padding-top:8px;">'+
+        '<div style="font-size:14px;color:var(--text-2);">'+w.meaning+'</div>'+
+        (w.stageLabel?'<div style="font-size:11px;color:var(--text-4);margin-top:4px;">标签：'+w.stageLabel+'</div>':'')+
+      '</div>';
+    container.appendChild(div);
+  });
+}
+
+function refreshTodayWords() {
+  // 仅刷新新词部分，复习词不变
+  var list = window.todayWordList;
+  var reviews = list.filter(function(w){return w.type==='review';});
+  var allWords = Object.keys(wdDB);
+  var usedWords = list.map(function(w){return w.word;});
+  var newPool = allWords.filter(function(w){return usedWords.indexOf(w)<0 && w.length>=4 && w.length<=12;});
+  shuffle(newPool);
+  var total = list.length;
+  var newCount = total - reviews.length;
+  var newList = reviews.slice();
+  for (var i=0; i<Math.min(newCount,newPool.length); i++) {
+    var w = newPool[i];
+    var wd = wdDB[w]||{};
+    newList.push({word:w,phonetic:wd.en_phonetic||'/-/',meaning:wd.meaning||'',type:'new',stageLabel:wd.stage_label||''});
+  }
+  window.todayWordList = newList;
+  renderTodayPreview();
 }
 
 // ========== 学习统计 P05a ==========

@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<!-- BUILD: 202606181443 -->
+<!-- BUILD: 202606181445 -->
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -3729,7 +3729,7 @@ function loadLc05() {
   var pct = Math.round(((idx+1)/total)*100);
   document.getElementById('lc05Bar').style.width = pct + '%';
 
-  var word = 'industrious';
+  var word = 'abandon';
   if (units.length > 0 && idx < units.length) word = units[idx].word;
 
   var wd = wdDB[word] || {};
@@ -3912,7 +3912,7 @@ function loadLc04() {
   document.getElementById('lc04Progress').textContent = '今日进度 '+(idx+1)+'/'+total;
   document.getElementById('lc04Bar').style.width = Math.round(((idx+1)/total)*100) + '%';
 
-  var word = 'industrious';
+  var word = 'abandon';
   if (units.length > 0 && idx < units.length) word = units[idx].word;
   var wd = wdDB[word] || {};
   lc04State = { status:'idle', word:word, phonetic:wd.en_phonetic||'/-/', example:{en:(wd.sentences||[{en:''}])[0].en||'',cn:(wd.sentences||[{cn:''}])[0].cn||''}, options:[], selectedId:-1 };
@@ -3979,7 +3979,7 @@ function loadLc10() {
   document.getElementById('lc10Progress').textContent = '今日进度 '+(idx+1)+'/'+total;
   document.getElementById('lc10Bar').style.width = Math.round(((idx+1)/total)*100) + '%';
 
-  var word = 'industrious';
+  var word = 'abandon';
   if (units.length > 0 && idx < units.length) word = units[idx].word;
   var wd = wdDB[word] || {};
   var sent = (wd.sentences||[{en:'Example sentence.',cn:'示例句子。'}])[0];

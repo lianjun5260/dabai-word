@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<!-- BUILD: 202606181451 -->
+<!-- BUILD: 202606181458 -->
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1466,7 +1466,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
     </div>
   </div>
   <!-- 学习组件底部按钮 -->
-  <div id="wdNextBtnWrap" style="display:none;padding:12px 16px;background:var(--bg-card);border-top:.5px solid var(--divider);z-index:10;">
+  <div id="wdNextBtnWrap" style="display:none;padding:0 16px 16px;background:var(--bg-card);border-top:.5px solid var(--divider);z-index:10;">
     <button class="btn-primary" style="width:100%;" onclick="goNextWord()">下一个单词</button>
   </div>
 </div>
@@ -3979,17 +3979,27 @@ function loadLc10() {
   document.getElementById('lc10ExCn').textContent = lc10State.sentenceCn;
   document.getElementById('lc10Example').style.visibility = 'hidden';
 
-  // 选项：中文释义（无词性标签）
+  // 选项：中文释义
   var correctLabel = wd.meaning || '';
-  var opts = [{ id:0, label:correctLabel, sub:'', extra:'', correct:true }];
+  var opts = [{ id:0, label:correctLabel, sub:'', extra:word, correct:true }];
   var distractors = [];
   Object.keys(wdDB).forEach(function(k) {
-    if (k !== word && wdDB[k].meaning !== opts[0].label && distractors.length < 3) {
-      distractors.push(wdDB[k].meaning||'');
+    if (k !== word && distractors.length < 3) {
+      var d = wdDB[k]||{};
+      var m = d.meaning||'';
+      if (!m) return; if (m === correctLabel) return;
+      distractors.push({ word:k, meaning:m });
     }
   });
+  if (distractors.length < 3) {
+    Object.keys(wdDB).forEach(function(k) {
+      if (k === word || distractors.length >= 3) return;
+      if (distractors.some(function(d){return d.word===k;})) return;
+      distractors.push({ word:k, meaning:wdDB[k].meaning||'(无释义)' });
+    });
+  }
   distractors.forEach(function(d, i) {
-    opts.push({ id:i+1, label:d, sub:'', extra:'', correct:false });
+    opts.push({ id:i+1, label:d.meaning, sub:'', extra:d.word, correct:false });
   });
   shuffle(opts);
   lc10State.options = opts;

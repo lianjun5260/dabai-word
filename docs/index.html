@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<!-- BUILD: 202606181438 -->
+<!-- BUILD: 202606181441 -->
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -3926,7 +3926,7 @@ function loadLc04() {
 
   // 选项：中文释义
   var correctLabel = wd.meaning || '';
-  var opts = [{ id:0, label:correctLabel, sub:(word+' '+(wd.en_phonetic||'/-/')), extra:wd.part_speech||'', correct:true }];
+  var opts = [{ id:0, label:correctLabel, sub:'', extra:(wd.part_speech||'')+' '+word+' '+(wd.en_phonetic||'/-/'), correct:true }];
   var distractors = [];
   Object.keys(wdDB).forEach(function(k) {
     if (k !== word && wdDB[k].meaning !== opts[0].label && distractors.length < 3) {
@@ -3935,7 +3935,7 @@ function loadLc04() {
     }
   });
   distractors.forEach(function(d, i) {
-    opts.push({ id:i+1, label:d.meaning, sub:(d.word+' '+d.phonetic), extra:d.pos, correct:false });
+    opts.push({ id:i+1, label:d.meaning, sub:'', extra:(d.pos||'')+' '+d.word+' '+d.phonetic, correct:false });
   });
   shuffle(opts);
   lc04State.options = opts;

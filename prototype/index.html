@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<!-- BUILD: 202606181445 -->
+<!-- BUILD: 202606181447 -->
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -3984,7 +3984,7 @@ function loadLc10() {
   var wd = wdDB[word] || {};
   var sent = (wd.sentences||[{en:'Example sentence.',cn:'示例句子。'}])[0];
   lc10State = { status:'idle', word:word, sentence:sent.en, sentenceCn:sent.cn, options:[], selectedId:-1 };
-  document.getElementById('lc10Sentence').textContent = lc10State.sentence;
+  document.getElementById('lc10Sentence').innerHTML = lc10State.sentence;
   document.getElementById('lc10ExCn').textContent = lc10State.sentenceCn;
   document.getElementById('lc10Example').style.visibility = 'hidden';
 

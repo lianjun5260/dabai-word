@@ -2,7 +2,7 @@
   "name": "大白陪你背单词",
   "short_name": "大白背单词",
   "description": "AI智能英语学习",
-  "version": "202606180845",
+  "version": "202606180854",
   "start_url": ".",
   "display": "standalone",
   "background_color": "#FFFFFF",

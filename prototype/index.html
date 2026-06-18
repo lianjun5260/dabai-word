@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<!-- BUILD: 202606181441 -->
+<!-- BUILD: 202606181442 -->
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -3929,9 +3929,12 @@ function loadLc04() {
   var opts = [{ id:0, label:correctLabel, sub:'', extra:(wd.part_speech||'')+' '+word+' '+(wd.en_phonetic||'/-/'), correct:true }];
   var distractors = [];
   Object.keys(wdDB).forEach(function(k) {
-    if (k !== word && wdDB[k].meaning !== opts[0].label && distractors.length < 3) {
+    if (k !== word && distractors.length < 3) {
       var dw = wdDB[k];
-      distractors.push({ word:k, meaning:dw.meaning||'', pos:dw.part_speech||'', phonetic:dw.en_phonetic||'/-/' });
+      var m = dw.meaning||'';
+      if (!m) return; // 跳过无释义的词
+      if (m === correctLabel) return; // 跳过相同释义
+      distractors.push({ word:k, meaning:m, pos:dw.part_speech||'', phonetic:dw.en_phonetic||'/-/' });
     }
   });
   distractors.forEach(function(d, i) {

@@ -1743,13 +1743,18 @@ lc05State = {
 | 操作 | UI反馈 | 延迟 | 连带动作 |
 |------|--------|------|---------|
 | 点击选项(idle) | 判断对错→锁定所有选项 | 0ms | 更新 lc05State.selectedId |
-| 答对 | 绿色背景+✓，展开音标释义 | 300ms | 500ms后显示例句+底部按钮切换 |
-| 答错 | 红色背景+✗，正确答案自动绿 | 300ms | 500ms后显示例句+底部按钮切换 |
-| 点击查看答案 | 正确答案绿+✓，展开音标释义 | 0ms | 300ms显示例句 |
-| 点击单词详情 | 唤起 openWordDetail(word) | 0ms | 传入 wdDB 完整数据 |
-| P20点下一词 | 调用 nextUnit()→加载下一题 | 0ms | 重置 lc05State |
+| 答对 | 绿色背景+✓，展开音标释义+例句 | 0ms | 底部按钮→📖单词详情 |
+| 答错 | 红色背景+✗，正确答案自动绿+例句 | 0ms | 底部按钮→📖单词详情 |
+| 点击查看答案 | 正确答案绿+✓，展开音标释义+例句 | 0ms | 底部按钮→📖单词详情 |
+| 点击单词详情 | 设 fromLearningComponent=true → openWordDetail() | 0ms | 传入 wdDB 完整数据 |
+| P20点下一个单词 | currentIndex++ → showPage('P08') | 0ms | loadLc05() 自动加载下一题 |
 | 🔊 发音 | toast 占位 | 0ms | — |
 | 快速双击选项 | idle锁定后忽略 | — | — |
+
+**关键约束**：
+- 例句区始终占位（`visibility:hidden` 非 `display:none`），题干位置不回跳
+- 选项卡片高度固定（min-height:48px），展开内容在预留空间内显示，不改变卡片尺寸
+- P20 通过 `window.fromLearningComponent` 标记区分来源，仅学习组件入口显示「下一个单词」按钮
 
 ### 12.6 干扰词生成
 
@@ -1777,3 +1782,54 @@ POST /api/learn/answer
 - 进入 P08 时从 `todayTask.units[currentIndex]` 读取当前单词
 - 答题对错不影响当前 unit（仅记录），单词完成取决于该词关联的所有组件全部 done
 - 点击下一词 → todayTask.currentIndex++ → 加载下一 unit
+
+### 12.9 学习组件开发模板
+
+新增学习组件时，按以下 CheckList 逐项完成：
+
+#### 开发 CheckList
+
+| # | 项目 | 说明 |
+|---|------|------|
+| 1 | SRS 章节 | 在本文档新增独立章节（12.x），按 LC-05 格式填写 |
+| 2 | 页面 ID | 分配独立页面 ID（如 P08），加入导航面板 |
+| 3 | 页面布局 | 使用 `#PX.page.active {display:flex;...}` CSS + 题目区(flex:1) + 底部面板 |
+| 4 | 底部面板 | 复用 `renderLc05Options()` 的卡片结构（min-height:48px 等通用规范） |
+| 5 | 状态机 | 至少实现 idle/correct/wrong/showAnswer 四态 |
+| 6 | 例句占位 | 使用 `visibility:hidden` 占位，不回跳题干 |
+| 7 | 单词详情 | 答题后通过 `window.fromLearningComponent=true` → openWordDetail() |
+| 8 | 下一词 | P20 底部显示「下一个单词」→ currentIndex++ → 回学习页 |
+| 9 | 退出学习 | 左上 `<` 调用 `exitLearning()` confirm 后回 P04 |
+| 10 | 进度条 | 导航栏下方显示 `N/total` + 百分比进度条 |
+| 11 | 干扰项 | 从 wdDB 按词性/长度智能抽取 |
+| 12 | 无延迟 | 所有反馈 0ms 延迟，即时响应 |
+
+#### 页面结构模板
+
+```html
+<div class="page" id="PXX">
+  <div class="status-bar">...</div>
+  <div class="navbar">
+    <div class="back" onclick="exitLearning()"><</div>
+    <div class="title">今日进度 N/M</div>
+    <div class="right"></div>
+  </div>
+  <div class="progress-bar">...</div>  <!-- 进度条 -->
+  <div style="flex:1;overflow-y:auto;">  <!-- 题目区 -->
+    ...各组件不同的题目内容...
+    <div style="visibility:hidden;min-height:70px;">  <!-- 例句占位 -->
+      ...例句内容...
+    </div>
+  </div>
+  <div style="...">  <!-- 底部面板（复用） -->
+    <div id="options"></div>  <!-- renderOptionCards() -->
+    <button>查看答案 / 单词详情</button>
+  </div>
+</div>
+```
+
+#### CSS 关键规则
+
+```css
+#PXX.page.active { display:flex; flex-direction:column; overflow:hidden; height:100%; }
+```

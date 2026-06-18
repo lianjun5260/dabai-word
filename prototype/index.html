@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<!-- BUILD: 202606181508 -->
+<!-- BUILD: 202606181510 -->
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -3790,7 +3790,7 @@ function renderLc05Options() {
       if (o.id === s.selectedId && !o.correct) cls += ' lc05-wrong';
     }
     if (s.status === 'showAnswer' && o.correct) cls += ' lc05-correct';
-    var expanded = (s.status !== 'idle') && (o.correct || o.id === s.selectedId);
+    var expanded = s.status !== 'idle';
     var icon = '';
     if (s.status !== 'idle') {
       if (o.correct) icon = '<span style="color:#52C41A;font-size:20px;">✓</span>';
@@ -3862,7 +3862,7 @@ function renderOptionCards(state, containerId, btnId, onclickFn) {
       if (o.id === s.selectedId && !o.correct) cls += ' lc05-wrong';
     }
     if (s.status === 'showAnswer' && o.correct) cls += ' lc05-correct';
-    var expanded = (s.status !== 'idle') && (o.correct || o.id === s.selectedId);
+    var expanded = s.status !== 'idle';
     var icon = '';
     if (s.status !== 'idle') {
       if (o.correct) icon = '<span style="color:#52C41A;font-size:20px;">✓</span>';

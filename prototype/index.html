@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<!-- BUILD: 202606180948 -->
+<!-- BUILD: 202606180954 -->
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -3538,6 +3538,7 @@ function generateTodayWords() {
     var wd2 = wdDB[w2] || {};
     list.push({ word: w2, phonetic: wd2.en_phonetic || '/-/', meaning: wd2.meaning || '', type: 'new', stageLabel: wd2.stage_label || '' });
   }
+  shuffle(list); // 打乱复习和新词的顺序
   window.todayWordList = list;
   renderTodayPreview();
 }
@@ -3572,12 +3573,15 @@ function renderTodayPreview() {
     };
     div.innerHTML =
       '<div style="display:flex;align-items:center;justify-content:space-between;">'+
-        '<div style="display:flex;align-items:baseline;gap:6px;flex:1;">'+
+        '<div style="display:flex;align-items:baseline;gap:6px;flex:1;min-width:0;">'+
           tag+
           '<span style="font-size:17px;font-weight:600;color:var(--text-1);">'+w.word+'</span>'+
           '<span style="font-size:13px;color:var(--text-3);">'+w.phonetic+'</span>'+
         '</div>'+
-        '<span style="font-size:18px;cursor:pointer;color:var(--text-4);flex-shrink:0;margin-left:8px;" onclick="event.stopPropagation();toastMsg(\'发音功能开发中\')">🔊</span>'+
+        '<div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">'+
+          '<span style="font-size:18px;cursor:pointer;color:var(--text-4);" onclick="event.stopPropagation();toastMsg(\'发音功能开发中\')">🔊</span>'+
+          '<span style="font-size:16px;cursor:pointer;color:var(--text-4);padding:4px;" onclick="event.stopPropagation();openWordDetail(\''+w.word+'\')">›</span>'+
+        '</div>'+
       '</div>'+
       '<div id="pw_body_'+idx+'" style="display:none;padding-top:8px;">'+
         '<div style="font-size:14px;color:var(--text-2);">'+w.meaning+'</div>'+
@@ -3603,6 +3607,7 @@ function refreshTodayWords() {
     var wd = wdDB[w]||{};
     newList.push({word:w,phonetic:wd.en_phonetic||'/-/',meaning:wd.meaning||'',type:'new',stageLabel:wd.stage_label||''});
   }
+  shuffle(newList);
   window.todayWordList = newList;
   renderTodayPreview();
 }

@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<!-- BUILD: 202606181002 -->
+<!-- BUILD: 202606181013 -->
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -439,6 +439,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
   <a onclick="showPage('P27a')" id="nav-P27a">P27a 错词列表</a>
   <a onclick="showPage('P28')" id="nav-P28">P28 个人资料</a>
   <a onclick="showPage('P29')" id="nav-P29">P29 设置</a>
+  <a onclick="showPage('P30')" id="nav-P30">P30 创建学习单元</a>
 </div>
 
 <!-- ========================================== -->
@@ -851,7 +852,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
   <!-- 底部按钮 -->
   <div style="position:sticky;bottom:0;padding:12px 16px;background:var(--bg-card);border-top:.5px solid var(--divider);z-index:10;">
     <div style="font-size:11px;color:var(--text-4);text-align:center;margin-bottom:8px;">💡 点击任意单词可展开释义，准备就绪后开始学习</div>
-    <button class="btn-primary" style="width:100%;" onclick="toastMsg('学习流程开发中')">📚 开始学习</button>
+    <button class="btn-primary" style="width:100%;" onclick="startCreateUnits()">📚 开始学习</button>
   </div>
 </div>
 
@@ -1894,6 +1895,43 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
     <div style="padding-top:24px;">
       <button onclick="confirmLogout()" style="width:100%;padding:12px;background:var(--bg-card);border:1px solid var(--error);border-radius:var(--r-lg);color:var(--error);font-size:15px;cursor:pointer;">退出登录</button>
     </div>
+  </div>
+</div>
+
+<!-- ========================================== -->
+<!-- P30 创建学习单元 -->
+<!-- ========================================== -->
+<div class="page" id="P30">
+  <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:40px 24px;text-align:center;">
+    <div style="font-size:64px;margin-bottom:20px;animation:spin 2.5s linear infinite;">🧠</div>
+    <div style="font-size:18px;font-weight:600;color:var(--text-1);margin-bottom:8px;">大白思考中</div>
+    <div style="font-size:14px;color:var(--text-3);margin-bottom:24px;">正在为你生成学习计划...</div>
+
+    <!-- 信息卡片 -->
+    <div style="background:var(--bg-page);border-radius:var(--r-lg);padding:16px 24px;width:100%;max-width:280px;margin-bottom:24px;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:14px;">
+        <span style="color:var(--text-3);">学习模式</span>
+        <span style="color:var(--text-1);font-weight:500;" id="luMode">标准</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:14px;">
+        <span style="color:var(--text-3);">单词数量</span>
+        <span style="color:var(--text-1);font-weight:500;" id="luWordCount">20 个</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:14px;">
+        <span style="color:var(--text-3);">组件/词</span>
+        <span style="color:var(--text-1);font-weight:500;" id="luCompPerWord">3 个</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:14px;">
+        <span style="color:var(--text-3);">学习单元</span>
+        <span style="color:var(--brand);font-weight:600;" id="luTotal">60 个</span>
+      </div>
+    </div>
+
+    <!-- 进度条 -->
+    <div style="width:100%;max-width:280px;height:4px;background:var(--divider);border-radius:2px;overflow:hidden;">
+      <div id="luProgress" style="height:100%;background:var(--brand);border-radius:2px;width:0%;transition:width .3s;"></div>
+    </div>
+    <div style="font-size:12px;color:var(--text-4);margin-top:8px;" id="luPercent">0%</div>
   </div>
 </div>
 
@@ -3610,6 +3648,76 @@ function refreshTodayWords() {
   shuffle(newList);
   window.todayWordList = newList;
   renderTodayPreview();
+}
+
+// ========== 学习单元系统 P30 ==========
+window.todayTask = { created:false, units:[], currentIndex:0, startTime:null };
+
+// 学习模式→组件映射
+const MODE_COMPONENTS = {
+  simple:   [{id:'LC-01',name:'读单词'},{id:'LC-04',name:'英译汉'}],
+  standard: [{id:'LC-01',name:'读单词'},{id:'LC-04',name:'英译汉'},{id:'LC-06',name:'汉译英全拼'}],
+  hard:     [{id:'LC-01',name:'读单词'},{id:'LC-02',name:'拼单词'},{id:'LC-04',name:'英译汉'},{id:'LC-06',name:'汉译英全拼'},{id:'LC-08',name:'听力词'}],
+  smart:    [{id:'LC-01',name:'读单词'},{id:'LC-04',name:'英译汉'},{id:'LC-06',name:'汉译英全拼'}]
+};
+
+function buildLearningUnits() {
+  var mode = window.profile.studyMode || 'smart';
+  var words = window.todayWordList;
+  var comps = MODE_COMPONENTS[mode] || MODE_COMPONENTS.smart;
+  var units = [];
+  words.forEach(function(w) {
+    comps.forEach(function(c) {
+      units.push({ word:w.word, component:c.id, componentName:c.name, status:'pending', score:null });
+    });
+  });
+  return units;
+}
+
+function startCreateUnits() {
+  // 如果已创建且未完成，直接跳到学习组件（暂跳 P08）
+  if (window.todayTask.created && window.todayTask.currentIndex < window.todayTask.units.length) {
+    toastMsg('继续上次的学习');
+    showPage('P08');
+    return;
+  }
+  // 任务完成或首次 → 重新创建
+  var mode = window.profile.studyMode || 'smart';
+  var modeName = {simple:'简单',standard:'标准',hard:'困难',smart:'智能'}[mode] || '智能';
+  var comps = MODE_COMPONENTS[mode] || MODE_COMPONENTS.smart;
+  var units = buildLearningUnits();
+
+  window.todayTask = { created:false, units:units, currentIndex:0, startTime:Date.now() };
+
+  document.getElementById('luMode').textContent = modeName;
+  document.getElementById('luWordCount').textContent = window.todayWordList.length + ' 个';
+  document.getElementById('luCompPerWord').textContent = comps.length + ' 个';
+  document.getElementById('luTotal').textContent = units.length + ' 个';
+  document.getElementById('luProgress').style.width = '0%';
+  document.getElementById('luPercent').textContent = '0%';
+
+  showPage('P30');
+
+  // 动画进度条
+  var progress = 0;
+  var timer = setInterval(function() {
+    progress += Math.random() * 30;
+    if (progress >= 100) {
+      progress = 100;
+      clearInterval(timer);
+      document.getElementById('luProgress').style.width = '100%';
+      document.getElementById('luPercent').textContent = '100%';
+      // 动画完成，标记已创建，跳学习组件
+      setTimeout(function() {
+        window.todayTask.created = true;
+        toastMsg('学习计划已就绪');
+        showPage('P08');
+      }, 500);
+    } else {
+      document.getElementById('luProgress').style.width = progress + '%';
+      document.getElementById('luPercent').textContent = Math.floor(progress) + '%';
+    }
+  }, 200);
 }
 
 // ========== 学习统计 P05a ==========

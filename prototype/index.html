@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<!-- BUILD: 202606181505 -->
+<!-- BUILD: 202606181508 -->
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -3981,25 +3981,25 @@ function loadLc10() {
 
   // 选项：中文释义
   var correctLabel = wd.meaning || '';
-  var opts = [{ id:0, label:correctLabel, sub:'', extra:word, correct:true }];
+  var opts = [{ id:0, label:correctLabel, sub:'', extra:(wd.part_speech||'')+' '+word, correct:true }];
   var distractors = [];
   Object.keys(wdDB).forEach(function(k) {
     if (k !== word && distractors.length < 3) {
       var d = wdDB[k]||{};
       var m = d.meaning||'';
       if (!m) return; if (m === correctLabel) return;
-      distractors.push({ word:k, meaning:m });
+      distractors.push({ word:k, meaning:m, pos:(d.part_speech||'') });
     }
   });
   if (distractors.length < 3) {
     Object.keys(wdDB).forEach(function(k) {
       if (k === word || distractors.length >= 3) return;
       if (distractors.some(function(d){return d.word===k;})) return;
-      distractors.push({ word:k, meaning:wdDB[k].meaning||'(无释义)' });
+      distractors.push({ word:k, meaning:wdDB[k].meaning||'(无释义)', pos:(wdDB[k].part_speech||'') });
     });
   }
   distractors.forEach(function(d, i) {
-    opts.push({ id:i+1, label:d.meaning, sub:'', extra:d.word, correct:false });
+    opts.push({ id:i+1, label:d.meaning, sub:'', extra:(d.pos||'')+' '+d.word, correct:false });
   });
   shuffle(opts);
   lc10State.options = opts;

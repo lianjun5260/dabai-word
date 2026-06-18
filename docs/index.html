@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<!-- BUILD: 202606180921 -->
+<!-- BUILD: 202606180931 -->
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -610,23 +610,12 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
       </div>
     </div>
     <!-- 今日计划卡片 -->
-    <div style="background:#FFFBE6;border-radius:var(--r-lg);padding:16px;margin:12px 16px;">
-      <div style="font-size:16px;font-weight:600;color:var(--text-1);margin-bottom:16px;">今日计划 🎉</div>
-      <div style="display:flex;margin-bottom:16px;">
-        <div style="flex:1;text-align:center;">
-          <div style="font-size:24px;font-weight:700;color:var(--brand);">20/20</div>
-          <div style="font-size:12px;color:var(--text-3);margin-top:4px;">新学(词)</div>
-        </div>
-        <div style="width:1px;background:#F0E5C0;"></div>
-        <div style="flex:1;text-align:center;">
-          <div style="font-size:24px;font-weight:700;color:var(--warn);">45/60</div>
-          <div style="font-size:12px;color:var(--text-3);margin-top:4px;">复习(词)</div>
-        </div>
-      </div>
-      <div style="display:flex;gap:12px;">
-        <button class="btn-sm gray" style="flex:1;" disabled>再学一组</button>
-        <button class="btn-sm green" style="flex:1;" onclick="showPage('P07')">复习</button>
-      </div>
+    <div style="background:#FFFBE6;border-radius:var(--r-lg);padding:20px;margin:12px 16px;text-align:center;">
+      <div style="font-size:16px;font-weight:600;color:var(--text-1);margin-bottom:12px;">今日计划 🎉</div>
+      <div style="font-size:40px;font-weight:700;color:var(--brand);" id="todayProgress">0/20</div>
+      <div style="font-size:13px;color:var(--text-3);margin-top:4px;">今日已学 · 词</div>
+      <div style="font-size:11px;color:var(--text-4);margin-top:12px;" id="encourageLine">💬 每天坚持一小步，词汇量一大步</div>
+      <button class="btn-primary" id="todayBtn" style="width:100%;margin-top:12px;" onclick="startLearning()">📚 开始学习</button>
     </div>
   </div>
   <!-- 底部Tab -->
@@ -663,6 +652,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
         <div style="font-size:36px;font-weight:700;" id="statStreak">32</div>
         <div style="font-size:14px;opacity:.85;margin-top:2px;">连续打卡 · 天</div>
         <div style="font-size:12px;opacity:.6;margin-top:4px;" id="statStreakNext">距里程碑还差 18 天</div>
+        <div style="font-size:12px;opacity:.7;margin-top:8px;border-top:1px solid rgba(255,255,255,.2);padding-top:8px;" id="streakEncourage">💬 坚持下去，你比想象中更强</div>
       </div>
     </div>
 
@@ -2014,6 +2004,7 @@ function showPage(id, isBack) {
   if (id === 'P26') { updateFavCount(); renderFavorites(); }
   if (id === 'P27') { renderErrorBook(); }
   if (id === 'P05a') { renderStats(); }
+  if (id === 'P04') { refreshTodayPlan(); }
 
   // 滚动到顶部
   setTimeout(() => { if (newPage) newPage.scrollTop = 0; }, 50);
@@ -3500,6 +3491,57 @@ function errTouchEnd(e, idx) {
   errSwipedId = null;
 }
 
+// ========== 今日计划 & 鼓励语 ==========
+window.todayLearned = 0;
+const ENCOURAGE = [
+  '每天坚持一小步，词汇量一大步',
+  '不积跬步，无以至千里',
+  '今天的努力是明天的底气',
+  '单词不可怕，坚持最可怕',
+  '每背一个词，就离梦想近一步',
+  '学习是一场马拉松，不是短跑',
+  '你不是在背单词，你是在积累未来',
+  '放弃很容易，但坚持一定很酷'
+];
+
+function randomEncourage() {
+  return ENCOURAGE[Math.floor(Math.random()*ENCOURAGE.length)];
+}
+
+function refreshTodayPlan() {
+  var goal = window.profile.dailyGoal || 20;
+  var n = window.todayLearned || 0;
+  var el = document.getElementById('todayProgress');
+  if(el) el.textContent = n + '/' + goal;
+  var btn = document.getElementById('todayBtn');
+  if(btn) {
+    if(n >= goal) { btn.textContent = '✅ 今日目标达成'; btn.disabled = true; btn.style.opacity = '0.5'; btn.style.background = 'var(--text-4)'; }
+    else if(n > 0) { btn.textContent = '📚 继续学习'; btn.disabled = false; btn.style.opacity = ''; btn.style.background = ''; }
+    else { btn.textContent = '📚 开始学习'; btn.disabled = false; btn.style.opacity = ''; btn.style.background = ''; }
+  }
+  var en = document.getElementById('encourageLine');
+  if(en) en.textContent = '💬 ' + randomEncourage();
+}
+
+function startLearning() {
+  if (window.todayLearned >= (window.profile.dailyGoal||20)) {
+    toastMsg('今日目标已完成，明天继续加油！');
+    return;
+  }
+  // MOCK: 模拟学习一个词
+  window.todayLearned++;
+  refreshTodayPlan();
+  var stre = document.getElementById('statStreak');
+  if(stre) stre.textContent = statsData.streak;
+  document.getElementById('statTotalDays').textContent = statsData.totalDays + 1;
+  var now = new Date(); var kk = now.toISOString().slice(0,10);
+  statsData.dailyLog[kk] = (statsData.dailyLog[kk]||0) + 1;
+  toastMsg('已学习 ' + window.todayLearned + ' 个词');
+  if (window.todayLearned >= (window.profile.dailyGoal||20)) {
+    setTimeout(function(){ toastMsg('🎉 今日目标达成！太棒了！'); }, 1500);
+  }
+}
+
 // ========== 学习统计 P05a ==========
 const statsData = {
   streak:32, totalDays:186, totalMastered:1280, totalLearning:1200, totalNew:420,
@@ -3513,6 +3555,13 @@ var calYear, calMonth;
 function renderStats() {
   document.getElementById('statStreak').textContent=statsData.streak;
   document.getElementById('statStreakNext').textContent='距里程碑还差 '+(50-statsData.streak)+' 天';
+  var se = document.getElementById('streakEncourage');
+  if(se) {
+    if(statsData.streak>=100) se.textContent='💬 你是词汇达人，绝对自律！';
+    else if(statsData.streak>=30) se.textContent='💬 '+statsData.streak+'天的坚持，你已经超越了95%的学习者！';
+    else if(statsData.streak>=7) se.textContent='💬 一周的坚持，你已经养成了好习惯！';
+    else se.textContent='💬 坚持下去，你比想象中更强';
+  }
   document.getElementById('statTotalDays').textContent=statsData.totalDays;
   document.getElementById('statMastered').textContent=statsData.totalMastered;
   document.getElementById('statAccuracy').textContent=statsData.avgAccuracy+'%';

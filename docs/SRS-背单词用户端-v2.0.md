@@ -1692,12 +1692,12 @@ P04 首页 ──开始学习──→ P07 今日预览 ──开始学习──
 | 项目 | 值 |
 |------|-----|
 | 容器定位 | PX页面使用 `position:sticky;bottom:0` 或 flex 底部 |
-| 卡片 min-height | 64px |
-| 卡片 padding | 12px 16px |
-| 卡片间距 | margin-bottom:10px |
-| 单词字号 | 17px font-weight:500 |
-| 展开音标 | 13px 行内灰色，与单词同行 |
-| 展开释义 | 13px `词性 中文` 格式，第二行 |
+| 卡片 min-height | 48px |
+| 卡片 padding | 10px 14px |
+| 卡片间距 | margin-bottom:8px |
+| 单词字号 | 16px font-weight:500 line-height:22px |
+| 展开音标 | 12px 行内灰色，与单词同行 |
+| 展开释义 | 12px `词性 中文` 格式，第二行 line-height:22px |
 | 正确色 | 背景 `#F6FFED` 边框 `#52C41A` + ✓ |
 | 错误色 | 背景 `#FFF1F0` 边框 `#FF4D4F` + ✗ |
 | 按钮 idle | 描边灰底「查看答案」 |

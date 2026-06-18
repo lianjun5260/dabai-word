@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<!-- BUILD: 202606180854 -->
+<!-- BUILD: 202606180921 -->
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1505,10 +1505,16 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
         <div class="mi-value">3个</div>
         <div class="mi-arrow">›</div>
       </div>
-      <div class="menu-item" onclick="showPage('P06')">
-        <div class="mi-icon" style="background:var(--brand-light);">🎯</div>
-        <div class="mi-title">学习目标</div>
-        <div class="mi-value">20词/天</div>
+      <div class="menu-item" onclick="editDailyGoal()">
+        <div class="mi-icon" style="background:var(--brand-light);">📋</div>
+        <div class="mi-title">每日任务</div>
+        <div class="mi-value" id="p21Goal">20词/天</div>
+        <div class="mi-arrow">›</div>
+      </div>
+      <div class="menu-item" onclick="editStudyMode()">
+        <div class="mi-icon" style="background:#E6F7FF;">🧠</div>
+        <div class="mi-title">学习模式</div>
+        <div class="mi-value" id="p21Mode">智能</div>
         <div class="mi-arrow">›</div>
       </div>
       <div class="menu-item" onclick="showPage('P26')">
@@ -3039,12 +3045,15 @@ window.profile = {
   gender: 'male',
   grade: '三年级',
   textbook: '人教版',
-  phone: '13812345678'
+  phone: '13812345678',
+  dailyGoal: 20,
+  studyMode: 'smart'
 };
 
 const GENDER_MAP = { male:'男', female:'女', secret:'保密' };
 const GRADE_OPTS = ['一年级','二年级','三年级','四年级','五年级','六年级','初一','初二','初三','高一','高二','高三','大学及以上'];
 const TEXTBOOK_OPTS = ['人教版','苏教版','北师大版','外研版','鲁教版'];
+const MODE_MAP = { simple:'简单', standard:'标准', hard:'困难', smart:'智能' };
 
 function refreshProfile() {
   const p = window.profile;
@@ -3064,6 +3073,10 @@ function updateP21Profile() {
   const p = window.profile;
   const nn = document.getElementById('p21Nickname');
   if(nn) nn.textContent = p.nickname;
+  const g = document.getElementById('p21Goal');
+  if(g) g.textContent = p.dailyGoal + '词/天';
+  const m = document.getElementById('p21Mode');
+  if(m) m.textContent = MODE_MAP[p.studyMode] || '智能';
 }
 
 // ========== 通用 ActionSheet ==========
@@ -3153,6 +3166,36 @@ function editTextbook() {
   }});
   items.push({label:'取消', cls:'cancel', cb:function(){}});
   openSheet(items);
+}
+
+// ========== 每日任务 ==========
+function editDailyGoal() {
+  var cur = window.profile.dailyGoal;
+  openSheet([
+    {label:'📗 轻松 · 10词/天', cb:function(){ window.profile.dailyGoal=10; refreshProfile(); }},
+    {label:'📘 标准 · 20词/天', cb:function(){ window.profile.dailyGoal=20; refreshProfile(); }},
+    {label:'📕 挑战 · 30词/天', cb:function(){ window.profile.dailyGoal=30; refreshProfile(); }},
+    {label:'✏️ 自定义', cls:'custom-opt', cb:function(){
+      var body='<input id="goalCustom" type="number" placeholder="请输入1-99" min="1" max="99"><div class="dialog-desc">💡 系统优先安排复习，空余名额学新词</div>';
+      openDialog('自定义每日目标', body, '取消', '确认', function(){
+        var v=parseInt(document.getElementById('goalCustom').value);
+        if(!v||v<1||v>99){ toastMsg('请输入1-99的数字'); return; }
+        window.profile.dailyGoal=v; refreshProfile(); toastMsg('每日目标已更新');
+      });
+    }},
+    {label:'取消', cls:'cancel', cb:function(){}}
+  ]);
+}
+
+// ========== 学习模式 ==========
+function editStudyMode() {
+  openSheet([
+    {label:'简单', cb:function(){ window.profile.studyMode='simple'; refreshProfile(); }},
+    {label:'标准', cb:function(){ window.profile.studyMode='standard'; refreshProfile(); }},
+    {label:'困难', cb:function(){ window.profile.studyMode='hard'; refreshProfile(); }},
+    {label:'智能（推荐）', cb:function(){ window.profile.studyMode='smart'; refreshProfile(); }},
+    {label:'取消', cls:'cancel', cb:function(){}}
+  ]);
 }
 
 // ========== 绑定手机 ==========

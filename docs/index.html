@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<!-- BUILD: 202606181442 -->
+<!-- BUILD: 202606181443 -->
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -3937,6 +3937,15 @@ function loadLc04() {
       distractors.push({ word:k, meaning:m, pos:dw.part_speech||'', phonetic:dw.en_phonetic||'/-/' });
     }
   });
+  // 确保至少3个干扰项
+  if (distractors.length < 3) {
+    Object.keys(wdDB).forEach(function(k) {
+      if (k === word || distractors.length >= 3) return;
+      if (distractors.some(function(d){return d.word===k;})) return;
+      var dw = wdDB[k];
+      distractors.push({ word:k, meaning:dw.meaning||'(无释义)', pos:dw.part_speech||'', phonetic:dw.en_phonetic||'/-/' });
+    });
+  }
   distractors.forEach(function(d, i) {
     opts.push({ id:i+1, label:d.meaning, sub:'', extra:(d.pos||'')+' '+d.word+' '+d.phonetic, correct:false });
   });

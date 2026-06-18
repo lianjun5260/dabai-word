@@ -1812,7 +1812,7 @@ POST /api/learn/answer
 | 9 | 退出学习 | 左上 `<` 调用 `exitLearning()` confirm 后回 P04 |
 | 10 | 进度条 | 导航栏下方显示 `N/total` + 百分比进度条 |
 | 11 | 干扰项 | 从 wdDB 按词性/长度智能抽取 |
-| 12 | 无延迟 | 所有反馈 0ms 延迟，即时响应 |
+| 13 | 调试标签 | 进度条下显示 `PX | 组件名 | LC-XX` (font-size:10px, opacity:.5) 便于测试 |
 
 #### 页面结构模板
 

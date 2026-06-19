@@ -4290,7 +4290,6 @@ function handleLc06Input() {
   if (lc06State.status !== 'idle') return;
   var input = document.getElementById('lc06Input');
   var val = input.value.toLowerCase().replace(/[^a-z]/g, '');
-  input.value = val;
   lc06State.userInput = val;
 
   // 实时更新字母下划线行
@@ -4322,14 +4321,14 @@ function handleLc06Input() {
 
 function handleLc06Btn() {
   if (lc06State.status === 'idle') {
-    // idle态跳到单词详情（查看答案逻辑：揭示答案）
-    lc06State.status = 'showAnswer';
+    // 未输完就点详情 → 判错，揭示答案
+    lc06State.status = 'wrong';
     document.getElementById('lc06Example').style.visibility = 'visible';
     document.getElementById('lc06AnswerBox').style.visibility = 'visible';
-    renderSpellLine(lc06State.word, lc06State.word, false);
-    document.getElementById('lc06Input').value = lc06State.word;
+    // 字母行：只显示已输入的，不足留空，带结果比对
+    renderSpellLine(lc06State.word, lc06State.userInput, true);
     document.getElementById('lc06Input').disabled = true;
-    document.getElementById('lc06Judge').innerHTML = '<span style="color:var(--brand);">✓</span>';
+    document.getElementById('lc06Judge').innerHTML = '<span style="color:var(--error);">✗</span>';
     var btn = document.getElementById('lc06Btn');
     btn.className = 'btn-primary';
   } else {

@@ -412,6 +412,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
 #P08.page.active { display:flex; flex-direction:column; overflow:hidden; height:100%; }
 #P14.page.active { display:flex; flex-direction:column; overflow:hidden; height:100%; }
 #P15.page.active { display:flex; flex-direction:column; overflow:hidden; height:100%; }
+#P16.page.active { display:flex; flex-direction:column; overflow:hidden; height:100%; }
 #P20.page.active { display:flex; flex-direction:column; overflow:hidden; height:100%; }
 </style>
 </head>
@@ -433,12 +434,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
   <a onclick="showPage('P14')" id="nav-P14">P14 LC-04英译汉词</a>
   <a onclick="showPage('P15')" id="nav-P15">P15 LC-10英译汉句</a>
   <a onclick="showPage('P10')" id="nav-P10">P10 LC-03读例句</a>
-  <a onclick="showPage('P11')" id="nav-P11">P11 LC-04英译汉</a>
-  <a onclick="showPage('P12')" id="nav-P12">P12 LC-05汉译英-直选</a>
-  <a onclick="showPage('P13')" id="nav-P13">P13 LC-06汉译英-全拼</a>
-  <a onclick="showPage('P14')" id="nav-P14">P14 LC-07汉译英-拼读</a>
-  <a onclick="showPage('P15')" id="nav-P15">P15 LC-08听力(词)</a>
-  <a onclick="showPage('P16')" id="nav-P16">P16 LC-09听力(句)</a>
+  <a onclick="showPage('P16')" id="nav-P16">P16 LC-08听力词</a>
   <a onclick="showPage('P17')" id="nav-P17">P17 新学结束</a>
   <a onclick="showPage('P18')" id="nav-P18">P18 复习结束</a>
   <a onclick="showPage('P19')" id="nav-P19">P19 今日学习结束</a>
@@ -1224,87 +1220,45 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
   </div>
 </div>
 
-<!-- ========================================== -->
-<!-- P15 LC-08 听力(词) -->
-<!-- ========================================== -->
-<div class="page" id="P15">
-  <div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
-  <div class="navbar">
-    <div class="back" onclick="goBack()"><</div>
-    <div class="title">今日进度 8/10</div>
-    <div class="right"></div>
-  </div>
-  <div style="padding:16px;">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
-      <span class="tag tag-green">听·词</span>
-    </div>
-    <!-- 听力播放 -->
-    <div style="text-align:center;margin-bottom:32px;">
-      <div style="width:80px;height:80px;border-radius:50%;background:var(--brand);display:flex;align-items:center;justify-content:center;margin:0 auto;font-size:36px;cursor:pointer;box-shadow:0 4px 16px rgba(82,196,26,.3);">🔊</div>
-      <div style="font-size:14px;color:var(--text-3);margin-top:12px;">点击播放单词发音</div>
-    </div>
-    <div style="text-align:center;font-size:15px;color:var(--text-2);margin-bottom:24px;">请听发音，选择正确的单词</div>
-    <!-- 选项 -->
-    <div>
-      <div class="option-item" onclick="selectOption(this,'wrong')">
-        <div class="opt-letter">A</div>
-        <span>industrial</span>
-      </div>
-      <div class="option-item" data-correct="true" onclick="selectOption(this,'correct')">
-        <div class="opt-letter">B</div>
-        <span>industrious</span>
-      </div>
-      <div class="option-item" onclick="selectOption(this,'wrong')">
-        <div class="opt-letter">C</div>
-        <span>intelligence</span>
-      </div>
-      <div class="option-item" onclick="selectOption(this,'wrong')">
-        <div class="opt-letter">D</div>
-        <span>instructor</span>
-      </div>
-    </div>
-  </div>
-</div>
 
 <!-- ========================================== -->
-<!-- P16 LC-09 听力(句) -->
+<!-- P16 LC-08 听力(词)-直选 -->
 <!-- ========================================== -->
 <div class="page" id="P16">
   <div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
   <div class="navbar">
-    <div class="back" onclick="goBack()"><</div>
-    <div class="title">今日进度 9/10</div>
+    <div class="back" onclick="exitLearning()"><</div>
+    <div class="title" id="lc08Progress">今日进度 1/60</div>
     <div class="right"></div>
   </div>
-  <div style="padding:16px;">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
-      <span class="tag tag-green">听·句</span>
+  <div style="height:3px;background:var(--divider);">
+    <div id="lc08Bar" style="height:100%;background:var(--brand);width:0%;transition:width .3s;"></div>
+  </div>
+  <div style="font-size:10px;color:var(--text-4);text-align:center;padding:1px 0;opacity:.5;">P16 | 听力(词)-直选 | LC-08</div>
+  <!-- 题目区 -->
+  <div style="text-align:center;padding:24px 16px;flex:1;overflow-y:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+    <!-- 隐藏态：灰色占位 + 播放按钮 -->
+    <div id="lc08Hidden" style="text-align:center;">
+      <div style="width:80px;height:80px;border-radius:50%;background:var(--brand);display:flex;align-items:center;justify-content:center;margin:0 auto;font-size:36px;cursor:pointer;box-shadow:0 4px 16px rgba(82,196,26,.3);" onclick="toastMsg('发音功能开发中')">🔊</div>
+      <div style="font-size:14px;color:var(--text-3);margin-top:12px;">点击播放单词发音</div>
     </div>
-    <!-- 听力播放 -->
-    <div style="text-align:center;margin-bottom:32px;">
-      <div style="width:80px;height:80px;border-radius:50%;background:var(--brand);display:flex;align-items:center;justify-content:center;margin:0 auto;font-size:36px;cursor:pointer;box-shadow:0 4px 16px rgba(82,196,26,.3);">🔊</div>
-      <div style="font-size:14px;color:var(--text-3);margin-top:12px;">点击播放例句发音</div>
+    <!-- 揭示态：显示单词+音标 -->
+    <div id="lc08Revealed" style="display:none;text-align:center;">
+      <div style="font-size:34px;font-weight:600;color:var(--text-1);margin-bottom:6px;" id="lc08Word">abandon</div>
+      <div style="font-size:14px;color:var(--text-3);margin-bottom:8px;">英 <span id="lc08Phonetic">/əˈbændən/</span> <span style="font-size:16px;cursor:pointer;" onclick="event.stopPropagation();toastMsg('发音功能开发中')">🔊</span></div>
     </div>
-    <div style="text-align:center;font-size:15px;color:var(--text-2);margin-bottom:24px;">请听例句，选择正确的中文翻译</div>
-    <!-- 选项 -->
-    <div>
-      <div class="option-item" onclick="selectOption(this,'wrong')">
-        <div class="opt-letter">A</div>
-        <span>那个懒惰的学生总是完不成作业。</span>
-      </div>
-      <div class="option-item" data-correct="true" onclick="selectOption(this,'correct')">
-        <div class="opt-letter">B</div>
-        <span>那个勤奋的学生总是早早完成作业。</span>
-      </div>
-      <div class="option-item" onclick="selectOption(this,'wrong')">
-        <div class="opt-letter">C</div>
-        <span>那个聪明的学生经常帮助同学。</span>
-      </div>
-      <div class="option-item" onclick="selectOption(this,'wrong')">
-        <div class="opt-letter">D</div>
-        <span>那个学生每天都很早到学校。</span>
-      </div>
+    <div style="font-size:13px;color:var(--text-3);margin-top:12px;">请听发音，选择正确的中文释义</div>
+    <!-- 例句卡片（隐藏时占位） -->
+    <div id="lc08Example" style="visibility:hidden;background:#F6FFED;border-radius:var(--r-md);padding:12px 16px;text-align:left;width:100%;box-sizing:border-box;min-height:70px;margin-top:16px;">
+      <div style="font-size:14px;color:var(--text-1);line-height:1.6;margin-bottom:6px;" id="lc08ExEn">Example sentence.</div>
+      <div style="font-size:13px;color:var(--text-3);margin-bottom:6px;" id="lc08ExCn">示例句子。</div>
+      <span style="font-size:16px;cursor:pointer;color:var(--text-4);" onclick="event.stopPropagation();toastMsg('发音功能开发中')">🔊</span>
     </div>
+  </div>
+  <!-- 底部面板 -->
+  <div style="padding:0 16px 16px;background:var(--bg-card);z-index:10;">
+    <div id="lc08Options" style="margin-bottom:10px;"></div>
+    <button id="lc08Btn" class="btn-outline" onclick="handleLc08Btn()">查看答案</button>
   </div>
 </div>
 
@@ -1471,6 +1425,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
       <span style="display:inline-block;padding:3px 8px;border-radius:4px;background:var(--bg-page);color:var(--text-3);font-size:11px;cursor:pointer;" onclick="window.fromLearningComponent=true;showPage('P08')">汉译英-词</span>
       <span style="display:inline-block;padding:3px 8px;border-radius:4px;background:var(--bg-page);color:var(--text-3);font-size:11px;cursor:pointer;" onclick="window.fromLearningComponent=true;showPage('P14')">英译汉-词</span>
       <span style="display:inline-block;padding:3px 8px;border-radius:4px;background:var(--bg-page);color:var(--text-3);font-size:11px;cursor:pointer;" onclick="window.fromLearningComponent=true;showPage('P15')">英译汉-句</span>
+      <span style="display:inline-block;padding:3px 8px;border-radius:4px;background:var(--bg-page);color:var(--text-3);font-size:11px;cursor:pointer;" onclick="window.fromLearningComponent=true;showPage('P16')">听力-词</span>
     </div>
     <button class="btn-primary" style="width:100%;" onclick="goNextWord()">下一个单词</button>
   </div>
@@ -2080,6 +2035,7 @@ function showPage(id, isBack) {
   if (id === 'P08') { loadLc05(); }
   if (id === 'P14') { loadLc04(); }
   if (id === 'P15') { loadLc10(); }
+  if (id === 'P16') { loadLc08(); }
 
   // 滚动到顶部
   setTimeout(() => { if (newPage) newPage.scrollTop = 0; }, 50);
@@ -4023,6 +3979,84 @@ function handleLc10Btn() {
   } else {
     window.fromLearningComponent = true;
     openWordDetail(lc10State.word);
+  }
+}
+
+// ========== LC-08 听力(词)-直选 ==========
+var lc08State = { status:'idle', word:'', phonetic:'', options:[], example:{en:'',cn:''}, selectedId:-1 };
+
+function loadLc08() {
+  var idx = window.todayTask.currentIndex || 0;
+  var units = window.todayTask.units || [];
+  var total = units.length || 60;
+  document.getElementById('lc08Progress').textContent = '今日进度 '+(idx+1)+'/'+total;
+  document.getElementById('lc08Bar').style.width = Math.round(((idx+1)/total)*100) + '%';
+
+  var word = 'abandon';
+  if (units.length > 0 && idx < units.length) word = units[idx].word;
+  var wd = wdDB[word] || {};
+  lc08State = { status:'idle', word:word, phonetic:wd.en_phonetic||'/-/', example:{en:(wd.sentences||[{en:''}])[0].en||'',cn:(wd.sentences||[{cn:''}])[0].cn||''}, options:[], selectedId:-1 };
+
+  // 初始隐藏态：只显示播放按钮
+  document.getElementById('lc08Hidden').style.display = '';
+  document.getElementById('lc08Revealed').style.display = 'none';
+  document.getElementById('lc08Word').textContent = word;
+  document.getElementById('lc08Phonetic').textContent = lc08State.phonetic;
+
+  // 例句
+  var ex = lc08State.example;
+  document.getElementById('lc08ExEn').innerHTML = ex.en;
+  document.getElementById('lc08ExCn').textContent = ex.cn;
+  document.getElementById('lc08Example').style.visibility = 'hidden';
+
+  // 选项：中文释义（与LC-04格式一致）
+  var correctLabel = wd.meaning || '';
+  var opts = [{ id:0, label:correctLabel, sub:'', extra:(wd.part_speech||'')+' '+word+' '+(wd.en_phonetic||'/-/'), correct:true }];
+  var distractors = [];
+  Object.keys(wdDB).forEach(function(k) {
+    if (k !== word && distractors.length < 3) {
+      var d = wdDB[k]||{};
+      var m = d.meaning||'';
+      if (!m) return; if (m === correctLabel) return;
+      distractors.push({ word:k, meaning:m, pos:d.part_speech||'', phonetic:d.en_phonetic||'/-/' });
+    }
+  });
+  if (distractors.length < 3) {
+    Object.keys(wdDB).forEach(function(k) {
+      if (k === word || distractors.length >= 3) return;
+      if (distractors.some(function(d){return d.word===k;})) return;
+      var d = wdDB[k];
+      distractors.push({ word:k, meaning:d.meaning||'(无释义)', pos:d.part_speech||'', phonetic:d.en_phonetic||'/-/' });
+    });
+  }
+  distractors.forEach(function(d, i) {
+    opts.push({ id:i+1, label:d.meaning, sub:'', extra:(d.pos||'')+' '+d.word+' '+d.phonetic, correct:false });
+  });
+  shuffle(opts);
+  lc08State.options = opts;
+  renderOptionCards(lc08State, 'lc08Options', 'lc08Btn', 'handleLc08Opt');
+}
+
+function handleLc08Opt(id) {
+  handleSelectOpt(lc08State, 'lc08Options', 'lc08Btn', 'lc08Example', 'handleLc08Opt')(id);
+  // 选择后揭示单词
+  if (lc08State.status !== 'idle') {
+    document.getElementById('lc08Hidden').style.display = 'none';
+    document.getElementById('lc08Revealed').style.display = '';
+  }
+}
+
+function handleLc08Btn() {
+  if (lc08State.status === 'idle') {
+    lc08State.status = 'showAnswer'; lc08State.selectedId = -1;
+    renderOptionCards(lc08State, 'lc08Options', 'lc08Btn', 'handleLc08Opt');
+    document.getElementById('lc08Example').style.visibility = 'visible';
+    // 查看答案后揭示单词
+    document.getElementById('lc08Hidden').style.display = 'none';
+    document.getElementById('lc08Revealed').style.display = '';
+  } else {
+    window.fromLearningComponent = true;
+    openWordDetail(lc08State.word);
   }
 }
 

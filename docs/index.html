@@ -4123,36 +4123,30 @@ function loadLc09() {
   document.getElementById('lc09SentenceCn').textContent = lc09State.sentenceCn;
   document.getElementById('lc09Translation').style.visibility = 'hidden';
 
-  // 选项：英文单词（同义词/近义词作为干扰项）
-  var correctWord = word;
-  var opts = [{ id:0, label:correctWord, sub:'', extra:(wd.part_speech||'')+' '+(wd.meaning||''), correct:true }];
+  // 选项：中文释义（默认显示中文，回显显示词性+英文+音标）
+  var correctLabel = wd.meaning || '';
+  var opts = [{ id:0, label:correctLabel, sub:'', extra:(wd.part_speech||'')+' '+word+' '+(wd.en_phonetic||'/-/'), correct:true }];
   var distractors = [];
-
-  // 找同义/近义词（中文释义相同或相似的单词）
-  var targetMeaning = wd.meaning || '';
   Object.keys(wdDB).forEach(function(k) {
     if (k === word || distractors.length >= 3) return;
-    if (k === 'apple' || k === 'banana' || k === 'cat' || k === 'dog' || k === 'egg' || k === 'fish') return; // 跳过基础词
+    if (k === 'apple' || k === 'banana' || k === 'cat' || k === 'dog' || k === 'egg' || k === 'fish') return;
     var d = wdDB[k]||{};
     var m = d.meaning||'';
-    if (!m) return;
-    // 中文释义部分匹配作为干扰项
-    if (m !== targetMeaning) distractors.push({ word:k, meaning:m, pos:d.part_speech||'' });
+    if (!m) return; if (m === correctLabel) return;
+    distractors.push({ word:k, meaning:m, pos:d.part_speech||'', phonetic:d.en_phonetic||'/-/' });
   });
-  // 不足3个，从全词库补充
   if (distractors.length < 3) {
     Object.keys(wdDB).forEach(function(k) {
       if (k === word || distractors.length >= 3) return;
       if (distractors.some(function(d){return d.word===k;})) return;
-      if (k === 'apple' || k === 'banana' || k === 'cat' || k === 'dog' || k === 'egg' || k === 'fish') return;
       var d = wdDB[k];
-      distractors.push({ word:k, meaning:d.meaning||'(无释义)', pos:d.part_speech||'' });
+      distractors.push({ word:k, meaning:d.meaning||'(无释义)', pos:d.part_speech||'', phonetic:d.en_phonetic||'/-/' });
     });
   }
   shuffle(distractors);
   distractors = distractors.slice(0, 3);
   distractors.forEach(function(d, i) {
-    opts.push({ id:i+1, label:d.word, sub:'', extra:(d.pos||'')+' '+d.meaning, correct:false });
+    opts.push({ id:i+1, label:d.meaning, sub:'', extra:(d.pos||'')+' '+d.word+' '+d.phonetic, correct:false });
   });
   shuffle(opts);
   lc09State.options = opts;

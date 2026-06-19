@@ -1991,14 +1991,12 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
     </div>
     <!-- 答案框（答后可见） -->
     <div id="lc06AnswerBox" style="visibility:hidden;background:#F0F0F0;border-radius:8px;padding:10px 20px;margin-top:16px;font-size:20px;font-weight:600;color:var(--text-1);text-align:center;"></div>
-    <!-- 字母下划线行 -->
-    <div id="lc06SpellLine" style="display:flex;gap:4px;justify-content:center;margin-top:24px;flex-wrap:wrap;"></div>
+    <!-- 字母下划线行（点击唤起键盘） -->
+    <div id="lc06SpellLine" style="display:flex;gap:4px;justify-content:center;margin-top:24px;flex-wrap:wrap;cursor:text;" onclick="document.getElementById('lc06Input').focus()"></div>
     <!-- 判定标记 -->
     <div id="lc06Judge" style="font-size:28px;margin-top:8px;"></div>
-    <!-- 输入框 -->
-    <div style="width:100%;margin-top:16px;">
-      <input type="text" id="lc06Input" style="width:100%;height:44px;font-size:18px;text-align:center;border:1px solid var(--border);border-radius:var(--r-md);outline:none;box-sizing:border-box;letter-spacing:4px;" placeholder="请输入英文拼写" oninput="handleLc06Input()" maxlength="20" autocomplete="off" autocapitalize="off" spellcheck="false">
-    </div>
+    <!-- 隐藏输入框（接受键盘输入） -->
+    <input type="text" id="lc06Input" style="position:absolute;opacity:0;width:1px;height:1px;" oninput="handleLc06Input()" maxlength="20" autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="text" x-inputmode="text">
   </div>
   <!-- 底部面板 -->
   <div style="padding:0 16px 16px;background:var(--bg-card);z-index:10;">

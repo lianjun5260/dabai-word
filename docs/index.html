@@ -4248,8 +4248,17 @@ function loadLc06() {
   document.getElementById('lc06AnswerBox').style.visibility = 'hidden';
   document.getElementById('lc06AnswerBox').textContent = lc06State.word;
 
-  // 字母下划线行（全部空格）
-  renderSpellLine(lc06State.word, '', false);
+  // 字母下划线行：先建DOM节点（避免innerHTML导致移动端flex渲染顺序颠倒）
+  var container = document.getElementById('lc06SpellLine');
+  container.innerHTML = '';
+  lc06State._cells = [];
+  for (var i = 0; i < word.length; i++) {
+    var cell = document.createElement('div');
+    cell.className = 'spell-cell empty';
+    cell.textContent = '';
+    container.appendChild(cell);
+    lc06State._cells.push(cell);
+  }
 
   // 清空判定标记
   document.getElementById('lc06Judge').innerHTML = '';
@@ -4268,22 +4277,22 @@ function loadLc06() {
 }
 
 function renderSpellLine(targetWord, userInput, showResult) {
-  var container = document.getElementById('lc06SpellLine');
-  var html = '';
+  var cells = lc06State._cells;
+  if (!cells) return;
   for (var i = 0; i < targetWord.length; i++) {
-    var letter = '';
+    var cell = cells[i];
     var cls = 'spell-cell';
     if (i < userInput.length) {
-      letter = userInput[i];
+      cell.textContent = userInput[i];
       if (showResult) {
         cls += (userInput[i] === targetWord[i]) ? '' : ' wrong';
       }
     } else {
+      cell.textContent = '';
       cls += ' empty';
     }
-    html += '<div class="'+cls+'">'+letter+'</div>';
+    cell.className = cls;
   }
-  container.innerHTML = html;
 }
 
 function handleLc06Input() {

@@ -420,6 +420,10 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
 .spell-cell { width:28px; height:36px; border-bottom:2px solid var(--text-4); display:flex; align-items:center; justify-content:center; font-size:20px; font-weight:500; color:var(--text-1); }
 .spell-cell.wrong { color:var(--error); border-bottom-color:var(--error); }
 .spell-cell.empty { color:transparent; }
+/* 自定义键盘 */
+.kbd-key { flex:1; max-width:36px; height:42px; background:#fff; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:17px; font-weight:500; color:var(--text-1); cursor:pointer; user-select:none; box-shadow:0 1px 2px rgba(0,0,0,.08); transition:transform .1s,background .1s; }
+.kbd-key:active { background:#E0E0E0; transform:scale(.94); }
+.kbd-del { max-width:48px; background:#E8E8E8; font-size:16px; }
 </style>
 </head>
 <body>
@@ -1991,13 +1995,48 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
     </div>
     <!-- 答案框（答后可见） -->
     <div id="lc06AnswerBox" style="visibility:hidden;background:#F0F0F0;border-radius:8px;padding:10px 20px;margin-top:16px;font-size:20px;font-weight:600;color:var(--text-1);text-align:center;"></div>
-    <!-- 字母下划线行（点击唤起键盘） -->
-    <div id="lc06SpellLine" style="display:flex;flex-direction:row;gap:4px;justify-content:center;margin-top:24px;flex-wrap:wrap;cursor:text;direction:ltr;" onclick="document.getElementById('lc06Input').focus()"></div>
+    <!-- 字母下划线行 -->
+    <div id="lc06SpellLine" style="display:flex;flex-direction:row;gap:4px;justify-content:center;margin-top:24px;flex-wrap:wrap;direction:ltr;"></div>
     <!-- 判定标记 -->
     <div id="lc06Judge" style="font-size:28px;margin-top:8px;"></div>
-    <!-- 输入框：在文档流中保持浏览器正常渲染，视觉上隐藏 -->
-    <div style="position:relative;width:100%;height:0;overflow:hidden;margin-top:4px;">
-      <input type="text" id="lc06Input" dir="ltr" style="width:100%;height:40px;padding:0;border:none;background:transparent;color:transparent !important;caret-color:transparent;font-size:16px;letter-spacing:4px;position:absolute;top:0;left:0;text-shadow:none;-webkit-text-fill-color:transparent;" maxlength="20" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" inputmode="text" x-inputmode="text">
+    <!-- 自定义键盘 -->
+    <div id="lc06Keyboard" style="padding:8px 4px;background:#F2F3F5;border-radius:12px 12px 0 0;margin-top:auto;width:100%;box-sizing:border-box;">
+      <!-- Row 1 -->
+      <div style="display:flex;gap:3px;margin-bottom:5px;justify-content:center;">
+        <div class="kbd-key" onclick="lc06TypeKey('q')">q</div>
+        <div class="kbd-key" onclick="lc06TypeKey('w')">w</div>
+        <div class="kbd-key" onclick="lc06TypeKey('e')">e</div>
+        <div class="kbd-key" onclick="lc06TypeKey('r')">r</div>
+        <div class="kbd-key" onclick="lc06TypeKey('t')">t</div>
+        <div class="kbd-key" onclick="lc06TypeKey('y')">y</div>
+        <div class="kbd-key" onclick="lc06TypeKey('u')">u</div>
+        <div class="kbd-key" onclick="lc06TypeKey('i')">i</div>
+        <div class="kbd-key" onclick="lc06TypeKey('o')">o</div>
+        <div class="kbd-key" onclick="lc06TypeKey('p')">p</div>
+      </div>
+      <!-- Row 2 -->
+      <div style="display:flex;gap:3px;margin-bottom:5px;justify-content:center;padding:0 8px;">
+        <div class="kbd-key" onclick="lc06TypeKey('a')">a</div>
+        <div class="kbd-key" onclick="lc06TypeKey('s')">s</div>
+        <div class="kbd-key" onclick="lc06TypeKey('d')">d</div>
+        <div class="kbd-key" onclick="lc06TypeKey('f')">f</div>
+        <div class="kbd-key" onclick="lc06TypeKey('g')">g</div>
+        <div class="kbd-key" onclick="lc06TypeKey('h')">h</div>
+        <div class="kbd-key" onclick="lc06TypeKey('j')">j</div>
+        <div class="kbd-key" onclick="lc06TypeKey('k')">k</div>
+        <div class="kbd-key" onclick="lc06TypeKey('l')">l</div>
+      </div>
+      <!-- Row 3 -->
+      <div style="display:flex;gap:3px;justify-content:center;padding:0 16px;">
+        <div class="kbd-key" onclick="lc06TypeKey('z')">z</div>
+        <div class="kbd-key" onclick="lc06TypeKey('x')">x</div>
+        <div class="kbd-key" onclick="lc06TypeKey('c')">c</div>
+        <div class="kbd-key" onclick="lc06TypeKey('v')">v</div>
+        <div class="kbd-key" onclick="lc06TypeKey('b')">b</div>
+        <div class="kbd-key" onclick="lc06TypeKey('n')">n</div>
+        <div class="kbd-key" onclick="lc06TypeKey('m')">m</div>
+        <div class="kbd-key kbd-del" onclick="lc06TypeKey('back')">⌫</div>
+      </div>
     </div>
   </div>
   <!-- 底部面板 -->
@@ -4265,32 +4304,6 @@ function loadLc06() {
   // 清空判定标记
   document.getElementById('lc06Judge').innerHTML = '';
 
-  // 输入框
-  var input = document.getElementById('lc06Input');
-  input.value = '';
-  input.disabled = false;
-  input.maxLength = lc06State.word.length;
-
-  // 移除旧监听器再添加新监听器（用闭包捕获本次lc06State引用）
-  input.oninput = null;
-  input.addEventListener('beforeinput', function lc06BeforeInput(e) {
-    if (lc06State.status !== 'idle') return;
-    if (e.inputType === 'insertText') {
-      var ch = (e.data||'').toLowerCase().replace(/[^a-z]/g, '');
-      if (ch && lc06State.userInput.length < lc06State.word.length) {
-        lc06State.userInput += ch;
-      }
-    } else if (e.inputType === 'deleteContentBackward' || e.inputType === 'deleteContentForward' || e.inputType === 'deleteByCut') {
-      lc06State.userInput = lc06State.userInput.slice(0, -1);
-    }
-    renderSpellLine(lc06State.word, lc06State.userInput, false);
-    if (lc06State.userInput.length === lc06State.word.length) {
-      finishLc06();
-    }
-  });
-
-  input.focus();
-
   // 按钮
   var btn = document.getElementById('lc06Btn');
   btn.className = 'btn-outline';
@@ -4316,10 +4329,23 @@ function renderSpellLine(targetWord, userInput, showResult) {
   }
 }
 
+function lc06TypeKey(key) {
+  if (lc06State.status !== 'idle') return;
+  if (key === 'back') {
+    lc06State.userInput = lc06State.userInput.slice(0, -1);
+  } else {
+    if (lc06State.userInput.length < lc06State.word.length) {
+      lc06State.userInput += key;
+    }
+  }
+  renderSpellLine(lc06State.word, lc06State.userInput, false);
+  if (lc06State.userInput.length === lc06State.word.length) {
+    finishLc06();
+  }
+}
+
 function finishLc06() {
-  var input = document.getElementById('lc06Input');
   var val = lc06State.userInput;
-  input.disabled = true;
   var isCorrect = val === lc06State.word;
   lc06State.status = isCorrect ? 'correct' : 'wrong';
 
@@ -4336,10 +4362,6 @@ function finishLc06() {
   btn.className = 'btn-primary';
 }
 
-function handleLc06Input() {
-  // 已改用 beforeinput 事件驱动，此函数保留兼容
-}
-
 function handleLc06Btn() {
   if (lc06State.status === 'idle') {
     // 未输完就点详情 → 判错，揭示答案
@@ -4348,7 +4370,6 @@ function handleLc06Btn() {
     document.getElementById('lc06AnswerBox').style.visibility = 'visible';
     // 字母行：只显示已输入的，不足留空，带结果比对
     renderSpellLine(lc06State.word, lc06State.userInput, true);
-    document.getElementById('lc06Input').disabled = true;
     document.getElementById('lc06Judge').innerHTML = '<span style="color:var(--error);">✗</span>';
     var btn = document.getElementById('lc06Btn');
     btn.className = 'btn-primary';

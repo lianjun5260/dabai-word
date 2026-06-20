@@ -417,6 +417,42 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
 #P31.page.active { display:flex; flex-direction:column; overflow:hidden; height:100%; }
 #P32.page.active { display:flex; flex-direction:column; overflow:hidden; height:100%; }
 #P33.page.active { display:flex; flex-direction:column; overflow:hidden; height:100%; }
+#P34.page.active { display:flex; flex-direction:column; overflow:hidden; height:100%; }
+/* 录音波形动画 (LC-01读单词) */
+.wf-bar { display:inline-block; width:3px; background:var(--brand); border-radius:2px; margin:0 1.5px; animation:wfPulse .6s ease-in-out infinite alternate; }
+.wf-bar:nth-child(1){animation-delay:0s;}  .wf-bar:nth-child(2){animation-delay:.05s;} .wf-bar:nth-child(3){animation-delay:.1s;}
+.wf-bar:nth-child(4){animation-delay:.15s;} .wf-bar:nth-child(5){animation-delay:.2s;}  .wf-bar:nth-child(6){animation-delay:.25s;}
+.wf-bar:nth-child(7){animation-delay:.3s;}  .wf-bar:nth-child(8){animation-delay:.35s;} .wf-bar:nth-child(9){animation-delay:.4s;}
+.wf-bar:nth-child(10){animation-delay:.45s;}.wf-bar:nth-child(11){animation-delay:.5s;} .wf-bar:nth-child(12){animation-delay:.55s;}
+.wf-bar:nth-child(13){animation-delay:.6s;} .wf-bar:nth-child(14){animation-delay:.65s;}.wf-bar:nth-child(15){animation-delay:.7s;}
+.wf-bar:nth-child(16){animation-delay:.75s;}.wf-bar:nth-child(17){animation-delay:.8s;} .wf-bar:nth-child(18){animation-delay:.85s;}
+.wf-bar:nth-child(19){animation-delay:.9s;} .wf-bar:nth-child(20){animation-delay:.95s;}
+@keyframes wfPulse { 0% { height:8px; } 100% { height:32px; } }
+/* 分析中波形(灰色/静态) */
+.wf-bar.analyzing { background:var(--text-4); animation:none; height:16px; }
+/* 录音按钮 */
+.btn-record { width:80px; height:80px; border-radius:50%; background:var(--brand); color:#fff; font-size:16px; font-weight:600; border:none; cursor:pointer; user-select:none; display:flex; align-items:center; justify-content:center; text-align:center; line-height:1.3; transition:transform .15s,background .15s; box-shadow:0 4px 16px rgba(82,196,26,.35); }
+.btn-record.recording { background:var(--error); transform:scale(1.1); box-shadow:0 4px 24px rgba(255,77,79,.4); animation:btnPulse .8s ease-in-out infinite; }
+@keyframes btnPulse { 0%,100% { box-shadow:0 4px 24px rgba(255,77,79,.4); } 50% { box-shadow:0 4px 40px rgba(255,77,79,.6); } }
+/* 星级评分 */
+.star-rating { display:flex; flex-direction:row; gap:4px; justify-content:center; align-items:center; }
+.star-rating .star { font-size:28px; color:var(--divider); }
+.star-rating .star.full { color:#FAAD14; }
+.star-rating .star.half { color:#FAAD14; position:relative; }
+/* 评价弹窗 */
+.eval-overlay { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,.45); z-index:200; display:none; align-items:center; justify-content:center; }
+.eval-overlay.show { display:flex; }
+.eval-card { width:calc(100% - 40px); max-width:340px; background:#fff; border-radius:16px; padding:24px 20px; text-align:center; position:relative; }
+.eval-close { position:absolute; top:12px; right:16px; font-size:24px; color:var(--text-4); cursor:pointer; width:32px; height:32px; display:flex; align-items:center; justify-content:center; }
+.eval-score { font-size:48px; font-weight:700; color:var(--text-1); margin-bottom:8px; }
+.eval-feedback { font-size:14px; color:var(--text-2); line-height:1.7; text-align:left; }
+/* 录音提示文字 */
+.rec-tip { font-size:13px; color:var(--text-3); text-align:center; margin-top:12px; }
+.rec-tip.cancel { color:var(--error); }
+.rec-tip.analyzing { color:var(--text-4); }
+/* 工具栏 (LC-01/03通用) */
+.lc-toolbar { display:flex; flex-direction:row; align-items:center; justify-content:center; gap:24px; padding:12px 0; }
+.lc-toolbar-item { font-size:13px; color:var(--text-3); cursor:pointer; display:flex; align-items:center; gap:4px; }
 /* 字母格样式 */
 .spell-cell { width:28px; height:36px; border-bottom:2px solid var(--text-4); display:flex; align-items:center; justify-content:center; font-size:20px; font-weight:500; color:var(--text-1); }
 .spell-cell.wrong { color:var(--error); border-bottom-color:var(--error); }
@@ -468,6 +504,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
   <a onclick="showPage('P31')" id="nav-P31">P31 LC-09听力句</a>
   <a onclick="showPage('P32')" id="nav-P32">P32 LC-06汉译英全拼</a>
   <a onclick="showPage('P33')" id="nav-P33">P33 LC-07汉译英拼读</a>
+  <a onclick="showPage('P34')" id="nav-P34">P34 LC-01读单词</a>
   <a onclick="showPage('P17')" id="nav-P17">P17 新学结束</a>
   <a onclick="showPage('P18')" id="nav-P18">P18 复习结束</a>
   <a onclick="showPage('P19')" id="nav-P19">P19 今日学习结束</a>
@@ -1462,6 +1499,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
       <span style="display:inline-block;padding:3px 8px;border-radius:4px;background:var(--bg-page);color:var(--text-3);font-size:11px;cursor:pointer;" onclick="window.fromLearningComponent=true;showPage('P31')">听力-句</span>
       <span style="display:inline-block;padding:3px 8px;border-radius:4px;background:var(--bg-page);color:var(--text-3);font-size:11px;cursor:pointer;" onclick="window.fromLearningComponent=true;showPage('P32')">汉译英-全拼</span>
       <span style="display:inline-block;padding:3px 8px;border-radius:4px;background:var(--bg-page);color:var(--text-3);font-size:11px;cursor:pointer;" onclick="window.fromLearningComponent=true;showPage('P33')">汉译英-拼读</span>
+      <span style="display:inline-block;padding:3px 8px;border-radius:4px;background:var(--bg-page);color:var(--text-3);font-size:11px;cursor:pointer;" onclick="window.fromLearningComponent=true;showPage('P34')">读单词</span>
     </div>
     <button class="btn-primary" style="width:100%;" onclick="goNextWord()">下一个单词</button>
   </div>
@@ -2106,6 +2144,74 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
   </div>
 </div>
 
+<!-- ========================================== -->
+<!-- P34 LC-01 读单词(录音评价) -->
+<!-- ========================================== -->
+<div class="page" id="P34">
+  <div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
+  <div class="navbar">
+    <div class="back" onclick="exitLearning()"><</div>
+    <div class="title" id="lc01Progress">今日进度 1/10</div>
+    <div class="right"></div>
+  </div>
+  <div style="height:3px;background:var(--divider);">
+    <div id="lc01Bar" style="height:100%;background:var(--brand);width:0%;transition:width .3s;"></div>
+  </div>
+  <div style="font-size:10px;color:var(--text-4);text-align:center;padding:1px 0;opacity:.5;">P34 | 读单词-录音评价 | LC-01</div>
+  <!-- 内容区 -->
+  <div style="padding:16px 16px 0;flex:1;overflow-y:auto;display:flex;flex-direction:column;align-items:center;">
+    <!-- 单词标签 -->
+    <div style="display:inline-block;padding:4px 14px;border-radius:20px;background:var(--brand);color:#fff;font-size:13px;font-weight:500;margin-bottom:12px;" id="lc01Tag">词·读</div>
+    <!-- 单词 -->
+    <div style="font-size:36px;font-weight:700;color:var(--text-1);margin-bottom:8px;text-align:center;" id="lc01Word"></div>
+    <!-- 音标 -->
+    <div style="font-size:16px;color:var(--text-3);margin-bottom:6px;display:flex;align-items:center;gap:8px;">
+      <span>英</span><span id="lc01Phonetic" style="color:var(--text-2);"></span>
+      <span style="cursor:pointer;font-size:18px;" onclick="lc01PlayPhonetic()">🔄</span>
+    </div>
+    <!-- 释义 -->
+    <div style="font-size:15px;color:var(--text-2);text-align:center;line-height:1.6;margin-bottom:16px;" id="lc01Meaning"></div>
+    <!-- 提示/波形/评分区域 -->
+    <div id="lc01HintArea" style="min-height:80px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+      <!-- 初始提示 -->
+      <div id="lc01Hint" style="font-size:14px;color:var(--text-3);text-align:center;">请朗读上述单词，保持发音标准</div>
+      <!-- 录音波形 -->
+      <div id="lc01Waveform" style="display:none;flex-direction:row;align-items:flex-end;height:40px;justify-content:center;"></div>
+      <!-- 录音提示文字 -->
+      <div id="lc01RecTip" class="rec-tip" style="display:none;"></div>
+      <!-- 评分结果 -->
+      <div id="lc01ScoreArea" style="display:none;flex-direction:column;align-items:center;gap:8px;">
+        <div style="font-size:13px;color:var(--text-4);">评分结果</div>
+        <div id="lc01Stars" class="star-rating"></div>
+        <div style="font-size:13px;color:var(--brand);cursor:pointer;text-decoration:underline;" onclick="lc01ShowEval()">查看评价</div>
+      </div>
+    </div>
+    <!-- 工具栏 -->
+    <div id="lc01Toolbar" class="lc-toolbar">
+      <span class="lc-toolbar-item" onclick="lc01PlayOriginal()"><span style="font-size:18px;">🔊</span> 单词原声</span>
+      <span class="lc-toolbar-item" id="lc01Fav" onclick="lc01ToggleFav()"><span style="font-size:16px;">☆</span> 收藏</span>
+      <span class="lc-toolbar-item" onclick="lc01PlayMyVoice()"><span style="font-size:16px;">🔊</span> 我的发音</span>
+    </div>
+    <!-- 录音按钮 -->
+    <div style="margin:20px 0;">
+      <button id="lc01RecBtn" class="btn-record" onmousedown="lc01StartRecord()" onmouseup="lc01StopRecord()" onmouseleave="lc01StopRecord()"
+       ontouchstart="lc01StartRecord(event)" ontouchend="lc01StopRecord(event)" ontouchmove="lc01TrackMove(event)">长按录音</button>
+    </div>
+    <!-- 上滑下一词 -->
+    <div style="font-size:12px;color:var(--text-4);margin-bottom:16px;" onclick="lc01NextWord()">上滑下一词</div>
+  </div>
+</div>
+
+<!-- 评价弹窗 -->
+<div class="eval-overlay" id="lc01EvalOverlay">
+  <div class="eval-card">
+    <div class="eval-close" onclick="lc01HideEval()">×</div>
+    <div id="lc01EvalStars" class="star-rating" style="margin-bottom:8px;"></div>
+    <div class="eval-score" id="lc01EvalScore"></div>
+    <div class="eval-feedback" id="lc01EvalFeedback"></div>
+  </div>
+</div>
+
 <!-- 通用弹窗 -->
 <div class="dialog-overlay" id="dialogOverlay">
   <div class="dialog-box" id="dialogBox"></div>
@@ -2222,6 +2328,7 @@ function showPage(id, isBack) {
   if (id === 'P31') { loadLc09(); }
   if (id === 'P32') { loadLc06(); }
   if (id === 'P33') { loadLc07(); }
+  if (id === 'P34') { loadLc01(); }
 
   // 滚动到顶部
   setTimeout(() => { if (newPage) newPage.scrollTop = 0; }, 50);
@@ -4698,6 +4805,280 @@ function handleLc07Btn() {
   } else {
     window.fromLearningComponent = true;
     openWordDetail(lc07State.word);
+  }
+}
+
+// ========== LC-01 读单词(录音评价) ==========
+var lc01State = {
+  status:'idle',           // idle | recording | analyzing | scored
+  word:'', pos:'', meaning:'', phonetic:'',
+  recStartTime:0, recTimer:0,
+  recCanceled:false, recAudioUrl:null,
+  score:0, stars:0, feedback:'',
+  favorited:false
+};
+
+// 评语模板 (按分数段)
+var LC01_FEEDBACK = {
+  high: [
+    '你的发音非常标准！完整读出了音标，重音位置准确，音节连读自然流畅，没有出现漏音、错音问题。无论是清晰度还是语调都很规范，完全掌握这个单词的正确读法。',
+    '发音优秀！每个音节都清晰准确，重音把握到位，语调自然。继续保持这个标准，你的口语一定会越来越出色。',
+    '非常标准的发音！音标读得很完整，元音饱满、辅音清晰，连读和重音都很到位，接近母语水平。'
+  ],
+  mid: [
+    '整体发音不错，大部分音节清晰。有个别音节的重音位置可以再调整一下，稍微注意语调的自然度会更好。',
+    '发音基本正确，但有些音节不够饱满。建议多跟读原声，注意元音的发音位置和时长。',
+    '读得不错！重音基本正确，但个别辅音发音可以更清晰一些。多加练习，你的发音会更标准。'
+  ],
+  low: [
+    '基本完成了朗读，但发音和语调方面还有提升空间。建议多听原声，逐音节跟读练习，重点注意重音和元音发音。',
+    '发音还有待提高，存在一些音节读错或漏读的情况。建议先用0.5倍速听原声，再慢慢提速跟读。'
+  ]
+};
+
+function loadLc01() {
+  var idx = window.todayTask.currentIndex || 0;
+  var units = window.todayTask.units || [];
+  var total = units.length || 10;
+  document.getElementById('lc01Progress').textContent = '今日进度 ' + ((idx % total) + 1) + '/' + total;
+  document.getElementById('lc01Bar').style.width = Math.round(((idx + 1) / total) * 100) + '%';
+
+  var word = 'industrious';
+  if (units.length > 0 && idx < units.length) word = units[idx].word;
+  var wd = wdDB[word] || {};
+  // 原型默认词条(fallback)
+  if (!wd.part_speech) {
+    if (word === 'industrious') { wd = { part_speech:'adj.', meaning:'勤奋的；勤劳的；忙碌的', en_phonetic:"[ɪn'dʌstriəs]" }; }
+  }
+
+  lc01State = {
+    status:'idle', word:word, pos:wd.part_speech||'', meaning:wd.meaning||'',
+    phonetic:wd.en_phonetic||'/-/',
+    recStartTime:0, recTimer:0, recCanceled:false, recAudioUrl:null,
+    score:0, stars:0, feedback:'', favorited:false
+  };
+
+  document.getElementById('lc01Word').textContent = word;
+  document.getElementById('lc01Phonetic').textContent = lc01State.phonetic;
+  document.getElementById('lc01Meaning').textContent = lc01State.pos + ' ' + lc01State.meaning;
+  document.getElementById('lc01Fav').innerHTML = '<span style="font-size:16px;">☆</span> 收藏';
+
+  resetLc01UI();
+}
+
+function resetLc01UI() {
+  document.getElementById('lc01Hint').style.display = 'block';
+  document.getElementById('lc01Hint').textContent = '请朗读上述单词，保持发音标准';
+  document.getElementById('lc01Waveform').style.display = 'none';
+  document.getElementById('lc01RecTip').style.display = 'none';
+  document.getElementById('lc01ScoreArea').style.display = 'none';
+  document.getElementById('lc01RecBtn').classList.remove('recording');
+  document.getElementById('lc01RecBtn').textContent = '长按录音';
+  // 关闭弹窗
+  document.getElementById('lc01EvalOverlay').classList.remove('show');
+}
+
+function lc01StartRecord(e) {
+  if (lc01State.status !== 'idle') return;
+  lc01State.status = 'recording';
+  lc01State.recStartTime = Date.now();
+  lc01State.recCanceled = false;
+  lc01State.recAudioUrl = null;
+
+  document.getElementById('lc01RecBtn').classList.add('recording');
+  document.getElementById('lc01RecBtn').textContent = '长按录音';
+  document.getElementById('lc01Hint').style.display = 'none';
+  document.getElementById('lc01ScoreArea').style.display = 'none';
+
+  // 渲染波形
+  var wf = document.getElementById('lc01Waveform');
+  wf.style.display = 'flex';
+  wf.innerHTML = '';
+  for (var i = 0; i < 20; i++) {
+    var bar = document.createElement('span');
+    bar.className = 'wf-bar';
+    wf.appendChild(bar);
+  }
+
+  // 提示文字
+  var tip = document.getElementById('lc01RecTip');
+  tip.style.display = 'block';
+  tip.className = 'rec-tip';
+  tip.textContent = '松开发送 上滑取消';
+
+  // 防止页面滚动
+  if (e) e.preventDefault();
+}
+
+function lc01TrackMove(e) {
+  if (lc01State.status !== 'recording') return;
+  var touch = e.touches[0];
+  var btn = document.getElementById('lc01RecBtn');
+  var rect = btn.getBoundingClientRect();
+  // 手指上滑超过50px → 取消
+  if (touch.clientY < rect.top - 50) {
+    lc01State.recCanceled = true;
+    document.getElementById('lc01RecTip').className = 'rec-tip cancel';
+    document.getElementById('lc01RecTip').textContent = '松开取消录音';
+  } else {
+    lc01State.recCanceled = false;
+    document.getElementById('lc01RecTip').className = 'rec-tip';
+    document.getElementById('lc01RecTip').textContent = '松开发送 上滑取消';
+  }
+}
+
+function lc01StopRecord(e) {
+  if (lc01State.status !== 'recording') return;
+  lc01State.status = 'idle';
+  document.getElementById('lc01RecBtn').classList.remove('recording');
+  document.getElementById('lc01RecBtn').textContent = '长按录音';
+
+  var duration = Date.now() - lc01State.recStartTime;
+
+  // 取消
+  if (lc01State.recCanceled) {
+    resetLc01UI();
+    return;
+  }
+
+  // 过短
+  if (duration < 3000) {
+    resetLc01UI();
+    toastMsg('录音时间过短');
+    return;
+  }
+
+  // 模拟录音数据
+  lc01State.recAudioUrl = 'mock-audio-' + Date.now();
+
+  // 进入分析
+  lc01Analyze();
+}
+
+function lc01Analyze() {
+  lc01State.status = 'analyzing';
+  document.getElementById('lc01Hint').style.display = 'none';
+  document.getElementById('lc01ScoreArea').style.display = 'none';
+  document.getElementById('lc01RecBtn').style.display = 'none';
+
+  var wf = document.getElementById('lc01Waveform');
+  wf.style.display = 'flex';
+  wf.innerHTML = '';
+  for (var i = 0; i < 20; i++) {
+    var bar = document.createElement('span');
+    bar.className = 'wf-bar analyzing';
+    wf.appendChild(bar);
+  }
+
+  var tip = document.getElementById('lc01RecTip');
+  tip.style.display = 'block';
+  tip.className = 'rec-tip analyzing';
+  tip.textContent = '正在分析录音...';
+
+  // 模拟分析：1.5s ~ 3s 随机延迟
+  var delay = 1500 + Math.random() * 1500;
+  lc01State._analyzeTimeout = setTimeout(function() {
+    // 10% 概率超时
+    if (Math.random() < 0.1) {
+      toastMsg('分析超时，请检查网络');
+      lc01State.status = 'idle';
+      document.getElementById('lc01RecBtn').style.display = '';
+      resetLc01UI();
+      return;
+    }
+    lc01ShowScore();
+  }, delay);
+}
+
+function lc01ShowScore() {
+  lc01State.status = 'scored';
+  document.getElementById('lc01RecBtn').style.display = '';
+
+  var score = 85 + Math.floor(Math.random() * 15); // 85-99
+  lc01State.score = score;
+
+  // 星级：score/20 = star count, half for remainder >= 8
+  var fullStars = Math.floor(score / 20);
+  var remainder = score % 20;
+  var hasHalf = remainder >= 10;
+  lc01State.stars = fullStars + (hasHalf ? 0.5 : 0);
+
+  // 评语
+  var pool;
+  if (score >= 93) pool = LC01_FEEDBACK.high;
+  else if (score >= 80) pool = LC01_FEEDBACK.mid;
+  else pool = LC01_FEEDBACK.low;
+  lc01State.feedback = pool[Math.floor(Math.random() * pool.length)];
+
+  // 隐藏波形和分析提示
+  document.getElementById('lc01Waveform').style.display = 'none';
+  document.getElementById('lc01RecTip').style.display = 'none';
+  document.getElementById('lc01Hint').style.display = 'none';
+
+  // 显示评分
+  var starsHtml = renderStars(lc01State.stars);
+  document.getElementById('lc01Stars').innerHTML = starsHtml;
+  document.getElementById('lc01ScoreArea').style.display = 'flex';
+  document.getElementById('lc01RecBtn').textContent = '长按重录';
+
+  // 记录学习单元结果
+  if (window.todayTask && window.todayTask.units) {
+    var idx = window.todayTask.currentIndex;
+    if (idx < window.todayTask.units.length) {
+      window.todayTask.units[idx].status = 'completed';
+      window.todayTask.units[idx].score = score;
+    }
+  }
+}
+
+function renderStars(starCount) {
+  var html = '';
+  for (var i = 1; i <= 5; i++) {
+    if (i <= Math.floor(starCount)) {
+      html += '<span class="star full">★</span>';
+    } else if (i === Math.ceil(starCount) && starCount % 1 > 0) {
+      html += '<span class="star half">★</span>';
+    } else {
+      html += '<span class="star">★</span>';
+    }
+  }
+  return html;
+}
+
+function lc01ShowEval() {
+  var overlay = document.getElementById('lc01EvalOverlay');
+  document.getElementById('lc01EvalStars').innerHTML = renderStars(lc01State.stars);
+  document.getElementById('lc01EvalScore').textContent = lc01State.score + '分';
+  document.getElementById('lc01EvalFeedback').textContent = lc01State.feedback;
+  overlay.classList.add('show');
+}
+
+function lc01HideEval() {
+  document.getElementById('lc01EvalOverlay').classList.remove('show');
+}
+
+function lc01PlayPhonetic() { toastMsg('音标发音功能开发中'); }
+function lc01PlayOriginal() { toastMsg('单词原声功能开发中'); }
+function lc01PlayMyVoice() {
+  if (lc01State.status === 'scored' || lc01State.status === 'idle') {
+    toastMsg(lc01State.recAudioUrl ? '播放我的录音(模拟)' : '请先录音');
+  }
+}
+function lc01ToggleFav() {
+  lc01State.favorited = !lc01State.favorited;
+  document.getElementById('lc01Fav').innerHTML = lc01State.favorited
+    ? '<span style="font-size:16px;color:var(--warning);">★</span> 已收藏'
+    : '<span style="font-size:16px;">☆</span> 收藏';
+}
+function lc01NextWord() {
+  if (window.todayTask && window.todayTask.units) {
+    var next = window.todayTask.currentIndex + 1;
+    if (next < window.todayTask.units.length) {
+      window.todayTask.currentIndex = next;
+      loadLc01();
+    } else {
+      toastMsg('今日学习已完成');
+    }
   }
 }
 

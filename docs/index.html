@@ -1995,8 +1995,10 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
     <div id="lc06SpellLine" style="display:flex;flex-direction:row;gap:4px;justify-content:center;margin-top:24px;flex-wrap:wrap;cursor:text;direction:ltr;" onclick="document.getElementById('lc06Input').focus()"></div>
     <!-- 判定标记 -->
     <div id="lc06Judge" style="font-size:28px;margin-top:8px;"></div>
-    <!-- 输入框（半透明定位到屏幕外，保持键盘事件完整） -->
-    <input type="text" id="lc06Input" dir="ltr" style="position:fixed;left:-9999px;top:-9999px;opacity:0.01;width:1px;height:1px;font-size:16px;" oninput="handleLc06Input()" maxlength="20" autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="text" x-inputmode="text">
+    <!-- 输入框：在文档流中保持浏览器正常渲染，视觉上隐藏 -->
+    <div style="position:relative;width:100%;height:0;overflow:hidden;margin-top:4px;">
+      <input type="text" id="lc06Input" dir="ltr" style="width:100%;height:40px;padding:0;border:none;background:transparent;color:transparent !important;caret-color:transparent;font-size:16px;letter-spacing:4px;position:absolute;top:0;left:0;text-shadow:none;-webkit-text-fill-color:transparent;" oninput="handleLc06Input()" maxlength="20" autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="text" x-inputmode="text">
+    </div>
   </div>
   <!-- 底部面板 -->
   <div style="padding:0 16px 16px;background:var(--bg-card);z-index:10;">

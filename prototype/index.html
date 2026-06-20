@@ -4447,6 +4447,15 @@ function handleLc06Btn() {
 // ========== LC-07 汉译英(词)-拼读 ==========
 // 示例数据：industrious 拆分为 [in, dus, tri, ous]，干扰块若干
 var lc07Data = {
+  'strawberry': {
+    chunks: ['straw','ber','ry'],
+    distractors: [
+      {text:'draw',sub:'drɔː'}, {text:'stra',sub:'strɑː'}, {text:'straw',sub:'strɔː'},
+      {text:'bear',sub:'ber'}, {text:'bur',sub:'bɜːr'}, {text:'berr',sub:'ber'},
+      {text:'ri',sub:'ri'}, {text:'ly',sub:'li'}
+    ],
+    chunkSubs: ['strɔː','bər','ri']
+  },
   'industrious': {
     chunks: ['in','dus','tri','ous'],
     distractors: [
@@ -4483,9 +4492,13 @@ function loadLc07() {
   document.getElementById('lc07Progress').textContent = '今日进度 '+((idx % total)+1)+'/'+total;
   document.getElementById('lc07Bar').style.width = Math.round(((idx+1)/total)*100) + '%';
 
-  var word = 'industrious';
+  var word = 'strawberry';
   if (units.length > 0 && idx < units.length) word = units[idx].word;
   var wd = wdDB[word] || {};
+  // 原型默认词条（wdDB中没有时使用）
+  if (!wd.part_speech) {
+    if (word === 'strawberry') { wd = { part_speech:'n.', meaning:'草莓（果实）', sentences:[{en:'The strawberry is ripe and sweet.',cn:'这颗草莓熟了，很甜。'}] }; }
+  }
   var sent = (wd.sentences||[{en:'Example sentence.',cn:'示例句子。'}])[0];
 
   // 获取拼读数据，没有则用默认

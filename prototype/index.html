@@ -4482,6 +4482,16 @@ var lc07Data = {
       {text:'full',sub:'fʊl'}, {text:'ut',sub:'ʌt'}
     ],
     chunkSubs: ['bju','ti','fəl']
+  },
+  'spontaneous': {
+    chunks: ['spon','ta','ne','ous'],
+    distractors: [
+      {text:'span',sub:'spæn'}, {text:'spin',sub:'spɪn'}, {text:'spone',sub:'spəʊn'},
+      {text:'te',sub:'tiː'}, {text:'tar',sub:'tɑːr'},
+      {text:'nee',sub:'niː'}, {text:'ner',sub:'nɜːr'},
+      {text:'us',sub:'ʌs'}
+    ],
+    chunkSubs: ['spɒn','tə','ni','əs']
   }
 };
 
@@ -4716,6 +4726,8 @@ function buildLearningUnits() {
   var units = [];
   words.forEach(function(w) {
     comps.forEach(function(c) {
+      // LC-07 需要预置拼读数据，没有则跳过该组件
+      if (c.id === 'LC-07' && !lc07Data[w.word]) return;
       units.push({ word:w.word, component:c.id, componentName:c.name, status:'pending', score:null });
     });
   });

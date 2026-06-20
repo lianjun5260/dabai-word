@@ -4506,6 +4506,8 @@ function loadLc07() {
 
   var word = 'strawberry';
   if (units.length > 0 && idx < units.length) word = units[idx].word;
+  // 该单词无拼读数据时回退到 strawberry
+  if (!lc07Data[word]) word = 'strawberry';
   var wd = wdDB[word] || {};
   // 原型默认词条（wdDB中没有时使用）
   if (!wd.part_speech) {

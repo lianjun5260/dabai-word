@@ -416,10 +416,30 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
 #P20.page.active { display:flex; flex-direction:column; overflow:hidden; height:100%; }
 #P31.page.active { display:flex; flex-direction:column; overflow:hidden; height:100%; }
 #P32.page.active { display:flex; flex-direction:column; overflow:hidden; height:100%; }
+#P33.page.active { display:flex; flex-direction:column; overflow:hidden; height:100%; }
 /* 字母格样式 */
 .spell-cell { width:28px; height:36px; border-bottom:2px solid var(--text-4); display:flex; align-items:center; justify-content:center; font-size:20px; font-weight:500; color:var(--text-1); }
 .spell-cell.wrong { color:var(--error); border-bottom-color:var(--error); }
 .spell-cell.empty { color:transparent; }
+/* 词块格样式 (LC-07拼读) */
+.chunk-cell { min-width:36px; height:36px; border-bottom:2px solid var(--text-4); display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:500; color:var(--text-1); padding:0 4px; }
+.chunk-cell.wrong { color:var(--error); border-bottom-color:var(--error); }
+.chunk-cell.empty { color:transparent; }
+.chunk-cell.correct-chunk { color:var(--brand); border-bottom-color:var(--brand); }
+/* 词块键盘样式 (LC-07拼读) */
+.chunk-key { min-width:52px; height:50px; background:#fff; border-radius:8px; display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer; user-select:none; box-shadow:0 1px 2px rgba(0,0,0,.08); transition:transform .1s,background .15s,border-color .15s; border:1.5px solid var(--border); }
+.chunk-key:active { background:#E0E0E0; transform:scale(.94); }
+.chunk-key .chunk-primary { font-size:16px; font-weight:600; color:var(--text-1); line-height:1.2; }
+.chunk-key .chunk-sub { font-size:11px; font-weight:400; color:var(--text-3); line-height:1.2; }
+.chunk-key.selected { background:var(--opt-correct-bg); border-color:var(--brand); }
+.chunk-key.selected .chunk-primary { color:var(--brand); }
+.chunk-key.selected .chunk-sub { color:var(--brand); }
+.chunk-key.result-correct { background:var(--opt-correct-bg); border-color:var(--brand); }
+.chunk-key.result-correct .chunk-primary { color:var(--brand); }
+.chunk-key.result-wrong { background:var(--opt-error-bg); border-color:var(--error); }
+.chunk-key.result-wrong .chunk-primary { color:var(--error); }
+.chunk-key.result-wrong .chunk-sub { color:var(--error); }
+.chunk-key.disabled { opacity:.35; pointer-events:none; }
 /* 自定义键盘 */
 .kbd-key { flex:1; max-width:38px; height:46px; background:#fff; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:500; color:var(--text-1); cursor:pointer; user-select:none; box-shadow:0 1px 2px rgba(0,0,0,.08); transition:transform .1s,background .1s; }
 .kbd-key:active { background:#E0E0E0; transform:scale(.94); }
@@ -447,6 +467,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
   <a onclick="showPage('P16')" id="nav-P16">P16 LC-08听力词</a>
   <a onclick="showPage('P31')" id="nav-P31">P31 LC-09听力句</a>
   <a onclick="showPage('P32')" id="nav-P32">P32 LC-06汉译英全拼</a>
+  <a onclick="showPage('P33')" id="nav-P33">P33 LC-07汉译英拼读</a>
   <a onclick="showPage('P17')" id="nav-P17">P17 新学结束</a>
   <a onclick="showPage('P18')" id="nav-P18">P18 复习结束</a>
   <a onclick="showPage('P19')" id="nav-P19">P19 今日学习结束</a>
@@ -1440,6 +1461,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
       <span style="display:inline-block;padding:3px 8px;border-radius:4px;background:var(--bg-page);color:var(--text-3);font-size:11px;cursor:pointer;" onclick="window.fromLearningComponent=true;showPage('P16')">听力-词</span>
       <span style="display:inline-block;padding:3px 8px;border-radius:4px;background:var(--bg-page);color:var(--text-3);font-size:11px;cursor:pointer;" onclick="window.fromLearningComponent=true;showPage('P31')">听力-句</span>
       <span style="display:inline-block;padding:3px 8px;border-radius:4px;background:var(--bg-page);color:var(--text-3);font-size:11px;cursor:pointer;" onclick="window.fromLearningComponent=true;showPage('P32')">汉译英-全拼</span>
+      <span style="display:inline-block;padding:3px 8px;border-radius:4px;background:var(--bg-page);color:var(--text-3);font-size:11px;cursor:pointer;" onclick="window.fromLearningComponent=true;showPage('P33')">汉译英-拼读</span>
     </div>
     <button class="btn-primary" style="width:100%;" onclick="goNextWord()">下一个单词</button>
   </div>
@@ -2045,6 +2067,48 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
   </div>
 </div>
 
+<!-- ========================================== -->
+<!-- P33 LC-07 汉译英(词)-拼读 -->
+<!-- ========================================== -->
+<div class="page" id="P33">
+  <div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
+  <div class="navbar">
+    <div class="back" onclick="exitLearning()"><</div>
+    <div class="title" id="lc07Progress">今日进度 1/60</div>
+    <div class="right"></div>
+  </div>
+  <div style="height:3px;background:var(--divider);">
+    <div id="lc07Bar" style="height:100%;background:var(--brand);width:0%;transition:width .3s;"></div>
+  </div>
+  <div style="font-size:10px;color:var(--text-4);text-align:center;padding:1px 0;opacity:.5;">P33 | 汉译英-词-拼读 | LC-07</div>
+  <!-- 题目区 -->
+  <div style="padding:20px 16px 0;flex:1;overflow-y:auto;display:flex;flex-direction:column;align-items:center;">
+    <!-- 题干：词性 + 中文释义 -->
+    <div style="font-size:22px;font-weight:600;color:var(--text-1);margin-bottom:8px;" id="lc07Question"></div>
+    <!-- 例句卡片（答后可见） -->
+    <div id="lc07Example" style="visibility:hidden;background:#F6FFED;border-radius:var(--r-md);padding:12px 16px;text-align:left;width:100%;box-sizing:border-box;min-height:70px;margin-top:12px;">
+      <div style="font-size:14px;color:var(--text-1);line-height:1.6;margin-bottom:6px;" id="lc07ExEn"></div>
+      <div style="font-size:13px;color:var(--text-3);margin-bottom:4px;" id="lc07ExCn"></div>
+      <span style="font-size:16px;cursor:pointer;color:var(--text-4);" onclick="event.stopPropagation();toastMsg('发音功能开发中')">🔊</span>
+    </div>
+    <!-- 目标单词展示（始终可见） -->
+    <div id="lc07WordBadge" style="background:#F0F0F0;border-radius:8px;padding:10px 20px;margin-top:16px;font-size:20px;font-weight:600;color:var(--text-1);text-align:center;"></div>
+    <!-- 词块下划线行 + ⌫ -->
+    <div style="display:flex;flex-direction:row;align-items:center;gap:6px;justify-content:center;margin-top:20px;">
+      <div id="lc07ChunkLine" style="display:flex;flex-direction:row;gap:8px;justify-content:center;flex-wrap:wrap;direction:ltr;"></div>
+      <div style="width:36px;height:36px;background:#E8E8E8;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:17px;cursor:pointer;user-select:none;" onclick="lc07Delete()">⌫</div>
+    </div>
+    <!-- 判定标记 -->
+    <div id="lc07Judge" style="font-size:28px;margin-top:8px;"></div>
+    <!-- 词块选择键盘 -->
+    <div id="lc07Keyboard" style="padding:10px 4px;background:#F2F3F5;border-radius:12px 12px 0 0;margin-top:auto;width:100%;box-sizing:border-box;display:flex;flex-wrap:wrap;gap:8px;justify-content:center;"></div>
+  </div>
+  <!-- 底部面板 -->
+  <div style="padding:0 16px 16px;background:var(--bg-card);z-index:10;">
+    <button id="lc07Btn" class="btn-outline" onclick="handleLc07Btn()">查看答案</button>
+  </div>
+</div>
+
 <!-- 通用弹窗 -->
 <div class="dialog-overlay" id="dialogOverlay">
   <div class="dialog-box" id="dialogBox"></div>
@@ -2160,6 +2224,7 @@ function showPage(id, isBack) {
   if (id === 'P16') { loadLc08(); }
   if (id === 'P31') { loadLc09(); }
   if (id === 'P32') { loadLc06(); }
+  if (id === 'P33') { loadLc07(); }
 
   // 滚动到顶部
   setTimeout(() => { if (newPage) newPage.scrollTop = 0; }, 50);
@@ -4379,15 +4444,250 @@ function handleLc06Btn() {
   }
 }
 
+// ========== LC-07 汉译英(词)-拼读 ==========
+// 示例数据：industrious 拆分为 [in, dus, tri, ous]，干扰块若干
+var lc07Data = {
+  'industrious': {
+    chunks: ['in','dus','tri','ous'],
+    distractors: [
+      {text:'ty',sub:'ti'}, {text:'ti',sub:'ti'}, {text:'ous',sub:'es'},
+      {text:'di',sub:'di'}, {text:'dual',sub:'d3uel'}, {text:'try',sub:'tri'}
+    ],
+    chunkSubs: ['ɪn','dʌs','tri','əs']
+  },
+  'abandon': {
+    chunks: ['a','ban','don'],
+    distractors: [
+      {text:'ban',sub:'bæn'}, {text:'don',sub:'dɒn'}, {text:'ab',sub:'æb'},
+      {text:'on',sub:'ɒn'}, {text:'and',sub:'ænd'}, {text:'bad',sub:'bæd'}
+    ],
+    chunkSubs: ['ə','bæn','dən']
+  },
+  'beautiful': {
+    chunks: ['beau','ti','ful'],
+    distractors: [
+      {text:'but',sub:'bʌt'}, {text:'ti',sub:'taɪ'}, {text:'ful',sub:'fʊl'},
+      {text:'ful',sub:'fel'}, {text:'beau',sub:'bju'}, {text:'bee',sub:'bi'},
+      {text:'if',sub:'ɪf'}
+    ],
+    chunkSubs: ['bju','ti','fəl']
+  }
+};
+
+var lc07State = { status:'idle', word:'', pos:'', meaning:'', example:{en:'',cn:''}, chunks:[], userChunks:[], options:[], _cells:[], _kbdBtns:[] };
+
+function loadLc07() {
+  var idx = window.todayTask.currentIndex || 0;
+  var units = window.todayTask.units || [];
+  var total = units.length || 60;
+  document.getElementById('lc07Progress').textContent = '今日进度 '+((idx % total)+1)+'/'+total;
+  document.getElementById('lc07Bar').style.width = Math.round(((idx+1)/total)*100) + '%';
+
+  var word = 'industrious';
+  if (units.length > 0 && idx < units.length) word = units[idx].word;
+  var wd = wdDB[word] || {};
+  var sent = (wd.sentences||[{en:'Example sentence.',cn:'示例句子。'}])[0];
+
+  // 获取拼读数据，没有则用默认
+  var pd = lc07Data[word] || { chunks:[word], distractors:[], chunkSubs:[''] };
+
+  lc07State = {
+    status:'idle',
+    word:word,
+    pos:wd.part_speech||'',
+    meaning:wd.meaning||'',
+    example:{en:sent.en||'',cn:sent.cn||''},
+    chunks:pd.chunks,
+    userChunks:[],
+    options:[],
+    _cells:[],
+    _kbdBtns:[]
+  };
+
+  // 题干：词性 + 中文释义
+  document.getElementById('lc07Question').innerHTML = '<span style="color:var(--text-3);font-size:16px;font-weight:400;margin-right:4px;">'+lc07State.pos+'</span>'+lc07State.meaning;
+
+  // 例句 & 判定 隐藏
+  document.getElementById('lc07ExEn').innerHTML = lc07State.example.en;
+  document.getElementById('lc07ExCn').textContent = lc07State.example.cn;
+  document.getElementById('lc07Example').style.visibility = 'hidden';
+  document.getElementById('lc07Judge').innerHTML = '';
+
+  // 目标单词 badge（始终可见）
+  document.getElementById('lc07WordBadge').textContent = lc07State.word;
+
+  // 词块下划线行：创建 chunk-cell DOM
+  var container = document.getElementById('lc07ChunkLine');
+  container.innerHTML = '';
+  lc07State._cells = [];
+  for (var i = 0; i < lc07State.chunks.length; i++) {
+    var cell = document.createElement('div');
+    cell.className = 'chunk-cell empty';
+    cell.textContent = '';
+    container.appendChild(cell);
+    lc07State._cells.push(cell);
+  }
+
+  // 构建选项池：正确块 + 干扰块，打乱顺序
+  var pool = [];
+  for (var i = 0; i < lc07State.chunks.length; i++) {
+    pool.push({ text:lc07State.chunks[i], sub:pd.chunkSubs[i]||'', isCorrect:true, correctIndex:i });
+  }
+  var distractors = pd.distractors || [];
+  for (var i = 0; i < distractors.length; i++) {
+    pool.push({ text:distractors[i].text, sub:distractors[i].sub||'', isCorrect:false, correctIndex:-1 });
+  }
+  // 简单洗牌
+  for (var i = pool.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var tmp = pool[i]; pool[i] = pool[j]; pool[j] = tmp;
+  }
+  lc07State.options = pool;
+
+  // 渲染词块键盘
+  var kbdContainer = document.getElementById('lc07Keyboard');
+  kbdContainer.innerHTML = '';
+  lc07State._kbdBtns = [];
+  for (var i = 0; i < pool.length; i++) {
+    var btn = document.createElement('div');
+    btn.className = 'chunk-key';
+    btn.innerHTML = '<div class="chunk-primary">'+pool[i].text+'</div><div class="chunk-sub">'+pool[i].sub+'</div>';
+    btn.setAttribute('data-idx', i);
+    btn.onclick = function() { lc07SelectChunk(parseInt(this.getAttribute('data-idx'))); };
+    kbdContainer.appendChild(btn);
+    lc07State._kbdBtns.push(btn);
+  }
+
+  // 按钮
+  var btn = document.getElementById('lc07Btn');
+  btn.className = 'btn-outline';
+  btn.textContent = '查看答案';
+}
+
+function renderChunkLine() {
+  var chunks = lc07State.chunks;
+  var userChunks = lc07State.userChunks;
+  var cells = lc07State._cells;
+  var showResult = lc07State.status !== 'idle';
+  for (var i = 0; i < chunks.length; i++) {
+    var cell = cells[i];
+    if (i < userChunks.length) {
+      var optIdx = userChunks[i];
+      var opt = lc07State.options[optIdx];
+      cell.textContent = opt.text;
+      var cls = 'chunk-cell';
+      if (showResult) {
+        cls += (opt.isCorrect && opt.correctIndex === i) ? ' correct-chunk' : ' wrong';
+      }
+      cell.className = cls;
+    } else {
+      cell.textContent = '';
+      cell.className = 'chunk-cell empty';
+    }
+  }
+}
+
+function lc07SelectChunk(optIdx) {
+  if (lc07State.status !== 'idle') return;
+  var opt = lc07State.options[optIdx];
+  // 已被选中的不可再选
+  if (lc07State._kbdBtns[optIdx].classList.contains('selected')) return;
+  // 已填满则不可再选
+  if (lc07State.userChunks.length >= lc07State.chunks.length) return;
+
+  lc07State.userChunks.push(optIdx);
+  // 标记键盘按钮为 selected
+  lc07State._kbdBtns[optIdx].classList.add('selected');
+  lc07State._kbdBtns[optIdx].classList.remove('disabled');
+
+  renderChunkLine();
+
+  // 全部填满 → 自动判定
+  if (lc07State.userChunks.length === lc07State.chunks.length) {
+    finishLc07();
+  }
+}
+
+function lc07Delete() {
+  if (lc07State.status !== 'idle') return;
+  if (lc07State.userChunks.length === 0) return;
+  var lastIdx = lc07State.userChunks.pop();
+  // 取消键盘按钮 selected
+  lc07State._kbdBtns[lastIdx].classList.remove('selected');
+  renderChunkLine();
+}
+
+function finishLc07() {
+  var isCorrect = true;
+  for (var i = 0; i < lc07State.chunks.length; i++) {
+    var optIdx = lc07State.userChunks[i];
+    var opt = lc07State.options[optIdx];
+    if (!opt.isCorrect || opt.correctIndex !== i) { isCorrect = false; break; }
+  }
+  lc07State.status = isCorrect ? 'correct' : 'wrong';
+
+  renderChunkLine();
+
+  document.getElementById('lc07Judge').innerHTML = isCorrect
+    ? '<span style="color:var(--brand);">✓</span>'
+    : '<span style="color:var(--error);">✗</span>';
+
+  // 显示例句
+  document.getElementById('lc07Example').style.visibility = 'visible';
+
+  // 键盘按钮结果标记
+  for (var i = 0; i < lc07State.options.length; i++) {
+    var btnEl = lc07State._kbdBtns[i];
+    var opt = lc07State.options[i];
+    btnEl.classList.remove('selected');
+    btnEl.classList.add('disabled');
+    if (opt.isCorrect) {
+      btnEl.classList.add('result-correct');
+    } else if (lc07State.userChunks.indexOf(i) !== -1) {
+      // 被选了的干扰块 → 标红
+      btnEl.classList.add('result-wrong');
+    }
+  }
+
+  var btn = document.getElementById('lc07Btn');
+  btn.className = 'btn-primary';
+  btn.textContent = '单词详情';
+}
+
+function handleLc07Btn() {
+  if (lc07State.status === 'idle') {
+    // 未填完就点查看答案 → showAnswer，按统一判定规则
+    lc07State.status = 'showAnswer';
+    document.getElementById('lc07Example').style.visibility = 'visible';
+    // 词块行：只显示已选的，不足留空，不比对颜色（showAnswer不惩罚）
+    renderChunkLine();
+    document.getElementById('lc07Judge').innerHTML = '<span style="color:var(--brand);">✓</span>';
+    // 键盘：标出正确块（绿色），其余置灰但不高亮红色
+    for (var i = 0; i < lc07State.options.length; i++) {
+      var btnEl = lc07State._kbdBtns[i];
+      var opt = lc07State.options[i];
+      btnEl.classList.remove('selected');
+      btnEl.classList.add('disabled');
+      if (opt.isCorrect) { btnEl.classList.add('result-correct'); }
+    }
+    var btn = document.getElementById('lc07Btn');
+    btn.className = 'btn-primary';
+    btn.textContent = '单词详情';
+  } else {
+    window.fromLearningComponent = true;
+    openWordDetail(lc07State.word);
+  }
+}
+
 // ========== 学习单元系统 P30 ==========
 window.todayTask = { created:false, units:[], currentIndex:0, startTime:null };
 
 // 学习模式→组件映射
 const MODE_COMPONENTS = {
-  simple:   [{id:'LC-01',name:'读单词'},{id:'LC-04',name:'英译汉'}],
-  standard: [{id:'LC-01',name:'读单词'},{id:'LC-04',name:'英译汉'},{id:'LC-06',name:'汉译英全拼'}],
-  hard:     [{id:'LC-01',name:'读单词'},{id:'LC-02',name:'拼单词'},{id:'LC-04',name:'英译汉'},{id:'LC-06',name:'汉译英全拼'},{id:'LC-08',name:'听力词'}],
-  smart:    [{id:'LC-01',name:'读单词'},{id:'LC-04',name:'英译汉'},{id:'LC-06',name:'汉译英全拼'}]
+  simple:   [{id:'LC-01',name:'读单词'},{id:'LC-04',name:'英译汉'},{id:'LC-07',name:'汉译英拼读'}],
+  standard: [{id:'LC-01',name:'读单词'},{id:'LC-04',name:'英译汉'},{id:'LC-06',name:'汉译英全拼'},{id:'LC-07',name:'汉译英拼读'}],
+  hard:     [{id:'LC-01',name:'读单词'},{id:'LC-02',name:'拼单词'},{id:'LC-04',name:'英译汉'},{id:'LC-06',name:'汉译英全拼'},{id:'LC-07',name:'汉译英拼读'},{id:'LC-08',name:'听力词'}],
+  smart:    [{id:'LC-01',name:'读单词'},{id:'LC-04',name:'英译汉'},{id:'LC-06',name:'汉译英全拼'},{id:'LC-07',name:'汉译英拼读'}]
 };
 
 function buildLearningUnits() {

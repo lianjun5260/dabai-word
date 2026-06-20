@@ -1997,7 +1997,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
     <div id="lc06Judge" style="font-size:28px;margin-top:8px;"></div>
     <!-- 输入框：在文档流中保持浏览器正常渲染，视觉上隐藏 -->
     <div style="position:relative;width:100%;height:0;overflow:hidden;margin-top:4px;">
-      <input type="text" id="lc06Input" dir="ltr" style="width:100%;height:40px;padding:0;border:none;background:transparent;color:transparent !important;caret-color:transparent;font-size:16px;letter-spacing:4px;position:absolute;top:0;left:0;text-shadow:none;-webkit-text-fill-color:transparent;" oninput="handleLc06Input()" maxlength="20" autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="text" x-inputmode="text">
+      <input type="text" id="lc06Input" dir="ltr" style="width:100%;height:40px;padding:0;border:none;background:transparent;color:transparent !important;caret-color:transparent;font-size:16px;letter-spacing:4px;position:absolute;top:0;left:0;text-shadow:none;-webkit-text-fill-color:transparent;" maxlength="20" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" inputmode="text" x-inputmode="text">
     </div>
   </div>
   <!-- 底部面板 -->
@@ -4270,6 +4270,25 @@ function loadLc06() {
   input.value = '';
   input.disabled = false;
   input.maxLength = lc06State.word.length;
+
+  // 移除旧监听器再添加新监听器（用闭包捕获本次lc06State引用）
+  input.oninput = null;
+  input.addEventListener('beforeinput', function lc06BeforeInput(e) {
+    if (lc06State.status !== 'idle') return;
+    if (e.inputType === 'insertText') {
+      var ch = (e.data||'').toLowerCase().replace(/[^a-z]/g, '');
+      if (ch && lc06State.userInput.length < lc06State.word.length) {
+        lc06State.userInput += ch;
+      }
+    } else if (e.inputType === 'deleteContentBackward' || e.inputType === 'deleteContentForward' || e.inputType === 'deleteByCut') {
+      lc06State.userInput = lc06State.userInput.slice(0, -1);
+    }
+    renderSpellLine(lc06State.word, lc06State.userInput, false);
+    if (lc06State.userInput.length === lc06State.word.length) {
+      finishLc06();
+    }
+  });
+
   input.focus();
 
   // 按钮
@@ -4297,44 +4316,28 @@ function renderSpellLine(targetWord, userInput, showResult) {
   }
 }
 
-function handleLc06Input() {
-  if (lc06State.status !== 'idle') return;
+function finishLc06() {
   var input = document.getElementById('lc06Input');
-  var raw = input.value;
-  var val = raw.toLowerCase().replace(/[^a-z]/g, '');
-  // 只在值有变化时回写，并保留光标位置
-  if (val !== raw) {
-    var pos = input.selectionStart;
-    input.value = val;
-    try { input.setSelectionRange(pos, pos); } catch(e) {}
-  }
-  lc06State.userInput = val;
+  var val = lc06State.userInput;
+  input.disabled = true;
+  var isCorrect = val === lc06State.word;
+  lc06State.status = isCorrect ? 'correct' : 'wrong';
 
-  // 实时更新字母下划线行
-  renderSpellLine(lc06State.word, val, false);
+  renderSpellLine(lc06State.word, val, true);
 
-  // 输入长度 = 单词长度 → 自动判定
-  if (val.length === lc06State.word.length) {
-    input.disabled = true;
-    var isCorrect = val === lc06State.word;
-    lc06State.status = isCorrect ? 'correct' : 'wrong';
+  document.getElementById('lc06Judge').innerHTML = isCorrect
+    ? '<span style="color:var(--brand);">✓</span>'
+    : '<span style="color:var(--error);">✗</span>';
 
-    // 渲染字母行（带结果）
-    renderSpellLine(lc06State.word, val, true);
+  document.getElementById('lc06Example').style.visibility = 'visible';
+  document.getElementById('lc06AnswerBox').style.visibility = 'visible';
 
-    // 判定标记
-    document.getElementById('lc06Judge').innerHTML = isCorrect
-      ? '<span style="color:var(--brand);">✓</span>'
-      : '<span style="color:var(--error);">✗</span>';
+  var btn = document.getElementById('lc06Btn');
+  btn.className = 'btn-primary';
+}
 
-    // 显示例句 + 答案框
-    document.getElementById('lc06Example').style.visibility = 'visible';
-    document.getElementById('lc06AnswerBox').style.visibility = 'visible';
-
-    // 按钮
-    var btn = document.getElementById('lc06Btn');
-    btn.className = 'btn-primary';
-  }
+function handleLc06Input() {
+  // 已改用 beforeinput 事件驱动，此函数保留兼容
 }
 
 function handleLc06Btn() {

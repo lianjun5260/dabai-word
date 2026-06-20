@@ -34,6 +34,7 @@
 | v3.4 | 2026-06-19 | **LC-09听力(句)-直选(P31)**：例句目标词位置灰色占位，答后还原完整句子。4英文选项（同义/近义词干扰）。组件注册表新增5号条目。SRS第17章 | — |
 | v3.5 | 2026-06-19 | **LC-06汉译英(词)-全拼(P32)**：首个非选择题组件。逐字母输入→自动判定（输入满触发）。字母下划线行实时更新，错字标红+✓/✗。新增renderSpellLine()函数。组件注册表新增6号条目。SRS第18章 | — |
 | v3.6 | 2026-06-20 | **通用答题判定规则**：后台统一（correct=对，其余=错）。前端展示区分（showAnswer揭示答案不惩罚，wrong标红叉）。全部组件状态码标准化。SRS新增12.1-12.2节 | — |
+| v3.7 | 2026-06-20 | **LC-07汉译英(词)-拼读(P33)**：自然拼读法拆词块选择组件。词块下划线行+词块键盘网格(双行文本)。选满自动判定。键盘selected/result-correct/result-wrong状态标记。目标单词始终可见。组件注册表新增7号条目。SRS第19章 | — |
 
 ---
 
@@ -1503,9 +1504,9 @@ LC-08 听力(词) → LC-09 听力(句) → LC-04 英译汉 → LC-05 汉译英-
 
 | 模式 | 组件序列（每个单词） |
 |------|---------------------|
-| 简单 | LC-01 读单词 → LC-04 英译汉 |
-| 标准 | LC-01 读单词 → LC-04 英译汉 → LC-06 汉译英全拼 |
-| 困难 | LC-01 读单词 → LC-02 拼单词 → LC-04 英译汉 → LC-06 汉译英全拼 → LC-08 听力词 |
+| 简单 | LC-01 读单词 → LC-04 英译汉 → LC-07 汉译英拼读 |
+| 标准 | LC-01 读单词 → LC-04 英译汉 → LC-06 汉译英全拼 → LC-07 汉译英拼读 |
+| 困难 | LC-01 读单词 → LC-02 拼单词 → LC-04 英译汉 → LC-06 汉译英全拼 → LC-07 汉译英拼读 → LC-08 听力词 |
 | 智能 | 按单词难度动态选择组件（V1 随机保证维度覆盖，V2 数据驱动） |
 
 ### 11.4 完成判定
@@ -1619,6 +1620,7 @@ P04 首页 ──开始学习──→ P07 今日预览 ──开始学习──
 | 4 | P16 | 听力(词)-直选 | LC-08 | ✅ 已开发 |
 | 5 | P31 | 听力(句)-直选 | LC-09 | ✅ 已开发 |
 | 6 | P32 | 汉译英(词)-全拼 | LC-06 | ✅ 已开发 |
+| 7 | P33 | 汉译英(词)-拼读 | LC-07 | ✅ 已开发 |
 
 > **以后新增组件以此表为准，序号递增，编号不可重复。**
 
@@ -2255,3 +2257,169 @@ var lc06State = {
 | `handleLc06Input()` | 监听input事件，实时更新字母行，自动判定 |
 | `handleLc06Btn()` | idle→showAnswer / answered→openWordDetail |
 | `handleLc09Btn()` | idle→showAnswer / answered→openWordDetail |
+
+## 19. 学习组件 LC-07：汉译英(词)-拼读（v3.7 新增）
+
+### 19.1 基础信息
+
+| 字段 | 值 |
+|------|-----|
+| 组件编号 | LC-07 |
+| 组件名称 | 汉译英(词)-拼读 |
+| 所属页面 | P33 |
+| 题型 | 看中文释义 → 从词块键盘选择正确拼读块组装单词 |
+| 答题方式 | **非选择题**，词块选择组装 |
+| 考察目标 | 自然拼读法（Phonics）能力 |
+
+### 19.2 页面布局
+
+- 顶部题干：`词性 中文释义`（如 `adj. 勤劳的`）
+- 例句卡片：答后可见（英文+中文+🔊），background=#F6FFED
+- 目标单词 badge：**始终可见**（灰色圆角框，如 `industrious`），区别于LC-06隐藏式
+- 词块下划线行：N个chunk-cell格子（N=正确词块数量），右侧有⌫删除按钮
+- 判定标记：✓绿色 / ✗红色
+- 词块键盘：flex-wrap网格，每个键双行文本（主文本+副文本/音标提示）
+- 底部按钮：查看答案(idle=btn-outline) → 单词详情(answered=btn-primary)
+
+### 19.3 核心交互：词块选择 → 自动判定
+
+**与LC-06全拼的区别**：LC-06逐字母键盘输入，LC-07从预置词块池中选择拼读块组装。
+
+| 状态 | 描述 |
+|------|------|
+| idle | 显示题干+目标单词badge+空词块行+词块键盘 |
+| selecting | 用户点击词块，填入对应位置，键盘按钮变selected(绿色) |
+| correct | 全部填满且全部正确 → ✓绿色+正确块键盘标绿 |
+| wrong | 全部填满但有错误 → ✗红色+错误块标红+正确块标绿 |
+| showAnswer | 点击「查看答案」(idle态) → 绿色✓揭示，不惩罚 |
+
+**判定时机**：当用户选满词块格子数量 = 正确词块数量时，**自动判定**。
+
+### 19.4 词块数据结构
+
+单词按自然拼读法拆分为音节/拼读块，每个块有主文本（拼写）和副文本（音标提示）：
+
+```javascript
+// 示例：industrious → [in, dus, tri, ous]
+var lc07Data = {
+  'industrious': {
+    chunks: ['in','dus','tri','ous'],         // 正确词块
+    chunkSubs: ['ɪn','dʌs','tri','əs'],       // 音标提示
+    distractors: [                              // 干扰块
+      {text:'ty',sub:'ti'}, {text:'ti',sub:'ti'},
+      {text:'ous',sub:'es'}, {text:'di',sub:'di'},
+      {text:'dual',sub:'d3uel'}, {text:'try',sub:'tri'}
+    ]
+  }
+};
+```
+
+**选项池 = 正确块 + 干扰块**，随机打乱排列。
+
+**干扰项设计原则**：
+- 形近/音近拼读块（如 `ous/es` vs 正确 `ous/tri`）
+- 同根词变形片段（如 `try/tri` 与正确 `tri`）
+- 干扰数量约6~8个，总选项池约10个
+
+### 19.5 词块下划线行渲染
+
+- `renderChunkLine()` 函数
+- 生成 N 个 `<div class="chunk-cell">` 格子（N=正确词块数量）
+- idle/selecting：已选词块=黑色显示，未选=透明（只显示下划线）
+- correct：词块绿色（class=chunk-cell correct-chunk）
+- wrong：正确位置词块=绿色，错误位置词块=**红色**（class=chunk-cell wrong）
+
+### 19.6 词块键盘状态
+
+| 状态 | CSS类名 | 外观 |
+|------|---------|------|
+| 可选 | `chunk-key` | 白底灰边 |
+| 已选中 | `chunk-key selected` | 绿底绿边绿字 |
+| 答后-正确块 | `chunk-key result-correct disabled` | 绿底绿边+不可点击 |
+| 答后-选中干扰块 | `chunk-key result-wrong disabled` | 红底红边+不可点击 |
+| 答后-未选中干扰块 | `chunk-key disabled` | 灰底+不可点击 |
+| showAnswer-正确块 | `chunk-key result-correct disabled` | 绿底绿边+不可点击 |
+| showAnswer-其余 | `chunk-key disabled` | 灰底+不可点击（不标红，不惩罚） |
+
+### 19.7 判定算法
+
+```
+for (i = 0; i < chunks.length; i++) {
+  optIdx = userChunks[i]
+  opt = options[optIdx]
+  if (opt.isCorrect && opt.correctIndex === i) → 该位置正确
+  else → 该位置错误
+}
+全部正确 → ✓ 绿色
+有错误 → ✗ 红色
+```
+
+**关键**：不仅要选对了正确的词块文本，还要**选对了顺序位置**（`correctIndex === i`）。
+
+### 19.8 状态机
+
+```
+       ┌─────────┐
+       │  idle   │ 题干+单词badge+空词块行+键盘
+       └────┬────┘
+            │ 用户点击词块键
+            ▼
+       ┌──────────┐
+       │ selecting│ 词块填入行，键盘selected标记
+       └──┬───┬───┘
+          │   │ ⌫退格 → 删最后一个词块
+          │   │ 选满词块数 = 正确块数
+          ▼   ▼
+   ┌────────┼────────┐
+   ▼                 ▼
+┌────────┐      ┌────────┐
+│correct │      │ wrong  │
+│ 全对 ✓ │      │ 错块红 ✗│
+└───┬────┘      └───┬────┘
+    │                │
+    └────────────────┘
+              ▼
+     例句显示+键盘结果标记
+     按钮→单词详情
+```
+
+### 19.9 与LC-06全拼对比
+
+| 项目 | LC-06全拼 | LC-07拼读 |
+|------|:---:|:---:|
+| 答题方式 | QWERTY键盘逐字母输入 | 词块网格选择组装 |
+| 目标单词 | 答后揭示 | **始终可见** |
+| 输入粒度 | 单字母 | 多字符词块 |
+| 键盘样式 | 3行QWERTY | flex-wrap网格（双行文本） |
+| 渲染函数 | `renderSpellLine()` | `renderChunkLine()` |
+| 键盘状态 | 固定（always visible） | selected/result-correct/result-wrong/disabled |
+| 底部按钮idle | 单词详情 | 查看答案 |
+| 判定方式 | 字符串全等比较 | 逐位置正确块+正确序号比对 |
+
+### 19.10 数据结构
+
+```javascript
+var lc07State = {
+  status: 'idle',          // idle | correct | wrong | showAnswer
+  word: '',                // 目标单词
+  pos: '',                 // 词性
+  meaning: '',             // 中文释义
+  example: { en:'', cn:'' },
+  chunks: [],              // 正确词块数组 (如 ['in','dus','tri','ous'])
+  userChunks: [],          // 用户选中的选项索引数组
+  options: [],             // 全部选项池（正确+干扰，打乱）
+  _cells: [],              // chunk-cell DOM引用
+  _kbdBtns: []             // chunk-key DOM引用
+};
+```
+
+### 19.11 关键函数
+
+| 函数 | 说明 |
+|------|------|
+| `loadLc07()` | 初始化：题干+单词badge+空词块行+词块键盘 |
+| `lc07SelectChunk(optIdx)` | 选中词块→填入行→标记keyboard selected→选满自动判定 |
+| `lc07Delete()` | ⌫删最后一个词块→取消keyboard selected |
+| `renderChunkLine()` | 渲染词块下划线行（DOM差量更新） |
+| `finishLc07()` | 自动判定：逐位置比对→✓/✗+键盘结果标记 |
+| `handleLc07Btn()` | idle→showAnswer / answered→openWordDetail |

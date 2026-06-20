@@ -4618,19 +4618,19 @@ function renderChunkLine() {
 
 function lc07SelectChunk(optIdx) {
   if (lc07State.status !== 'idle') return;
-  var opt = lc07State.options[optIdx];
-  // 已被选中的不可再选
-  if (lc07State._kbdBtns[optIdx].classList.contains('selected')) return;
-  // 已填满则不可再选
+  // 已选中 → 取消选中（toggle off）
+  if (lc07State._kbdBtns[optIdx].classList.contains('selected')) {
+    lc07State._kbdBtns[optIdx].classList.remove('selected');
+    var pos = lc07State.userChunks.indexOf(optIdx);
+    if (pos !== -1) { lc07State.userChunks.splice(pos, 1); }
+    renderChunkLine();
+    return;
+  }
+  // 未选中，且未填满 → 选中（toggle on）
   if (lc07State.userChunks.length >= lc07State.chunks.length) return;
-
   lc07State.userChunks.push(optIdx);
-  // 标记键盘按钮为 selected
   lc07State._kbdBtns[optIdx].classList.add('selected');
-  lc07State._kbdBtns[optIdx].classList.remove('disabled');
-
   renderChunkLine();
-
   // 全部填满 → 自动判定
   if (lc07State.userChunks.length === lc07State.chunks.length) {
     finishLc07();

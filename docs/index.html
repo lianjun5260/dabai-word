@@ -2171,16 +2171,16 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
     </div>
     <!-- 释义 -->
     <div style="font-size:15px;color:var(--text-2);text-align:center;line-height:1.6;margin-bottom:16px;" id="lc01Meaning"></div>
-    <!-- 提示/波形/评分区域 -->
-    <div id="lc01HintArea" style="min-height:80px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
-      <!-- 初始/默认评分 -->
-      <div id="lc01IdleScore" style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+    <!-- 波形/评分区域(居中) -->
+    <div id="lc01HintArea" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:120px;">
+      <!-- 默认评分(默认隐藏) -->
+      <div id="lc01IdleScore" style="display:none;flex-direction:column;align-items:center;gap:4px;">
         <div style="font-size:36px;font-weight:700;color:var(--text-4);" id="lc01ScoreNum">0</div>
         <div style="font-size:13px;color:var(--text-4);" id="lc01ScoreMsg">未获取语音信息</div>
       </div>
-      <!-- 录音波形 -->
+      <!-- 录音波形(居中) -->
       <div id="lc01Waveform" style="display:none;flex-direction:row;align-items:flex-end;height:40px;justify-content:center;"></div>
-      <!-- 录音提示文字 -->
+      <!-- 分析中提示 -->
       <div id="lc01RecTip" class="rec-tip" style="display:none;"></div>
       <!-- 评分结果 -->
       <div id="lc01ScoreArea" style="display:none;flex-direction:column;align-items:center;gap:8px;">
@@ -2189,15 +2189,19 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
         <div style="font-size:13px;color:var(--brand);cursor:pointer;text-decoration:underline;" onclick="lc01ShowEval()">查看评价</div>
       </div>
     </div>
+  </div>
+  <!-- 底部面板 -->
+  <div style="padding:8px 16px 16px;background:var(--bg-card);z-index:10;display:flex;flex-direction:column;align-items:center;gap:8px;">
     <!-- 工具栏 -->
     <div id="lc01Toolbar" class="lc-toolbar">
       <span class="lc-toolbar-item" onclick="lc01PlayOriginal()"><span style="font-size:18px;">🔊</span> 单词原声</span>
       <span class="lc-toolbar-item" id="lc01Fav" onclick="lc01ToggleFav()"><span style="font-size:16px;">☆</span> 收藏</span>
-      <span class="lc-toolbar-item" onclick="lc01PlayMyVoice()"><span style="font-size:16px;">🔊</span> 我的发音</span>
+      <span class="lc-toolbar-item" id="lc01MyVoice" onclick="lc01PlayMyVoice()" style="color:var(--text-4);"><span style="font-size:16px;">🔊</span> 我的发音</span>
     </div>
-  </div>
-  <!-- 底部面板 -->
-  <div style="padding:12px 16px 16px;background:var(--bg-card);z-index:10;display:flex;flex-direction:column;align-items:center;gap:10px;">
+    <!-- 上滑取消按钮(录音中浮现) -->
+    <div id="lc01CancelBtn" style="display:none;width:100%;height:44px;border-radius:var(--r-md);background:#FFF1F0;border:1.5px dashed var(--error);color:var(--error);font-size:15px;font-weight:500;align-items:center;justify-content:center;transition:background .15s;">
+      上滑取消
+    </div>
     <button id="lc01RecBtn" class="btn-record" onmousedown="lc01StartRecord()" onmouseup="lc01StopRecord()" onmouseleave="lc01StopRecord()"
      ontouchstart="lc01StartRecord(event)" ontouchend="lc01StopRecord(event)" ontouchmove="lc01TrackMove(event)">长按录音</button>
     <button id="lc01WordBtn" class="btn-outline" onclick="handleLc01Btn()">单词详情</button>
@@ -4869,7 +4873,8 @@ function loadLc01() {
 }
 
 function resetLc01UI() {
-  document.getElementById('lc01IdleScore').style.display = 'flex';
+  // 默认隐藏0分提示（仅点单词详情后显示）
+  document.getElementById('lc01IdleScore').style.display = 'none';
   document.getElementById('lc01ScoreNum').textContent = '0';
   document.getElementById('lc01ScoreMsg').textContent = '未获取语音信息';
   document.getElementById('lc01ScoreNum').style.color = 'var(--text-4)';
@@ -4877,10 +4882,13 @@ function resetLc01UI() {
   document.getElementById('lc01Waveform').style.display = 'none';
   document.getElementById('lc01RecTip').style.display = 'none';
   document.getElementById('lc01ScoreArea').style.display = 'none';
+  document.getElementById('lc01CancelBtn').style.display = 'none';
   document.getElementById('lc01RecBtn').classList.remove('recording');
   document.getElementById('lc01RecBtn').textContent = '长按录音';
   document.getElementById('lc01WordBtn').className = 'btn-outline';
   document.getElementById('lc01WordBtn').textContent = '单词详情';
+  // 我的发音默认为灰色
+  document.getElementById('lc01MyVoice').style.color = 'var(--text-4)';
   // 关闭弹窗
   document.getElementById('lc01EvalOverlay').classList.remove('show');
 }
@@ -4896,8 +4904,11 @@ function lc01StartRecord(e) {
   document.getElementById('lc01RecBtn').textContent = '松开发送';
   document.getElementById('lc01IdleScore').style.display = 'none';
   document.getElementById('lc01ScoreArea').style.display = 'none';
+  // 浮现上滑取消按钮
+  document.getElementById('lc01CancelBtn').style.display = 'flex';
+  document.getElementById('lc01CancelBtn').style.background = '#FFF1F0';
 
-  // 渲染波形
+  // 渲染波形(居中)
   var wf = document.getElementById('lc01Waveform');
   wf.style.display = 'flex';
   wf.innerHTML = '';
@@ -4907,12 +4918,6 @@ function lc01StartRecord(e) {
     wf.appendChild(bar);
   }
 
-  // 提示文字
-  var tip = document.getElementById('lc01RecTip');
-  tip.style.display = 'block';
-  tip.className = 'rec-tip';
-  tip.textContent = '松开发送 上滑取消';
-
   // 防止页面滚动
   if (e) e.preventDefault();
 }
@@ -4920,17 +4925,17 @@ function lc01StartRecord(e) {
 function lc01TrackMove(e) {
   if (lc01State.status !== 'recording') return;
   var touch = e.touches[0];
-  var btn = document.getElementById('lc01RecBtn');
-  var rect = btn.getBoundingClientRect();
-  // 手指上滑超过50px → 取消
-  if (touch.clientY < rect.top - 50) {
+  var cancelBtn = document.getElementById('lc01CancelBtn');
+  var cancelRect = cancelBtn.getBoundingClientRect();
+  // 手指进入上滑取消按钮区域
+  if (touch.clientY > cancelRect.top && touch.clientY < cancelRect.bottom) {
     lc01State.recCanceled = true;
-    document.getElementById('lc01RecTip').className = 'rec-tip cancel';
-    document.getElementById('lc01RecTip').textContent = '松开取消录音';
+    cancelBtn.style.background = 'var(--error)';
+    cancelBtn.style.color = '#fff';
   } else {
     lc01State.recCanceled = false;
-    document.getElementById('lc01RecTip').className = 'rec-tip';
-    document.getElementById('lc01RecTip').textContent = '松开发送 上滑取消';
+    cancelBtn.style.background = '#FFF1F0';
+    cancelBtn.style.color = 'var(--error)';
   }
 }
 
@@ -4939,10 +4944,11 @@ function lc01StopRecord(e) {
   lc01State.status = 'idle';
   document.getElementById('lc01RecBtn').classList.remove('recording');
   document.getElementById('lc01RecBtn').textContent = '长按录音';
+  document.getElementById('lc01CancelBtn').style.display = 'none';
 
   var duration = Date.now() - lc01State.recStartTime;
 
-  // 取消
+  // 上滑取消
   if (lc01State.recCanceled) {
     resetLc01UI();
     return;
@@ -4967,6 +4973,7 @@ function lc01Analyze() {
   document.getElementById('lc01IdleScore').style.display = 'none';
   document.getElementById('lc01ScoreArea').style.display = 'none';
   document.getElementById('lc01RecBtn').style.display = 'none';
+  document.getElementById('lc01CancelBtn').style.display = 'none';
 
   var wf = document.getElementById('lc01Waveform');
   wf.style.display = 'flex';
@@ -4982,10 +4989,8 @@ function lc01Analyze() {
   tip.className = 'rec-tip analyzing';
   tip.textContent = '正在分析录音...';
 
-  // 模拟分析：1.5s ~ 3s 随机延迟
   var delay = 1500 + Math.random() * 1500;
   lc01State._analyzeTimeout = setTimeout(function() {
-    // 10% 概率超时
     if (Math.random() < 0.1) {
       toastMsg('分析超时，请检查网络');
       lc01State.status = 'idle';
@@ -5001,36 +5006,33 @@ function lc01ShowScore() {
   lc01State.status = 'scored';
   document.getElementById('lc01RecBtn').style.display = '';
 
-  var score = 85 + Math.floor(Math.random() * 15); // 85-99
+  var score = 85 + Math.floor(Math.random() * 15);
   lc01State.score = score;
 
-  // 星级：score/20 = star count, half for remainder >= 8
   var fullStars = Math.floor(score / 20);
   var remainder = score % 20;
   var hasHalf = remainder >= 10;
   lc01State.stars = fullStars + (hasHalf ? 0.5 : 0);
 
-  // 评语
   var pool;
   if (score >= 93) pool = LC01_FEEDBACK.high;
   else if (score >= 80) pool = LC01_FEEDBACK.mid;
   else pool = LC01_FEEDBACK.low;
   lc01State.feedback = pool[Math.floor(Math.random() * pool.length)];
 
-  // 隐藏波形和分析提示，隐藏idle分数
   document.getElementById('lc01IdleScore').style.display = 'none';
   document.getElementById('lc01Waveform').style.display = 'none';
   document.getElementById('lc01RecTip').style.display = 'none';
 
-  // 显示评分
   var starsHtml = renderStars(lc01State.stars);
   document.getElementById('lc01Stars').innerHTML = starsHtml;
   document.getElementById('lc01ScoreArea').style.display = 'flex';
   document.getElementById('lc01RecBtn').textContent = '长按重录';
   document.getElementById('lc01WordBtn').className = 'btn-primary';
   document.getElementById('lc01WordBtn').textContent = '单词详情';
+  // 我的发音变亮
+  document.getElementById('lc01MyVoice').style.color = 'var(--text-3)';
 
-  // 记录学习单元结果
   if (window.todayTask && window.todayTask.units) {
     var idx = window.todayTask.currentIndex;
     if (idx < window.todayTask.units.length) {
@@ -5069,8 +5071,10 @@ function lc01HideEval() {
 function lc01PlayPhonetic() { toastMsg('音标发音功能开发中'); }
 function lc01PlayOriginal() { toastMsg('单词原声功能开发中'); }
 function lc01PlayMyVoice() {
-  if (lc01State.status === 'scored' || lc01State.status === 'idle') {
-    toastMsg(lc01State.recAudioUrl ? '播放我的录音(模拟)' : '请先录音');
+  if (lc01State.recAudioUrl) {
+    toastMsg('播放我的录音(模拟)');
+  } else {
+    toastMsg('请先录音');
   }
 }
 function lc01ToggleFav() {
@@ -5080,6 +5084,13 @@ function lc01ToggleFav() {
     : '<span style="font-size:16px;">☆</span> 收藏';
 }
 function handleLc01Btn() {
+  // 没有录音时，显示0分提示
+  if (!lc01State.recAudioUrl && lc01State.status === 'idle') {
+    document.getElementById('lc01IdleScore').style.display = 'flex';
+    setTimeout(function() {
+      document.getElementById('lc01IdleScore').style.display = 'none';
+    }, 2000);
+  }
   window.fromLearningComponent = true;
   openWordDetail(lc01State.word);
 }

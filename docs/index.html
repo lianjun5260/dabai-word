@@ -4450,7 +4450,7 @@ var lc07Data = {
   'strawberry': {
     chunks: ['straw','ber','ry'],
     distractors: [
-      {text:'draw',sub:'drɔː'}, {text:'stra',sub:'strɑː'}, {text:'straw',sub:'strɔː'},
+      {text:'draw',sub:'drɔː'}, {text:'stra',sub:'strɑː'},
       {text:'bear',sub:'ber'}, {text:'bur',sub:'bɜːr'}, {text:'berr',sub:'ber'},
       {text:'ri',sub:'ri'}, {text:'ly',sub:'li'}
     ],
@@ -4459,25 +4459,27 @@ var lc07Data = {
   'industrious': {
     chunks: ['in','dus','tri','ous'],
     distractors: [
-      {text:'ty',sub:'ti'}, {text:'ti',sub:'ti'}, {text:'ous',sub:'es'},
-      {text:'di',sub:'di'}, {text:'dual',sub:'d3uel'}, {text:'try',sub:'tri'}
+      {text:'ty',sub:'ti'}, {text:'ti',sub:'ti'},
+      {text:'di',sub:'di'}, {text:'dual',sub:'d3uel'}, {text:'try',sub:'tri'},
+      {text:'dust',sub:'dʌst'}, {text:'trie',sub:'triː'}
     ],
     chunkSubs: ['ɪn','dʌs','tri','əs']
   },
   'abandon': {
     chunks: ['a','ban','don'],
     distractors: [
-      {text:'ban',sub:'bæn'}, {text:'don',sub:'dɒn'}, {text:'ab',sub:'æb'},
-      {text:'on',sub:'ɒn'}, {text:'and',sub:'ænd'}, {text:'bad',sub:'bæd'}
+      {text:'ab',sub:'æb'}, {text:'on',sub:'ɒn'}, {text:'and',sub:'ænd'},
+      {text:'bad',sub:'bæd'}, {text:'an',sub:'æn'}, {text:'dan',sub:'dæn'},
+      {text:'band',sub:'bænd'}
     ],
     chunkSubs: ['ə','bæn','dən']
   },
   'beautiful': {
     chunks: ['beau','ti','ful'],
     distractors: [
-      {text:'but',sub:'bʌt'}, {text:'ti',sub:'taɪ'}, {text:'ful',sub:'fʊl'},
-      {text:'ful',sub:'fel'}, {text:'beau',sub:'bju'}, {text:'bee',sub:'bi'},
-      {text:'if',sub:'ɪf'}
+      {text:'but',sub:'bʌt'}, {text:'bee',sub:'bi'}, {text:'if',sub:'ɪf'},
+      {text:'bea',sub:'biː'}, {text:'tif',sub:'tɪf'},
+      {text:'full',sub:'fʊl'}, {text:'ut',sub:'ʌt'}
     ],
     chunkSubs: ['bju','ti','fəl']
   }
@@ -4541,14 +4543,18 @@ function loadLc07() {
     lc07State._cells.push(cell);
   }
 
-  // 构建选项池：正确块 + 干扰块，打乱顺序
+  // 构建选项池：正确块 + 干扰块（去重），打乱顺序
   var pool = [];
   for (var i = 0; i < lc07State.chunks.length; i++) {
     pool.push({ text:lc07State.chunks[i], sub:pd.chunkSubs[i]||'', isCorrect:true, correctIndex:i });
   }
+  var correctSet = {};
+  for (var i = 0; i < lc07State.chunks.length; i++) { correctSet[lc07State.chunks[i]] = true; }
   var distractors = pd.distractors || [];
   for (var i = 0; i < distractors.length; i++) {
-    pool.push({ text:distractors[i].text, sub:distractors[i].sub||'', isCorrect:false, correctIndex:-1 });
+    if (!correctSet[distractors[i].text]) {  // 去重：跳过与正确块重名的干扰项
+      pool.push({ text:distractors[i].text, sub:distractors[i].sub||'', isCorrect:false, correctIndex:-1 });
+    }
   }
   // 简单洗牌
   for (var i = pool.length - 1; i > 0; i--) {

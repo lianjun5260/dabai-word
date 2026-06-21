@@ -417,8 +417,9 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
 #P31.page.active { display:flex; flex-direction:column; overflow:hidden; height:100%; }
 #P32.page.active { display:flex; flex-direction:column; overflow:hidden; height:100%; }
 #P33.page.active { display:flex; flex-direction:column; overflow:hidden; height:100%; }
+#P10.page.active { display:flex; flex-direction:column; overflow:hidden; height:100%; }
 #P34.page.active { display:flex; flex-direction:column; overflow:hidden; height:100%; }
-/* 录音波形动画 (LC-01读单词) */
+/* 录音波形动画 (LC-01读单词 / LC-03读例句) */
 .wf-bar { display:inline-block; width:3px; background:var(--brand); border-radius:2px; margin:0 1.5px; animation:wfPulse .6s ease-in-out infinite alternate; }
 .wf-bar:nth-child(1){animation-delay:0s;}  .wf-bar:nth-child(2){animation-delay:.05s;} .wf-bar:nth-child(3){animation-delay:.1s;}
 .wf-bar:nth-child(4){animation-delay:.15s;} .wf-bar:nth-child(5){animation-delay:.2s;}  .wf-bar:nth-child(6){animation-delay:.25s;}
@@ -499,7 +500,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
   <a onclick="showPage('P09')" id="nav-P09">P09 LC-02拼单词</a>
   <a onclick="showPage('P14')" id="nav-P14">P14 LC-04英译汉词</a>
   <a onclick="showPage('P15')" id="nav-P15">P15 LC-10英译汉句</a>
-  <a onclick="showPage('P10')" id="nav-P10">P10 LC-03读例句</a>
+  <a onclick="showPage('P10')" id="nav-P10">P10 LC-03读例句(录音)</a>
   <a onclick="showPage('P16')" id="nav-P16">P16 LC-08听力词</a>
   <a onclick="showPage('P31')" id="nav-P31">P31 LC-09听力句</a>
   <a onclick="showPage('P32')" id="nav-P32">P32 LC-06汉译英全拼</a>
@@ -1076,46 +1077,64 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hi
 </div>
 
 <!-- ========================================== -->
-<!-- P10 LC-03 读例句 -->
+<!-- P10 LC-03 读例句(录音评价) -->
 <!-- ========================================== -->
 <div class="page" id="P10">
   <div class="status-bar"><span>9:41</span><span>●●● 🔋</span></div>
   <div class="navbar">
-    <div class="back" onclick="goBack()"><</div>
-    <div class="title">今日进度 3/10</div>
+    <div class="back" onclick="exitLearning()"><</div>
+    <div class="title" id="lc03Progress">今日进度 1/10</div>
     <div class="right"></div>
   </div>
-  <div style="padding:16px;">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
-      <span class="tag tag-green">句·读</span>
-      <div style="display:flex;gap:12px;align-items:center;">
-        <span style="font-size:20px;cursor:pointer;">🔊</span>
-      </div>
-    </div>
-    <!-- 单词信息 -->
-    <div style="text-align:center;margin-bottom:24px;">
-      <div style="font-size:22px;font-weight:600;color:var(--text-1);margin-bottom:4px;">industrious</div>
-      <div style="font-size:14px;color:var(--text-3);">英 [ɪnˈdʌstriəs] · adj. 勤奋的</div>
-    </div>
+  <div style="height:3px;background:var(--divider);">
+    <div id="lc03Bar" style="height:100%;background:var(--brand);width:0%;transition:width .3s;"></div>
+  </div>
+  <div style="font-size:10px;color:var(--text-4);text-align:center;padding:1px 0;opacity:.5;">P10 | 读例句-录音评价 | LC-03</div>
+  <!-- 内容区 -->
+  <div style="padding:20px 16px 0;flex:1;overflow-y:auto;display:flex;flex-direction:column;align-items:center;">
+    <!-- 组件标签 -->
+    <div style="display:inline-block;padding:4px 14px;border-radius:20px;background:var(--brand);color:#fff;font-size:13px;font-weight:500;margin-bottom:12px;" id="lc03Tag">句·读</div>
     <!-- 例句 -->
-    <div style="background:var(--bg-page);border-radius:var(--r-lg);padding:20px;margin-bottom:24px;">
-      <div style="font-size:17px;color:var(--text-1);line-height:1.8;margin-bottom:8px;">
-        The <span style="color:var(--brand);font-weight:600;">industrious</span> student always finished homework early.
+    <div style="background:var(--bg-page);border-radius:var(--r-lg);padding:20px;width:100%;box-sizing:border-box;margin-bottom:8px;">
+      <div style="font-size:20px;color:var(--text-1);line-height:1.8;margin-bottom:10px;text-align:center;" id="lc03SentenceEn"></div>
+      <div style="font-size:14px;color:var(--text-3);text-align:center;line-height:1.6;" id="lc03SentenceCn"></div>
+    </div>
+    <!-- 波形/评分区域(居中) -->
+    <div id="lc03HintArea" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100px;">
+      <!-- 提示文字 -->
+      <div id="lc03HintText" style="font-size:14px;color:var(--text-3);text-align:center;margin-bottom:12px;">请朗读上边英文例句，保持发音标准</div>
+      <!-- 默认评分(默认隐藏) -->
+      <div id="lc03IdleScore" style="display:none;flex-direction:column;align-items:center;gap:4px;">
+        <div style="font-size:36px;font-weight:700;color:var(--text-4);" id="lc03ScoreNum">0</div>
+        <div style="font-size:13px;color:var(--text-4);" id="lc03ScoreMsg">未获取语音信息</div>
       </div>
-      <div style="font-size:14px;color:var(--text-3);">那个勤奋的学生总是早早完成作业。</div>
+      <!-- 录音波形(居中) -->
+      <div id="lc03Waveform" style="display:none;flex-direction:row;align-items:flex-end;height:40px;justify-content:center;"></div>
+      <!-- 分析中提示 -->
+      <div id="lc03RecTip" class="rec-tip" style="display:none;"></div>
+      <!-- 评分结果 -->
+      <div id="lc03ScoreArea" style="display:none;flex-direction:column;align-items:center;gap:8px;">
+        <div style="font-size:13px;color:var(--text-4);">评分结果</div>
+        <div id="lc03Stars" class="star-rating"></div>
+        <div style="font-size:13px;color:var(--brand);cursor:pointer;text-decoration:underline;" onclick="lc03ShowEval()">查看评价</div>
+      </div>
     </div>
-    <!-- 提示 -->
-    <div style="text-align:center;font-size:13px;color:var(--text-3);margin-bottom:24px;">请朗读例句，保持发音标准</div>
-    <!-- 波形 -->
-    <div style="text-align:center;margin-bottom:24px;min-height:30px;" id="sentenceWaveArea"></div>
+  </div>
+  <!-- 底部面板 -->
+  <div style="padding:8px 16px 16px;background:var(--bg-card);z-index:10;display:flex;flex-direction:column;align-items:center;gap:8px;">
     <!-- 工具栏 -->
-    <div style="display:flex;justify-content:space-around;margin-bottom:32px;">
-      <div style="text-align:center;cursor:pointer;"><div style="font-size:22px;">🔊</div><div style="font-size:11px;color:var(--text-3);">原声</div></div>
-      <div style="text-align:center;cursor:pointer;"><div style="font-size:22px;">☆</div><div style="font-size:11px;color:var(--text-3);">收藏</div></div>
-      <div style="text-align:center;cursor:pointer;"><div style="font-size:22px;">🎤</div><div style="font-size:11px;color:var(--text-3);">发音</div></div>
+    <div id="lc03Toolbar" class="lc-toolbar">
+      <span class="lc-toolbar-item" onclick="lc03PlayOriginal()"><span style="font-size:18px;">🔊</span> 原声</span>
+      <span class="lc-toolbar-item" id="lc03Fav" onclick="lc03ToggleFav()"><span style="font-size:16px;">☆</span> 收藏</span>
+      <span class="lc-toolbar-item" id="lc03MyVoice" onclick="lc03PlayMyVoice()" style="color:var(--text-4);"><span style="font-size:16px;">🔊</span> 我的发音</span>
     </div>
-    <button class="btn-primary" onclick="showPage('P11')">长按录音</button>
-    <div style="text-align:center;font-size:12px;color:var(--text-4);margin-top:12px;">上滑下一词</div>
+    <!-- 上滑取消按钮(录音中浮现) -->
+    <div id="lc03CancelBtn" style="display:none;width:100%;height:44px;border-radius:var(--r-md);background:#FFF1F0;border:1.5px dashed var(--error);color:var(--error);font-size:15px;font-weight:500;align-items:center;justify-content:center;transition:background .15s;">
+      上滑取消
+    </div>
+    <button id="lc03RecBtn" class="btn-record" onmousedown="lc03StartRecord()" onmouseup="lc03StopRecord()" onmouseleave="lc03StopRecord()"
+     ontouchstart="lc03StartRecord(event)" ontouchend="lc03StopRecord(event)" ontouchmove="lc03TrackMove(event)">长按录音</button>
+    <button id="lc03WordBtn" class="btn-outline" onclick="handleLc03Btn()">放弃跟读</button>
   </div>
 </div>
 
@@ -2327,6 +2346,7 @@ function showPage(id, isBack) {
   if (id === 'P27') { renderErrorBook(); }
   if (id === 'P05a') { renderStats(); }
   if (id === 'P04') { refreshTodayPlan(); }
+  if (id === 'P10') { loadLc03(); }
   if (id === 'P08') { loadLc05(); }
   if (id === 'P14') { loadLc04(); }
   if (id === 'P15') { loadLc10(); }
@@ -5110,15 +5130,256 @@ function handleLc01Btn() {
   openWordDetail(lc01State.word);
 }
 
+// ========== LC-03 读例句(录音评价) ==========
+var lc03State = {};
+var lc03SentenceData = {
+  'industrious': { en:'The <span style="color:var(--brand);font-weight:600;border-bottom:2px solid var(--brand);">industrious</span> birds build their nests.', cn:'勤劳的鸟儿筑起了它们的巢。', word:'industrious' }
+};
+
+// 获取例句数据：优先 lc03SentenceData，其次 wdDB.sentences[0]，最后 fallback
+function lc03GetSentence(word) {
+  if (lc03SentenceData[word]) return lc03SentenceData[word];
+  var wd = wdDB[word];
+  if (wd && wd.sentences && wd.sentences.length > 0) {
+    var s = wd.sentences[0];
+    // 将 <b>word</b> 替换为高亮样式
+    var en = s.en.replace(/<b>(.*?)<\/b>/g, '<span style="color:var(--brand);font-weight:600;border-bottom:2px solid var(--brand);">$1</span>');
+    return { en:en, cn:s.cn, word:word };
+  }
+  // fallback
+  return { en:'The <span style="color:var(--brand);font-weight:600;border-bottom:2px solid var(--brand);">industrious</span> student always finishes homework early.', cn:'那个勤奋的学生总是早早完成作业。', word:'industrious' };
+}
+
+function loadLc03() {
+  var idx = window.todayTask.currentIndex || 0;
+  var units = window.todayTask.units || [];
+  var total = units.length || 10;
+  document.getElementById('lc03Progress').textContent = '今日进度 ' + ((idx % total) + 1) + '/' + total;
+  document.getElementById('lc03Bar').style.width = Math.round(((idx + 1) / total) * 100) + '%';
+
+  var word = 'industrious';
+  if (units.length > 0 && idx < units.length) word = units[idx].word;
+  var sentenceData = lc03GetSentence(word);
+
+  lc03State = {
+    status:'idle', word:word,
+    sentenceEn:sentenceData.en, sentenceCn:sentenceData.cn,
+    recStartTime:0, recTimer:0, recCanceled:false, recAudioUrl:null,
+    score:0, stars:0, feedback:'', favorited:false, btnPhase:'A'
+  };
+
+  document.getElementById('lc03SentenceEn').innerHTML = lc03State.sentenceEn;
+  document.getElementById('lc03SentenceCn').textContent = '译：' + lc03State.sentenceCn;
+  document.getElementById('lc03Fav').innerHTML = '<span style="font-size:16px;">☆</span> 收藏';
+
+  resetLc03UI();
+}
+
+function resetLc03UI() {
+  document.getElementById('lc03IdleScore').style.display = 'none';
+  document.getElementById('lc03ScoreNum').textContent = '0';
+  document.getElementById('lc03ScoreMsg').textContent = '未获取语音信息';
+  document.getElementById('lc03ScoreNum').style.color = 'var(--text-4)';
+  document.getElementById('lc03ScoreMsg').style.color = 'var(--text-4)';
+  document.getElementById('lc03HintText').style.display = '';
+  document.getElementById('lc03Waveform').style.display = 'none';
+  document.getElementById('lc03RecTip').style.display = 'none';
+  document.getElementById('lc03ScoreArea').style.display = 'none';
+  document.getElementById('lc03CancelBtn').style.display = 'none';
+  document.getElementById('lc03RecBtn').classList.remove('recording');
+  document.getElementById('lc03RecBtn').textContent = '长按录音';
+  document.getElementById('lc03WordBtn').className = 'btn-outline';
+  document.getElementById('lc03WordBtn').textContent = '放弃跟读';
+  lc03State.btnPhase = 'A';
+  document.getElementById('lc03MyVoice').style.color = 'var(--text-4)';
+}
+
+function lc03StartRecord(e) {
+  if (lc03State.status !== 'idle') return;
+  lc03State.status = 'recording';
+  lc03State.recStartTime = Date.now();
+  lc03State.recCanceled = false;
+  lc03State.recAudioUrl = null;
+
+  document.getElementById('lc03RecBtn').classList.add('recording');
+  document.getElementById('lc03RecBtn').textContent = '松开发送';
+  document.getElementById('lc03IdleScore').style.display = 'none';
+  document.getElementById('lc03ScoreArea').style.display = 'none';
+  document.getElementById('lc03HintText').style.display = 'none';
+  document.getElementById('lc03CancelBtn').style.display = 'flex';
+  document.getElementById('lc03CancelBtn').style.background = '#FFF1F0';
+
+  var wf = document.getElementById('lc03Waveform');
+  wf.style.display = 'flex';
+  wf.innerHTML = '';
+  for (var i = 0; i < 20; i++) {
+    var bar = document.createElement('span');
+    bar.className = 'wf-bar';
+    wf.appendChild(bar);
+  }
+  if (e) e.preventDefault();
+}
+
+function lc03TrackMove(e) {
+  if (lc03State.status !== 'recording') return;
+  var touch = e.touches[0];
+  var cancelBtn = document.getElementById('lc03CancelBtn');
+  var cancelRect = cancelBtn.getBoundingClientRect();
+  if (touch.clientY > cancelRect.top && touch.clientY < cancelRect.bottom) {
+    lc03State.recCanceled = true;
+    cancelBtn.style.background = 'var(--error)';
+    cancelBtn.style.color = '#fff';
+  } else {
+    lc03State.recCanceled = false;
+    cancelBtn.style.background = '#FFF1F0';
+    cancelBtn.style.color = 'var(--error)';
+  }
+}
+
+function lc03StopRecord(e) {
+  if (lc03State.status !== 'recording') return;
+  lc03State.status = 'idle';
+  document.getElementById('lc03RecBtn').classList.remove('recording');
+  document.getElementById('lc03RecBtn').textContent = '长按录音';
+  document.getElementById('lc03CancelBtn').style.display = 'none';
+
+  var duration = Date.now() - lc03State.recStartTime;
+  if (lc03State.recCanceled) {
+    resetLc03UI();
+    return;
+  }
+  if (duration < 3000) {
+    resetLc03UI();
+    toastMsg('录音时间过短');
+    return;
+  }
+  lc03State.recAudioUrl = 'mock-audio-' + Date.now();
+  lc03Analyze();
+}
+
+function lc03Analyze() {
+  lc03State.status = 'analyzing';
+  document.getElementById('lc03IdleScore').style.display = 'none';
+  document.getElementById('lc03ScoreArea').style.display = 'none';
+  document.getElementById('lc03HintText').style.display = 'none';
+  document.getElementById('lc03RecBtn').style.display = 'none';
+  document.getElementById('lc03CancelBtn').style.display = 'none';
+
+  var wf = document.getElementById('lc03Waveform');
+  wf.style.display = 'flex';
+  wf.innerHTML = '';
+  for (var i = 0; i < 20; i++) {
+    var bar = document.createElement('span');
+    bar.className = 'wf-bar analyzing';
+    wf.appendChild(bar);
+  }
+
+  var tip = document.getElementById('lc03RecTip');
+  tip.style.display = 'block';
+  tip.className = 'rec-tip analyzing';
+  tip.textContent = '正在分析录音...';
+
+  var delay = 1500 + Math.random() * 1500;
+  lc03State._analyzeTimeout = setTimeout(function() {
+    if (Math.random() < 0.1) {
+      toastMsg('分析超时，请检查网络');
+      lc03State.status = 'idle';
+      document.getElementById('lc03RecBtn').style.display = '';
+      resetLc03UI();
+      return;
+    }
+    lc03ShowScore();
+  }, delay);
+}
+
+function lc03ShowScore() {
+  lc03State.status = 'scored';
+  document.getElementById('lc03RecBtn').style.display = '';
+
+  var score = 85 + Math.floor(Math.random() * 15);
+  lc03State.score = score;
+
+  var fullStars = Math.floor(score / 20);
+  var remainder = score % 20;
+  var hasHalf = remainder >= 10;
+  lc03State.stars = fullStars + (hasHalf ? 0.5 : 0);
+
+  var pool;
+  if (score >= 93) pool = LC01_FEEDBACK.high;
+  else if (score >= 80) pool = LC01_FEEDBACK.mid;
+  else pool = LC01_FEEDBACK.low;
+  lc03State.feedback = pool[Math.floor(Math.random() * pool.length)];
+
+  document.getElementById('lc03IdleScore').style.display = 'none';
+  document.getElementById('lc03Waveform').style.display = 'none';
+  document.getElementById('lc03RecTip').style.display = 'none';
+  document.getElementById('lc03HintText').style.display = 'none';
+
+  var starsHtml = renderStars(lc03State.stars);
+  document.getElementById('lc03Stars').innerHTML = starsHtml;
+  document.getElementById('lc03ScoreArea').style.display = 'flex';
+  document.getElementById('lc03RecBtn').textContent = '长按重录';
+  document.getElementById('lc03WordBtn').className = 'btn-primary';
+  document.getElementById('lc03WordBtn').textContent = '单词详情';
+  lc03State.btnPhase = 'B';
+  document.getElementById('lc03MyVoice').style.color = 'var(--text-3)';
+
+  if (window.todayTask && window.todayTask.units) {
+    var idx2 = window.todayTask.currentIndex;
+    if (idx2 < window.todayTask.units.length) {
+      window.todayTask.units[idx2].status = 'completed';
+      window.todayTask.units[idx2].score = score;
+    }
+  }
+}
+
+function lc03ShowEval() {
+  document.getElementById('lc01EvalStars').innerHTML = renderStars(lc03State.stars);
+  document.getElementById('lc01EvalScore').textContent = lc03State.score + '分';
+  document.getElementById('lc01EvalFeedback').textContent = lc03State.feedback;
+  document.getElementById('lc01EvalOverlay').classList.add('show');
+}
+function lc03PlayOriginal() { toastMsg('原声功能开发中'); }
+function lc03PlayMyVoice() {
+  if (lc03State.recAudioUrl) { toastMsg('播放我的录音(模拟)'); }
+  else { toastMsg('请先录音'); }
+}
+function lc03ToggleFav() {
+  lc03State.favorited = !lc03State.favorited;
+  document.getElementById('lc03Fav').innerHTML = lc03State.favorited
+    ? '<span style="font-size:16px;color:var(--warning);">★</span> 已收藏'
+    : '<span style="font-size:16px;">☆</span> 收藏';
+}
+function handleLc03Btn() {
+  if (lc03State.btnPhase === 'A') {
+    if (!lc03State.recAudioUrl) {
+      document.getElementById('lc03ScoreArea').style.display = 'none';
+      document.getElementById('lc03Waveform').style.display = 'none';
+      document.getElementById('lc03RecTip').style.display = 'none';
+      document.getElementById('lc03HintText').style.display = 'none';
+      document.getElementById('lc03IdleScore').style.display = 'flex';
+      document.getElementById('lc03ScoreNum').textContent = '0';
+      document.getElementById('lc03ScoreNum').style.color = 'var(--text-4)';
+      document.getElementById('lc03ScoreMsg').textContent = '未获取语音信息';
+    }
+    lc03State.btnPhase = 'B';
+    document.getElementById('lc03WordBtn').className = 'btn-primary';
+    document.getElementById('lc03WordBtn').textContent = '单词详情';
+    return;
+  }
+  window.fromLearningComponent = true;
+  openWordDetail(lc03State.word);
+}
+
 // ========== 学习单元系统 P30 ==========
 window.todayTask = { created:false, units:[], currentIndex:0, startTime:null };
 
 // 学习模式→组件映射
 const MODE_COMPONENTS = {
   simple:   [{id:'LC-01',name:'读单词'},{id:'LC-04',name:'英译汉'},{id:'LC-07',name:'汉译英拼读'}],
-  standard: [{id:'LC-01',name:'读单词'},{id:'LC-04',name:'英译汉'},{id:'LC-06',name:'汉译英全拼'},{id:'LC-07',name:'汉译英拼读'}],
-  hard:     [{id:'LC-01',name:'读单词'},{id:'LC-02',name:'拼单词'},{id:'LC-04',name:'英译汉'},{id:'LC-06',name:'汉译英全拼'},{id:'LC-07',name:'汉译英拼读'},{id:'LC-08',name:'听力词'}],
-  smart:    [{id:'LC-01',name:'读单词'},{id:'LC-04',name:'英译汉'},{id:'LC-06',name:'汉译英全拼'},{id:'LC-07',name:'汉译英拼读'}]
+  standard: [{id:'LC-01',name:'读单词'},{id:'LC-03',name:'读例句'},{id:'LC-04',name:'英译汉'},{id:'LC-06',name:'汉译英全拼'},{id:'LC-07',name:'汉译英拼读'}],
+  hard:     [{id:'LC-01',name:'读单词'},{id:'LC-02',name:'拼单词'},{id:'LC-03',name:'读例句'},{id:'LC-04',name:'英译汉'},{id:'LC-06',name:'汉译英全拼'},{id:'LC-07',name:'汉译英拼读'},{id:'LC-08',name:'听力词'}],
+  smart:    [{id:'LC-01',name:'读单词'},{id:'LC-03',name:'读例句'},{id:'LC-04',name:'英译汉'},{id:'LC-06',name:'汉译英全拼'},{id:'LC-07',name:'汉译英拼读'}]
 };
 
 function buildLearningUnits() {

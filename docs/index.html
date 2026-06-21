@@ -4917,6 +4917,11 @@ function resetLc01UI() {
 }
 
 function lc01StartRecord(e) {
+  // 重录：评分后允许再次录音，先重置
+  if (lc01State.status === 'scored') {
+    resetLc01UI();
+    lc01State.status = 'idle';
+  }
   if (lc01State.status !== 'idle') return;
   lc01State.status = 'recording';
   lc01State.recStartTime = Date.now();
@@ -5196,6 +5201,11 @@ function resetLc03UI() {
 }
 
 function lc03StartRecord(e) {
+  // 重录：评分后允许再次录音，先重置
+  if (lc03State.status === 'scored') {
+    resetLc03UI();
+    lc03State.status = 'idle';
+  }
   if (lc03State.status !== 'idle') return;
   lc03State.status = 'recording';
   lc03State.recStartTime = Date.now();
